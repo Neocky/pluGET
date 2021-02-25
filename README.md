@@ -1,8 +1,8 @@
-# 🧱 Aplugin  
+# 🧱 pluGET  
 A plugin manager for [Spigot](https://www.spigotmc.org/) plugins written in python.  
 
 ## Issues? Found a bug?  
-[Create an issue.](https://github.com/Neocky/Aplugin/issues/new/choose)  
+[Create an issue.](https://github.com/Neocky/pluGET/issues/new/choose)  
 
 ## About  
 This is a plugin manager for minecraft Spigot servers and its forks (e.g. [PaperMC](https://papermc.io/)).  
