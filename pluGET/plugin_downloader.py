@@ -14,10 +14,11 @@ def calculateFileSize(downloadFileSize):
 
 consoleTitle()
 
+
 print("if you see this clearConsole dont work")
 clearConsole()
 printMainMenu()
-choice = input("pluGET >> ")
+choice = input("    pluGET >> ")
 if choice == "1":
     ressourceId = input("SpigotMC Ressource ID: ")
 
@@ -33,7 +34,7 @@ value, params = cgi.parse_header(filecontent)
 filename = params["filename"]
 
 # creating file path
-path = r"C:\\Users\USERNAME\Desktop\\"
+path = r"C:\\Users\USER\Desktop\\"
 ppath = path + filename
 
 # download file
@@ -55,5 +56,12 @@ print("Waiting still seconds: 2", end='\r')
 time.sleep(1)
 print("Waiting still seconds: 1", end='\r')
 time.sleep(1)
-print("Done ✅")
-input("Taste drücken zum Beenden...")
+print("Done ✅☑✔                ")
+input("Press key to end program...")
+
+
+
+# get latest update > https://api.spiget.org/v2/resources/28140/updates/latest
+# this also > https://api.spiget.org/v2/resources/28140/versions/latest
+# get latest download with correct name > https://api.spiget.org/v2/resources/28140/versions/latest/download
+# query for a plugin https://api.spiget.org/v2/search/resources/luckperms?field=name
