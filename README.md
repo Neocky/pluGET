@@ -1,4 +1,4 @@
-# 🧱 pluGET  
+# <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/microsoft/209/brick_1f9f1.png" alt="" width="100" height="100"/> </a> pluGET  
 A plugin manager for [Spigot plugins](https://www.spigotmc.org/resources/) written in python.  
 
 ## Issues? Found a bug?  
