@@ -9,6 +9,7 @@ def consoleTitle():
 def clearConsole():
     system('cls' if name=='nt' else 'clear')
 
+
 class oColors:
     standardWhite = "\033[0m"
     brightYellow = "\033[93m"
@@ -77,4 +78,7 @@ def printMainMenu():
     print("    ─────────────────────────────────────────────────────────────────────────────────")
     print("    [1] Download a specific package")
     print("    [2] Get update info of package")
+    print("    [3] Search for a plugin")
+    print("    [4] Download latest version of package")
+    print("    [5] Check update for installed plugins")
     print()
