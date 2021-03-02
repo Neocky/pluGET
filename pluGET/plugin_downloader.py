@@ -1,8 +1,8 @@
 import urllib.request
 import cgi
 import time
-import requests
 import re
+import requests
 from consoleoutput import consoleTitle, clearConsole, printMainMenu
 from plugin_updatechecker import getInstalledPackages
 
@@ -147,6 +147,7 @@ def searchPackage():
     print(packageUrl)
     print(ressourceId)
 
+
 def downloadLatestVersion(ressourceId, packageDownloadName, sourcePath):
     url = "https://api.spiget.org/v2/resources/" + ressourceId + "/download"
     remotefile = urllib.request.urlopen(url)
@@ -154,6 +155,8 @@ def downloadLatestVersion(ressourceId, packageDownloadName, sourcePath):
     downloadPath = sourcePath + packageDownloadName
     urllib.request.urlretrieve(url, downloadPath)
     filesizeData = calculateFileSize(filesize)
+    print(filesizeData)
+    print(filesize)
     print(f"    Downloadsize: {filesizeData} MB")
 
 
@@ -168,9 +171,6 @@ def getLatestPackageVersion():
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
     downloadPath = r"C:\\Users\Jan-Luca\Desktop\\"
     downloadLatestVersion(ressourceId, packageDownloadName, downloadPath)
-
-
-
 
 
 consoleTitle()

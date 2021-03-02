@@ -69,7 +69,8 @@ def printLogo():
     oColors.standardWhite)
     print()
     print()
-    print("                                       " + oColors.darkMagenta + "by Neocky" + oColors.standardWhite+ "                                     ")
+    print(oColors.brightYellow + "                                      [" + oColors.darkMagenta + "by Neocky" +
+    oColors.brightYellow + "]                                    " + oColors.standardWhite)
     print()
 
 
