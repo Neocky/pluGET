@@ -1,10 +1,8 @@
 import urllib.request
 import cgi
-import time
 import re
 import requests
-from consoleoutput import consoleTitle, clearConsole, printMainMenu
-from plugin_updatechecker import getInstalledPackages
+
 
 
 def calculateFileSize(downloadFileSize):
@@ -12,43 +10,6 @@ def calculateFileSize(downloadFileSize):
     fileSizeMb = fileSizeDownload / 1024 / 1024
     roundedFileSize = round(fileSizeMb, 2)
     return roundedFileSize
-
-
-def handleInput(inputString):
-    if inputString == "1":
-        downloadPackageManual()
-    if inputString == "2":
-        apiCallTest()
-    if inputString == "3":
-        searchPackage()
-    if inputString == "4":
-        getLatestPackageVersion()
-    if inputString == "5":
-        getInstalledPackages('C:\\Users\\Jan-Luca\\Desktop\\plugins')
-
-
-
-def inputMainMenu():
-    clearConsole()
-    printMainMenu()
-    inputSt = input("    pluGET >> ") 
-    handleInput(inputSt)
-
-
-def outputTest():
-    print("Hello world")
-    print("Waiting still seconds: 5", end='\r')
-    time.sleep(1)
-    print("Waiting still seconds: 4", end='\r')
-    time.sleep(1)
-    print("Waiting still seconds: 3", end='\r')
-    time.sleep(1)
-    print("Waiting still seconds: 2", end='\r')
-    time.sleep(1)
-    print("Waiting still seconds: 1", end='\r')
-    time.sleep(1)
-    print("Done ✅☑✔                ")
-    input("Press key to end program...")
 
 
 # 28140 for Luckperms (Testing only)
@@ -70,7 +31,7 @@ def downloadPackageManual():
     filename = params["filename"]
 
     # creating file path
-    path = r"C:\\Users\Jan-Luca\Desktop\\"
+    path = r"C:\\Users\USER\Desktop\\"
     ppath = path + filename
 
     # download file
@@ -101,7 +62,7 @@ def handleRegexPackageName(packageNameFull):
     return packageNameOnly
 
 def getlatestVersion(packageId):
-    response = requests.get("https://api.spiget.org/v2/resources/" + packageId + "/versions/latest")
+    response = requests.get(f"https://api.spiget.org/v2/resources/{packageId}/versions/latest")
     #packageDetails = response.json()
     packageVersion = response.json()["name"]
     return packageVersion
@@ -149,7 +110,7 @@ def searchPackage():
 
 
 def downloadLatestVersion(ressourceId, packageDownloadName, sourcePath):
-    url = "https://api.spiget.org/v2/resources/" + ressourceId + "/download"
+    url = f"https://api.spiget.org/v2/resources/{ressourceId}/download"
     remotefile = urllib.request.urlopen(url)
     filesize = remotefile.info()['Content-Length']
     downloadPath = sourcePath + packageDownloadName
@@ -160,22 +121,16 @@ def downloadLatestVersion(ressourceId, packageDownloadName, sourcePath):
     print(f"    Downloadsize: {filesizeData} MB")
 
 
-def getLatestPackageVersion():
-    ressourceId = input("    SpigotMC Ressource ID: ")
-    response = requests.get("https://api.spiget.org/v2/resources/" + ressourceId)
+def getLatestPackageVersion(ressourceId, downloadPath):
+    #ressourceId = input("    SpigotMC Ressource ID: ")
+    response = requests.get(f"https://api.spiget.org/v2/resources/{ressourceId}")
     packageDetails = response.json()
     packageName = response.json()["name"]
     packageTag = response.json()["tag"]
     packageNameNew = handleRegexPackageName(packageName)
     packageVersion = getlatestVersion(ressourceId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
-    downloadPath = r"C:\\Users\Jan-Luca\Desktop\\"
     downloadLatestVersion(ressourceId, packageDownloadName, downloadPath)
-
-
-consoleTitle()
-inputMainMenu()
-outputTest()
 
 
 # get latest update > https://api.spiget.org/v2/resources/28140/updates/latest
