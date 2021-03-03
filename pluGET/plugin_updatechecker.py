@@ -2,16 +2,18 @@ import os
 import re
 import requests
 
-#from consoleoutput import consoleTitle, clearConsole
+from consoleoutput import oColors #consoleTitle, clearConsole
 from plugin_downloader import getLatestPackageVersion #handleInput
 
 
-# as seen on https://pythonguides.com/create-list-in-python/
-class installedPlugin:
-    def __init__(self, pluginId, plugin_is_outdated):
-        self.pluginId = pluginId
-        self.plugin_is_outdated = plugin_is_outdated
+def createPluginList():
+    global INSTALLEDPLUGINLIST
+    INSTALLEDPLUGINLIST = []
+    return INSTALLEDPLUGINLIST
 
+
+def addToPluginList(pluginId, versionId, plugin_is_outdated):
+    INSTALLEDPLUGINLIST.append([pluginId, versionId, plugin_is_outdated])
 
 
 def getFileName(pluginName):
@@ -19,21 +21,25 @@ def getFileName(pluginName):
     pluginVersion = re.search(r'([\d.]+[.jar]+)', pluginNameFull)
     pluginVersionFull = pluginVersion.group()
     pluginNameOnly = pluginNameFull.replace(pluginVersionFull, '')
-    pluginNameOnly = pluginNameOnly[:-1]
+    pluginNameOnly = re.sub(r'(\-$)', '', pluginNameOnly)
     return pluginNameOnly
 
 
 def getFileVersion(pluginName):
+    #pluginVersionString = None
     pluginNameFull = pluginName
     pluginVersion = re.search(r'([\d.]+[.jar]+)', pluginNameFull)
     pluginVersionFull = pluginVersion.group()
     pluginVersionString = pluginVersionFull.replace('.jar', '')
     return pluginVersionString
 
-# not yet implemented
-def compareVersions(pluginVersion, pluginId, updateId):
-    latestUpdateSearch = requests.get(f"https://api.spiget.org/v2/resources/{pluginId}/versions/{updateId}")
+
+def compareVersions(pluginId, pluginVersion):
+    responseUpdateSearch = requests.get(f"https://api.spiget.org/v2/resources/{pluginId}/versions/latest")
+    latestUpdateSearch = responseUpdateSearch.json()
     versionLatestUpdate = latestUpdateSearch["name"]
+    print(pluginVersion)
+    print(versionLatestUpdate)
     if pluginVersion != versionLatestUpdate:
         plugin_is_outdated = True
     else:
@@ -42,24 +48,32 @@ def compareVersions(pluginVersion, pluginId, updateId):
 
 
 def getInstalledPackages(pluginFolderPath):
-    list = []
-    
+    createPluginList()
     pluginList = os.listdir(pluginFolderPath)
     print(pluginList)
+    i = 0
     for plugin in pluginList:
         print(plugin)
         fileName = getFileName(plugin)
         fileVersion = getFileVersion(plugin)
-        pluginId = getInstalledPluginVersion(fileName, fileVersion)
-        list.append( installedPlugin(pluginId, plugin_is_outdated))
-        if pluginId == None:
-            print("Couldn't find plugin id. Sorry :(")
-            continue
+        pluginId = getInstalledPlugin(fileName, fileVersion)
 
+        print(f"name: {fileName}")
+        print(f"version: {fileVersion}")
+
+        print(INSTALLEDPLUGINLIST)
+        
+        if pluginId == None:
+            print(oColors.brightRed + "Couldn't find plugin id. Sorry :(" + oColors.standardWhite)
+            continue
+        if INSTALLEDPLUGINLIST[i][2] == True:
+            getLatestPackageVersion(pluginId, r"C:\\Users\\USER\\Desktop\\plugins\\")
+        os.remove(f"C:\\Users\USER\\Desktop\\plugins\\{plugin}")
+    print(INSTALLEDPLUGINLIST[1][0])
         #getLatestPackageVersion(pluginID, r"C:\\Users\USER\Desktop\\plugins\\")
 
 
-def getInstalledPluginVersion(localFileName, localFileVersion):
+def getInstalledPlugin(localFileName, localFileVersion):
     response = requests.get("https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name")
     #https://api.spiget.org/v2/search/resources/luckperms?field=name
     print("https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name")
@@ -80,9 +94,12 @@ def getInstalledPluginVersion(localFileName, localFileVersion):
             if localFileVersion == updateVersion:
                 plugin_match_found = True
                 pluginID = pID
-                print(updates["id"])
-                print("Found match")
+                updateId = updates["id"]
+                plugin_is_outdated = compareVersions(pID, updateVersion)
+                addToPluginList(pID, updateId, plugin_is_outdated)
+                print(updateId)
                 print(pID)
+                print("Found match")
                 break
         i = i + 1
     return pluginID

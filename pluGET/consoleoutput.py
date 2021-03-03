@@ -10,10 +10,12 @@ def clearConsole():
     system('cls' if name=='nt' else 'clear')
 
 
+# https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 class oColors:
     standardWhite = "\033[0m"
     brightYellow = "\033[93m"
     brightMagenta = "\033[95m"
+    brightRed = "\033[91m"
     darkMagenta = "\033[35m"
 
 

@@ -1,19 +1,33 @@
 import time
 from consoleoutput import consoleTitle, clearConsole, printMainMenu
-from plugin_downloader import downloadPackageManual, apiCallTest, searchPackage, getLatestPackageVersion
+from plugin_downloader import downloadPackageManual, apiCallTest, searchPackage, getLatestPackageVersionInteractive
 from plugin_updatechecker import getInstalledPackages
+
+
+def inputOption(inputOptionString):
+    if inputOptionString == "1":
+        ressourceID = input("SpigotMC Ressource ID: ")
+        return ressourceID
+    if inputOptionString == "2":
+        ressourceId = input("SpigotMC Ressource ID: ")
+        return ressourceId
+    if inputOptionString == "3":
+        ressourceName = input("    SpigotMC Ressource Name: ")
+        print("ich bin ein test")
+        return ressourceName
 
 
 def handleInput(inputString):
     if inputString == "1":
         downloadPackageManual()
     if inputString == "2":
-        apiCallTest()
+        ressourceId = inputOption(2)
+        apiCallTest(ressourceId)
     if inputString == "3":
-        searchPackage()
+        ressourceName = inputOption(3)
+        searchPackage(ressourceName)
     if inputString == "4":
-        ressourceID = inputOption(inputString)
-        getLatestPackageVersion(ressourceID, r"C:\\Users\USER\Desktop\\")
+        getLatestPackageVersionInteractive(r"C:\\Users\USER\Desktop\\")
     if inputString == "5":
         getInstalledPackages('C:\\Users\\USER\\Desktop\\plugins')
 
@@ -21,14 +35,9 @@ def handleInput(inputString):
 def inputMainMenu():
     clearConsole()
     printMainMenu()
-    inputSt = input("    pluGET >> ") 
+    inputSt = input("    pluGET >> ")
     handleInput(inputSt)
 
-
-def inputOption(inputOption):
-    if inputOption == "1":
-        ressourceID = input("SpigotMC Ressource ID: ")
-        return ressourceID
 
 
 def outputTest():

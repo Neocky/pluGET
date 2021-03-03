@@ -4,7 +4,6 @@ import re
 import requests
 
 
-
 def calculateFileSize(downloadFileSize):
     fileSizeDownload = int(downloadFileSize)
     fileSizeMb = fileSizeDownload / 1024 / 1024
@@ -68,9 +67,8 @@ def getlatestVersion(packageId):
     return packageVersion
 
 
-def apiCallTest():
-    ressourceId = input("SpigotMC Ressource ID: ")
-    response = requests.get("https://api.spiget.org/v2/resources/" + ressourceId)
+def apiCallTest(ressourceId):
+    response = requests.get(f"https://api.spiget.org/v2/resources/{ressourceId}")
     packageDetails = response.json()
     print(packageDetails)
     packageName = response.json()["name"]
@@ -88,11 +86,10 @@ def compareVersions():
     print("compareVersions")
 
 
-def searchPackage():
-    ressourceName = input("    SpigotMC Ressource Name: ")
-    response = requests.get("https://api.spiget.org/v2/search/resources/" + ressourceName + "?field=name")
+def searchPackage(ressourceName):
+    response = requests.get(f"https://api.spiget.org/v2/search/resources/{ressourceName}?field=name")
     #https://api.spiget.org/v2/search/resources/luckperms?field=name
-    print("https://api.spiget.org/v2/search/resources/" + ressourceName + "?field=name")
+    print(f"https://api.spiget.org/v2/search/resources/{ressourceName}?field=name")
     packageName = response.json()
     i = 1
     for ressource in packageName:
@@ -125,8 +122,20 @@ def getLatestPackageVersion(ressourceId, downloadPath):
     #ressourceId = input("    SpigotMC Ressource ID: ")
     response = requests.get(f"https://api.spiget.org/v2/resources/{ressourceId}")
     packageDetails = response.json()
-    packageName = response.json()["name"]
-    packageTag = response.json()["tag"]
+    packageName = packageDetails["name"]
+    packageTag = packageDetails["tag"]
+    packageNameNew = handleRegexPackageName(packageName)
+    packageVersion = getlatestVersion(ressourceId)
+    packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
+    downloadLatestVersion(ressourceId, packageDownloadName, downloadPath)
+
+
+def getLatestPackageVersionInteractive(downloadPath):
+    ressourceId = input("    SpigotMC Ressource ID: ")
+    response = requests.get(f"https://api.spiget.org/v2/resources/{ressourceId}")
+    packageDetails = response.json()
+    packageName = packageDetails["name"]
+    packageTag = packageDetails["tag"]
     packageNameNew = handleRegexPackageName(packageName)
     packageVersion = getlatestVersion(ressourceId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
