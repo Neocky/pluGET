@@ -1,4 +1,4 @@
-# <img src="https://emojigraph.org/media/microsoft/brick_1f9f1.png" alt="Bricks" width="50" height="50"/> </a> pluGET  
+# <img src="https://ibb.co/NC0MttH" alt="pluGET" width="757" height="253"/> </a>
 A plugin manager for [Spigot plugins](https://www.spigotmc.org/resources/) written in python.  
 
 ## Issues? Found a bug?  
