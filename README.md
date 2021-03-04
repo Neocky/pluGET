@@ -2,8 +2,7 @@
 <img src="https://i.ibb.co/Fg36BdJ/logo2.png" alt="pluGET" border="0"></a>
 </p>
 
-
-A plugin manager for [Spigot plugins](https://www.spigotmc.org/resources/) for minecraft servers written in python.  
+A plugin manager that handles [Spigot plugins](https://www.spigotmc.org/resources/) for minecraft servers written in python.  
 
 ## Issues? Found a bug? 
 [Create an issue.](https://github.com/Neocky/pluGET/issues/new/choose)  
