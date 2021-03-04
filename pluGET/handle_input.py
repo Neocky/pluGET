@@ -5,16 +5,16 @@ from plugin_updatechecker import getInstalledPackages
 
 
 def inputOption(inputOptionString):
-    if inputOptionString == "1":
-        ressourceID = input("SpigotMC Ressource ID: ")
-        return ressourceID
-    if inputOptionString == "2":
-        ressourceId = input("SpigotMC Ressource ID: ")
-        return ressourceId
-    if inputOptionString == "3":
-        ressourceName = input("    SpigotMC Ressource Name: ")
+    inputString = None
+    print(inputOptionString)
+    if inputOptionString == 1:
+        inputString = input("SpigotMC Ressource ID: ")
+    if inputOptionString == 2:
+        inputString = input("SpigotMC Ressource ID: ")
+    if inputOptionString == 3:
+        inputString = input("    SpigotMC Ressource Name: ")
         print("ich bin ein test")
-        return ressourceName
+    return inputString
 
 
 def handleInput(inputString):
@@ -37,7 +37,6 @@ def inputMainMenu():
     printMainMenu()
     inputSt = input("    pluGET >> ")
     handleInput(inputSt)
-
 
 
 def outputTest():

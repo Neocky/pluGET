@@ -1,9 +1,9 @@
 import os
 import re
-import requests
 
 from consoleoutput import oColors #consoleTitle, clearConsole
 from plugin_downloader import getLatestPackageVersion #handleInput
+from web_request import doAPIRequest
 
 
 def createPluginList():
@@ -35,8 +35,8 @@ def getFileVersion(pluginName):
 
 
 def compareVersions(pluginId, pluginVersion):
-    responseUpdateSearch = requests.get(f"https://api.spiget.org/v2/resources/{pluginId}/versions/latest")
-    latestUpdateSearch = responseUpdateSearch.json()
+    url = f"https://api.spiget.org/v2/resources/{pluginId}/versions/latest"
+    latestUpdateSearch = doAPIRequest(url)
     versionLatestUpdate = latestUpdateSearch["name"]
     print(pluginVersion)
     print(versionLatestUpdate)
@@ -67,17 +67,20 @@ def getInstalledPackages(pluginFolderPath):
             print(oColors.brightRed + "Couldn't find plugin id. Sorry :(" + oColors.standardWhite)
             continue
         if INSTALLEDPLUGINLIST[i][2] == True:
+            os.remove(f"C:\\Users\\USER\\Desktop\\plugins\\{plugin}")
             getLatestPackageVersion(pluginId, r"C:\\Users\\USER\\Desktop\\plugins\\")
-        os.remove(f"C:\\Users\USER\\Desktop\\plugins\\{plugin}")
+        i = i + 1
     print(INSTALLEDPLUGINLIST[1][0])
         #getLatestPackageVersion(pluginID, r"C:\\Users\USER\Desktop\\plugins\\")
 
 
 def getInstalledPlugin(localFileName, localFileVersion):
-    response = requests.get("https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name")
+    #response = requests.get("https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name")
+    url = "https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name"
+    packageName = doAPIRequest(url)
     #https://api.spiget.org/v2/search/resources/luckperms?field=name
     print("https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name")
-    packageName = response.json()
+    #packageName = response.json()
     i = 1
     plugin_match_found = False
     pluginID = None
@@ -87,8 +90,8 @@ def getInstalledPlugin(localFileName, localFileVersion):
         pName = ressource["name"]
         pID = ressource["id"]
         print(f"    [{i}] {pName} - {pID}")
-        response2 = requests.get(f"https://api.spiget.org/v2/resources/{pID}/versions?size=100&sort=-name")
-        packageVersions = response2.json()
+        url2 = f"https://api.spiget.org/v2/resources/{pID}/versions?size=100&sort=-name"
+        packageVersions = doAPIRequest(url2)
         for updates in packageVersions:
             updateVersion = updates["name"]
             if localFileVersion == updateVersion:
@@ -105,7 +108,7 @@ def getInstalledPlugin(localFileName, localFileVersion):
     return pluginID
 
 
-    # start query 
+    # start query
     # get id
     # search with id for all version upates
     # get version that matches installed version
