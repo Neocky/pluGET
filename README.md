@@ -1,5 +1,10 @@
-# <img src="https://i.ibb.co/dMNRjjz/logo.png" alt="pluGET" width="757" height="253"/> </a>
-A plugin manager for [Spigot plugins](https://www.spigotmc.org/resources/) written in python.  
+<p align="center">
+<img src="https://i.ibb.co/Fg36BdJ/logo2.png" alt="pluGET" border="0"></a>
+</p>
+
+---  
+
+A plugin manager for [Spigot plugins](https://www.spigotmc.org/resources/) for minecraft servers written in python.  
 
 ## Issues? Found a bug? 
 [Create an issue.](https://github.com/Neocky/pluGET/issues/new/choose)  
