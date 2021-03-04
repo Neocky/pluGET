@@ -1,7 +1,7 @@
-# <img src="https://ibb.co/NC0MttH" alt="pluGET" width="757" height="253"/> </a>
+# <img src="https://i.ibb.co/dMNRjjz/logo.png" alt="pluGET" width="757" height="253"/> </a>
 A plugin manager for [Spigot plugins](https://www.spigotmc.org/resources/) written in python.  
 
-## Issues? Found a bug?  
+## Issues? Found a bug? 
 [Create an issue.](https://github.com/Neocky/pluGET/issues/new/choose)  
 
 ## About  
