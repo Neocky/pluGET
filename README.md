@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://i.ibb.co/Fg36BdJ/logo2.png" alt="pluGET" border="0"></a>
+<img src="https://i.ibb.co/JyCxnQn/logoreal.png" alt="pluGET" border="0"></a>
 </p>
 
 A plugin manager that handles [Spigot plugins](https://www.spigotmc.org/resources/) for minecraft servers written in python.  
