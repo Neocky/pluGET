@@ -12,6 +12,13 @@ This is a plugin manager for minecraft [Spigot](https://www.spigotmc.org/) serve
 It uses the [Spiget](https://spiget.org/) API to download and compare plugin versions.  
 It can download the newest version of plugins.
 
-## Requierement
+## Installation
+#### Python
 Python needs to be installed on your machine.  
 Get it [here](https://www.python.org/downloads/).  
+### Needed packages
+Install the needed packages for this project.  
+Execute this command in the /plugGET folder:  
+```python
+pip install -r requirements.txt
+```
