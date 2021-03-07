@@ -1,6 +1,7 @@
 import urllib.request
 import cgi
 import re
+import cloudscraper
 from web_request import doAPIRequest
 
 
@@ -60,6 +61,7 @@ def handleRegexPackageName(packageNameFull):
     print("packageNameOnly")
     return packageNameOnly
 
+
 def getlatestVersion(packageId):
     url = f"https://api.spiget.org/v2/resources/{packageId}/versions/latest"
     response = doAPIRequest(url)
@@ -84,6 +86,24 @@ def compareVersions():
     #https://api.spiget.org/v2/resources/28140/versions/latest
     # compare latest package version with installed package version
     print("compareVersions")
+
+
+def getVersionID(packageId, packageVersion):
+    url = f"https://api.spiget.org/v2/resources/{packageId}/versions?size=100&sort=-name"
+    versionList = doAPIRequest(url)
+    
+    for packages in versionList:
+        packageUpdate = packages["name"]
+        versionId = packages["id"]
+        if packageUpdate == packageVersion:
+            return versionId
+    return versionList[0]["id"]
+    
+def getVersionName(packageId, versionId):
+    url = f"https://api.spiget.org/v2/resources/{packageId}/versions/{versionId}"
+    response = doAPIRequest(url)
+    versionName = response["name"]
+    return versionName
 
 
 def searchPackage(ressourceName):
@@ -119,17 +139,46 @@ def downloadLatestVersion(ressourceId, packageDownloadName, sourcePath):
     print(filesize)
     print(f"    Downloadsize: {filesizeData} KB")
 
+def downloadSpecificVersion(ressourceId, packageDownloadName, versionId, sourcePath):
+    url = f"https://spigotmc.org/resources/{ressourceId}/download?version={versionId}"
+    #url = f"https://api.spiget.org/v2/resources/{ressourceId}/versions/{versionId}/download"
+    downloadPath = sourcePath + packageDownloadName
 
-def getLatestPackageVersion(ressourceId, downloadPath):
+
+    #local_filename = url.split('/')[-1]
+    # NOTE the stream=True parameter below
+    with CLOUDSCRAPER.get(url, stream=True) as r:
+        #r.raise_for_status()
+        with open(downloadPath, 'wb') as fd:
+            for chunk in r.iter_content(chunk_size=128): 
+                fd.write(chunk)
+    #return downloadPath
+
+
+    #remotefile = urllib.request.urlopen(url)
+    #cloudscraper.requests.get()
+    #filesize = remotefile.info()['Content-Length']
+    
+    #urllib.request.urlretrieve(url, downloadPath)
+    #filesizeData = calculateFileSize(filesize)
+    #print(filesizeData)
+    #print(filesize)
+    #print(f"    Downloadsize: {filesizeData} KB")
+
+
+def getPackageVersion(ressourceId, packageVersion, downloadPath):
     #ressourceId = input("    SpigotMC Ressource ID: ")
+    CLOUDSCRAPER = createCloudScraperInstance()
     url = f"https://api.spiget.org/v2/resources/{ressourceId}"
     packageDetails = doAPIRequest(url)
     packageName = packageDetails["name"]
     #packageTag = packageDetails["tag"]
     packageNameNew = handleRegexPackageName(packageName)
-    packageVersion = getlatestVersion(ressourceId)
+    versionId = getVersionID(ressourceId, packageVersion)
+    packageVersion = getVersionName(ressourceId, versionId)
+    #packageVersion = getlatestVersion(ressourceId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
-    downloadLatestVersion(ressourceId, packageDownloadName, downloadPath)
+    downloadSpecificVersion(ressourceId, packageDownloadName, versionId, downloadPath)
 
 
 def getLatestPackageVersionInteractive(downloadPath):
@@ -143,6 +192,10 @@ def getLatestPackageVersionInteractive(downloadPath):
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
     downloadLatestVersion(ressourceId, packageDownloadName, downloadPath)
 
+def createCloudScraperInstance():
+    global CLOUDSCRAPER
+    CLOUDSCRAPER = cloudscraper.create_scraper(interpreter='nodejs',debug=True)  # returns a CloudScraper instance
+    return CLOUDSCRAPER
 
 # get latest update > https://api.spiget.org/v2/resources/28140/updates/latest
 # this also > https://api.spiget.org/v2/resources/28140/versions/latest

@@ -1,7 +1,28 @@
 import time
 from consoleoutput import consoleTitle, clearConsole, printMainMenu
-from plugin_downloader import downloadPackageManual, apiCallTest, searchPackage, getLatestPackageVersionInteractive
+from plugin_downloader import downloadPackageManual, apiCallTest, searchPackage, getLatestPackageVersionInteractive, getPackageVersion
 from plugin_updatechecker import getInstalledPackages
+from web_request import createCloudScraperInstance#, CLOUDSCRAPER
+
+
+
+def handleInput(inputCommand, inputSelectedObject, inputParams="latest"):
+    if inputCommand == 'get':
+        getPackageVersion(inputSelectedObject, inputParams, r"C:\\Users\USER\Desktop\\")
+
+
+
+def getInput():
+    inputCommand, inputSelectedObject, *inputParams = input("pluGET >> ").split()
+    inputParams = inputParams[0] if inputParams else ''
+    print(inputCommand)
+    print(inputSelectedObject)
+    print(inputParams)
+    handleInput(inputCommand, inputSelectedObject,inputParams)
+
+
+
+
 
 
 def inputOption(inputOptionString):
@@ -17,7 +38,7 @@ def inputOption(inputOptionString):
     return inputString
 
 
-def handleInput(inputString):
+def handleInputOLD(inputString):
     if inputString == "1":
         downloadPackageManual()
     if inputString == "2":
@@ -35,8 +56,9 @@ def handleInput(inputString):
 def inputMainMenu():
     clearConsole()
     printMainMenu()
-    inputSt = input("    pluGET >> ")
-    handleInput(inputSt)
+    getInput()
+    #inputSt = input("    pluGET >> ")
+    #handleInputOLD(inputSt)
 
 
 def outputTest():
@@ -54,6 +76,8 @@ def outputTest():
     print("Done ✅☑✔                ")
     input("Press key to end program...")
 
+
+createCloudScraperInstance()
 consoleTitle()
 inputMainMenu()
 outputTest()

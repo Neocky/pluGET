@@ -3,7 +3,7 @@ from os import system
 from os import name
 
 def consoleTitle():
-    system("title " + "🧱 pluGET │ by Neocky")
+    system("title " + "pluGET │ by Neocky")
 
 
 def clearConsole():
@@ -76,12 +76,16 @@ def printLogo():
     print()
 
 
+def printHorizontalLine():
+    print("    ─────────────────────────────────────────────────────────────────────────────────")
+
+
 def printMainMenu():
     printLogo()
-    print("    ─────────────────────────────────────────────────────────────────────────────────")
-    print("    [1] Download a specific package")
-    print("    [2] Get update info of package")
-    print("    [3] Search for a plugin")
-    print("    [4] Download latest version of package")
-    print("    [5] Check update for installed plugins")
+    printHorizontalLine()
+    #print("    [1] Download a specific package")
+    #print("    [2] Get update info of package")
+    #print("    [3] Search for a plugin")
+    #print("    [4] Download latest version of package")
+    #print("    [5] Check update for installed plugins")
     print()

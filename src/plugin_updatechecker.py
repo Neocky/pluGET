@@ -2,7 +2,7 @@ import os
 import re
 
 from consoleoutput import oColors #consoleTitle, clearConsole
-from plugin_downloader import getLatestPackageVersion #handleInput
+from plugin_downloader import getPackageVersion #handleInput
 from web_request import doAPIRequest
 
 
@@ -75,10 +75,8 @@ def getInstalledPackages(pluginFolderPath):
 
 
 def getInstalledPlugin(localFileName, localFileVersion):
-    #response = requests.get("https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name")
     url = "https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name"
     packageName = doAPIRequest(url)
-    #https://api.spiget.org/v2/search/resources/luckperms?field=name
     print("https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name")
     #packageName = response.json()
     i = 1
