@@ -27,7 +27,7 @@ pip install -r requirements.txt
 Run programm.  
 The following are examples for the general usage:  
 (Hint: 'all' can always be exchanged through the plugin name or the plugin id and reverse)  
-#### Download latest update of specific package:  
+#### Download the latest update of a specific package:  
 ```
 get 'pluginName'
 ```  
