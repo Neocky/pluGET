@@ -1,7 +1,9 @@
 import urllib.request
-import cgi
+from urllib.error import HTTPError
 import re
 from web_request import doAPIRequest
+from consoleoutput import oColors
+from handle_config import checkConfig
 
 
 def calculateFileSize(downloadFileSize):
@@ -11,36 +13,6 @@ def calculateFileSize(downloadFileSize):
     return roundedFileSize
 
 
-# 28140 for Luckperms (Testing only)
-def downloadPackageManual():
-    ressourceId = input("SpigotMC Ressource ID: ")
-
-    url = "https://api.spiget.org/v2/resources/" + ressourceId + "/download"
-    #url2 = "https://api.spiget.org/v2/resources/" + ressourceId + "/versions/latest/download"
-    #print(url2)
-    #user_agent = 'Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11'
-    #header = { 'User-agent': 'Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11', 'Accept-Encoding': 'gzip, deflate, br' }
-    #req = urllib.request.Request(url2, headers=header)
-    #remotefile = urlopen(req)
-    remotefile = urllib.request.urlopen(url)
-    filecontent = remotefile.info()['Content-Disposition']
-    filesize = remotefile.info()['Content-Length']
-    # getting original filename
-    value, params = cgi.parse_header(filecontent)
-    filename = params["filename"]
-
-    # creating file path
-    path = r"C:\\Users\Jan-Luca\Desktop\\"
-    ppath = path + filename
-
-    # download file
-    urllib.request.urlretrieve(url, ppath)
-
-    filesizeData = calculateFileSize(filesize)
-    print(f"Downloadsize: {filesizeData} MB")
-
-
-# 89273
 def handleRegexPackageName(packageNameFull):
     packageNameFull2 = packageNameFull
     # trims the part of the package that has for example "[1.1 Off]" in it
@@ -49,17 +21,14 @@ def handleRegexPackageName(packageNameFull):
     if unwantedpackageNamematch:
         unwantedpackageNameString = unwantedpackageName.group()
         packageNameFull2 = packageNameFull.replace(unwantedpackageNameString, '')
-        print(packageNameFull2)
-        print("packageNameFull2")
     # gets the real packagename "word1 & word2" is not supported only gets word 1
     packageName = re.search(r'([a-zA-Z]\d*)+(\s?\-*\_*[a-zA-Z]\d*\+*\-*\'*)+', packageNameFull2)
     packageNameFullString = packageName.group()
     packageNameOnly = packageNameFullString.replace(' ', '')
-    #print(packageNameOnly)
-    #print("packageNameOnly")
     return packageNameOnly
 
 
+# TODO ununsed function
 def getlatestVersion(packageId):
     url = f"https://api.spiget.org/v2/resources/{packageId}/versions/latest"
     response = doAPIRequest(url)
@@ -67,20 +36,7 @@ def getlatestVersion(packageId):
     return packageVersion
 
 
-def apiCallTest(ressourceId):
-    url = f"https://api.spiget.org/v2/resources/{ressourceId}"
-    response = doAPIRequest(url)
-    print(response)
-    packageName = response["name"]
-    packageTag = response["tag"]
-    print(packageName)
-    print(packageTag)
-    packageNameNew = handleRegexPackageName(packageName)
-    print(packageNameNew)
-
-
 def getVersionID(packageId, packageVersion):
-    print(packageVersion)
     if packageVersion == None or packageVersion == 'latest':
         url = f"https://api.spiget.org/v2/resources/{packageId}/versions/latest"
         response = doAPIRequest(url)
@@ -108,7 +64,6 @@ def getVersionName(packageId, versionId):
 def searchPackage(ressourceName):
     url = f"https://api.spiget.org/v2/search/resources/{ressourceName}?field=name"
     packageName = doAPIRequest(url)
-    print(url)
     i = 1
     print("Index  /  Name  /  Description  /  Downloads")
     for ressource in packageName:
@@ -118,20 +73,19 @@ def searchPackage(ressourceName):
         print(f"    [{i}] {pName} / {pTag}/ {pDownloads}")
         i = i + 1
 
-    ressourceSelected = int(input("    Select your wanted Ressource: "))
+    ressourceSelected = int(input("Select your wanted Ressource: "))
     ressourceSelected = ressourceSelected - 1
-    fileInfo = packageName[ressourceSelected]["file"]
-    packageUrl = fileInfo["url"]
+    #fileInfo = packageName[ressourceSelected]["file"]
+    #packageUrl = fileInfo["url"]
     ressourceId = packageName[ressourceSelected]["id"]
-    print(packageUrl)
-    print(ressourceId)
+    getSpecificPackage(ressourceId, checkConfig().pathToPluginFolder)
 
 
 def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
-    print(versionID)
     if versionID != 'latest':
         #url = f"https://spigotmc.org/resources/{ressourceId}/download?version={versionID}"
-        print("Sorry but specific version downloads aren't supported because of cloudflare protection. :(")
+        print(oColors.brightRed + "Sorry but specific version downloads aren't supported because of cloudflare protection. :(" + oColors.standardWhite)
+        print(oColors.brightRed + "Reverting to latest version." + oColors.standardWhite)
 
     url = f"https://api.spiget.org/v2/resources/{ressourceId}/download"
     #url = f"https://api.spiget.org/v2/resources/{ressourceId}/versions/latest/download" #throws 403 forbidden error
@@ -140,26 +94,31 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
     filesize = remotefile.info()['Content-Length']
     urllib.request.urlretrieve(url, downloadPath)
     filesizeData = calculateFileSize(filesize)
-    print(f"File downloaded here: {downloadPath}")
     print(f"Downloadsize: {filesizeData} KB")
+    print(f"File downloaded here: {downloadPath}")
 
 
-def getPackageVersion(ressourceId, downloadPath, inputPackageVersion='latest'):
+def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
     url = f"https://api.spiget.org/v2/resources/{ressourceId}"
     packageDetails = doAPIRequest(url)
     packageName = packageDetails["name"]
-    #packageTag = packageDetails["tag"]
     packageNameNew = handleRegexPackageName(packageName)
     versionId = getVersionID(ressourceId, inputPackageVersion)
     packageVersion = getVersionName(ressourceId, versionId)
     #packageVersion = getlatestVersion(ressourceId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
-    downloadPackagePath = downloadPath + packageDownloadName
+    downloadPackagePath = f"{downloadPath}\\{packageDownloadName}"
 
     if inputPackageVersion is None or inputPackageVersion == 'latest':
-        downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
+        try:
+            downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
+        except HTTPError as err:
+            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
     else:
-        downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
+        try:
+            downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
+        except HTTPError as err:
+            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
 
 # get latest update > https://api.spiget.org/v2/resources/28140/updates/latest
 # this also > https://api.spiget.org/v2/resources/28140/versions/latest

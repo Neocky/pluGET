@@ -1,9 +1,10 @@
 import time
 import sys
 from consoleoutput import consoleTitle, clearConsole, printMainMenu, oColors
-from plugin_downloader import downloadPackageManual, apiCallTest, searchPackage, getPackageVersion
+from plugin_downloader import searchPackage, getSpecificPackage
 from plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
-
+from handle_config import checkConfig
+from utilities import getHelp
 
 def createInputLists():
     global COMMANDLIST
@@ -11,7 +12,8 @@ def createInputLists():
         'get',
         'update',
         'check',
-        'exit'
+        'exit',
+        'help'
     ]
     global INPUTSELECTEDOBJECT
     INPUTSELECTEDOBJECT = [
@@ -23,17 +25,23 @@ def createInputLists():
 def handleInput(inputCommand, inputSelectedObject, inputParams):
     while True:
         if inputCommand == 'get':
-            getPackageVersion(r"C:\\Users\USER\Desktop\\", inputSelectedObject, inputParams)
-            break
+            if inputSelectedObject.isdigit():
+                getSpecificPackage(inputSelectedObject, checkConfig().pathToPluginFolder,  inputParams)
+                break
+            else:
+                searchPackage(inputSelectedObject)
+                break
         if inputCommand == 'update':
-            #if inputSelectedObject in INPUTSELECTEDOBJECT:
-            updateInstalledPackage(r'C:\\Users\\USER\\Desktop\\plugins', inputSelectedObject)
+            updateInstalledPackage(checkConfig().pathToPluginFolder, inputSelectedObject)
             break
         if inputCommand == 'check':
-            checkInstalledPackage(r'C:\\Users\\USER\\Desktop\\plugins', inputSelectedObject)
+            checkInstalledPackage(checkConfig().pathToPluginFolder, inputSelectedObject)
             break
         if inputCommand == 'exit':
             sys.exit()
+        if inputCommand == 'help':
+            getHelp()
+            break
         else:
             print(oColors.brightRed + "Command not found. Please try again." + oColors.standardWhite)
             getInput()
@@ -55,43 +63,12 @@ def getInput():
     handleInput(inputCommand, inputSelectedObject, inputParams)
 
 
-def inputOption(inputOptionString):
-    inputString = None
-    print(inputOptionString)
-    if inputOptionString == 1:
-        inputString = input("SpigotMC Ressource ID: ")
-    if inputOptionString == 2:
-        inputString = input("SpigotMC Ressource ID: ")
-    if inputOptionString == 3:
-        inputString = input("    SpigotMC Ressource Name: ")
-        print("ich bin ein test")
-    return inputString
-
-
-def handleInputOLD(inputString):
-    if inputString == "1":
-        downloadPackageManual()
-    if inputString == "2":
-        ressourceId = inputOption(2)
-        apiCallTest(ressourceId)
-    if inputString == "3":
-        ressourceName = inputOption(3)
-        searchPackage(ressourceName)
-    if inputString == "4":
-        #getLatestPackageVersionInteractive(r"C:\\Users\USER\Desktop\\")
-        print("4")
-    if inputString == "5":
-        #updateAllInstalledPackages(r'C:\\Users\\USER\\Desktop\\plugins')
-        print("5")
-
-
 def inputMainMenu():
-    createInputLists()
     clearConsole()
+    checkConfig()
+    createInputLists()
     printMainMenu()
     getInput()
-    #inputSt = input("    pluGET >> ")
-    #handleInputOLD(inputSt)
 
 
 def outputTest():
@@ -110,7 +87,6 @@ def outputTest():
     input("Press key to end program...")
 
 
-#createCloudScraperInstance()
 consoleTitle()
 inputMainMenu()
 outputTest()
