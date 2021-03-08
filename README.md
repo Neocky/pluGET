@@ -23,6 +23,11 @@ Execute this command in the ```/plugGET``` folder:
 pip install -r requirements.txt
 ```
 
+### Edit the Config
+When run the first time, the config will be created in the root package folder and the program will close.  
+Edit the config to your needs and rerun it.  
+**Now you are good to go!**  
+
 ## Usage
 Run programm.  
 The following are examples for the general usage:  
@@ -51,4 +56,11 @@ update all
 ```
 update 'pluginName'
 ```  
-
+#### Exit program:
+```
+exit .
+```
+#### Get link to here:
+```
+help .
+```
