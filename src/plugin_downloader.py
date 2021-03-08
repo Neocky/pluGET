@@ -1,7 +1,6 @@
 import urllib.request
 import cgi
 import re
-import cloudscraper
 from web_request import doAPIRequest
 
 
@@ -52,13 +51,12 @@ def handleRegexPackageName(packageNameFull):
         packageNameFull2 = packageNameFull.replace(unwantedpackageNameString, '')
         print(packageNameFull2)
         print("packageNameFull2")
-    
     # gets the real packagename "word1 & word2" is not supported only gets word 1
     packageName = re.search(r'([a-zA-Z]\d*)+(\s?\-*\_*[a-zA-Z]\d*\+*\-*\'*)+', packageNameFull2)
     packageNameFullString = packageName.group()
     packageNameOnly = packageNameFullString.replace(' ', '')
-    print(packageNameOnly)
-    print("packageNameOnly")
+    #print(packageNameOnly)
+    #print("packageNameOnly")
     return packageNameOnly
 
 
@@ -81,24 +79,25 @@ def apiCallTest(ressourceId):
     print(packageNameNew)
 
 
-# check version
-def compareVersions():
-    #https://api.spiget.org/v2/resources/28140/versions/latest
-    # compare latest package version with installed package version
-    print("compareVersions")
-
-
 def getVersionID(packageId, packageVersion):
+    print(packageVersion)
+    if packageVersion == None or packageVersion == 'latest':
+        url = f"https://api.spiget.org/v2/resources/{packageId}/versions/latest"
+        response = doAPIRequest(url)
+        versionId = response["id"]
+        return versionId
+
     url = f"https://api.spiget.org/v2/resources/{packageId}/versions?size=100&sort=-name"
     versionList = doAPIRequest(url)
-    
+
     for packages in versionList:
         packageUpdate = packages["name"]
         versionId = packages["id"]
         if packageUpdate == packageVersion:
             return versionId
     return versionList[0]["id"]
-    
+
+
 def getVersionName(packageId, versionId):
     url = f"https://api.spiget.org/v2/resources/{packageId}/versions/{versionId}"
     response = doAPIRequest(url)
@@ -128,74 +127,39 @@ def searchPackage(ressourceName):
     print(ressourceId)
 
 
-def downloadLatestVersion(ressourceId, packageDownloadName, sourcePath):
+def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
+    print(versionID)
+    if versionID != 'latest':
+        #url = f"https://spigotmc.org/resources/{ressourceId}/download?version={versionID}"
+        print("Sorry but specific version downloads aren't supported because of cloudflare protection. :(")
+
     url = f"https://api.spiget.org/v2/resources/{ressourceId}/download"
+    #url = f"https://api.spiget.org/v2/resources/{ressourceId}/versions/latest/download" #throws 403 forbidden error
+
     remotefile = urllib.request.urlopen(url)
     filesize = remotefile.info()['Content-Length']
-    downloadPath = sourcePath + packageDownloadName
     urllib.request.urlretrieve(url, downloadPath)
     filesizeData = calculateFileSize(filesize)
-    print(filesizeData)
-    print(filesize)
-    print(f"    Downloadsize: {filesizeData} KB")
-
-def downloadSpecificVersion(ressourceId, packageDownloadName, versionId, sourcePath):
-    url = f"https://spigotmc.org/resources/{ressourceId}/download?version={versionId}"
-    #url = f"https://api.spiget.org/v2/resources/{ressourceId}/versions/{versionId}/download"
-    downloadPath = sourcePath + packageDownloadName
+    print(f"File downloaded here: {downloadPath}")
+    print(f"Downloadsize: {filesizeData} KB")
 
 
-    #local_filename = url.split('/')[-1]
-    # NOTE the stream=True parameter below
-    with CLOUDSCRAPER.get(url, stream=True) as r:
-        #r.raise_for_status()
-        with open(downloadPath, 'wb') as fd:
-            for chunk in r.iter_content(chunk_size=128): 
-                fd.write(chunk)
-    #return downloadPath
-
-
-    #remotefile = urllib.request.urlopen(url)
-    #cloudscraper.requests.get()
-    #filesize = remotefile.info()['Content-Length']
-    
-    #urllib.request.urlretrieve(url, downloadPath)
-    #filesizeData = calculateFileSize(filesize)
-    #print(filesizeData)
-    #print(filesize)
-    #print(f"    Downloadsize: {filesizeData} KB")
-
-
-def getPackageVersion(ressourceId, packageVersion, downloadPath):
-    #ressourceId = input("    SpigotMC Ressource ID: ")
-    CLOUDSCRAPER = createCloudScraperInstance()
+def getPackageVersion(ressourceId, downloadPath, inputPackageVersion='latest'):
     url = f"https://api.spiget.org/v2/resources/{ressourceId}"
     packageDetails = doAPIRequest(url)
     packageName = packageDetails["name"]
     #packageTag = packageDetails["tag"]
     packageNameNew = handleRegexPackageName(packageName)
-    versionId = getVersionID(ressourceId, packageVersion)
+    versionId = getVersionID(ressourceId, inputPackageVersion)
     packageVersion = getVersionName(ressourceId, versionId)
     #packageVersion = getlatestVersion(ressourceId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
-    downloadSpecificVersion(ressourceId, packageDownloadName, versionId, downloadPath)
+    downloadPackagePath = downloadPath + packageDownloadName
 
-
-def getLatestPackageVersionInteractive(downloadPath):
-    ressourceId = input("    SpigotMC Ressource ID: ")
-    url = f"https://api.spiget.org/v2/resources/{ressourceId}"
-    packageDetails = doAPIRequest(url)
-    packageName = packageDetails["name"]
-    #packageTag = packageDetails["tag"]
-    packageNameNew = handleRegexPackageName(packageName)
-    packageVersion = getlatestVersion(ressourceId)
-    packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
-    downloadLatestVersion(ressourceId, packageDownloadName, downloadPath)
-
-def createCloudScraperInstance():
-    global CLOUDSCRAPER
-    CLOUDSCRAPER = cloudscraper.create_scraper(interpreter='nodejs',debug=True)  # returns a CloudScraper instance
-    return CLOUDSCRAPER
+    if inputPackageVersion is None or inputPackageVersion == 'latest':
+        downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
+    else:
+        downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
 
 # get latest update > https://api.spiget.org/v2/resources/28140/updates/latest
 # this also > https://api.spiget.org/v2/resources/28140/versions/latest

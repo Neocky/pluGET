@@ -88,4 +88,4 @@ def printMainMenu():
     #print("    [3] Search for a plugin")
     #print("    [4] Download latest version of package")
     #print("    [5] Check update for installed plugins")
-    print()
+    #print()

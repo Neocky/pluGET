@@ -38,8 +38,6 @@ def compareVersions(pluginId, pluginVersion):
     url = f"https://api.spiget.org/v2/resources/{pluginId}/versions/latest"
     latestUpdateSearch = doAPIRequest(url)
     versionLatestUpdate = latestUpdateSearch["name"]
-    print(pluginVersion)
-    print(versionLatestUpdate)
     if pluginVersion != versionLatestUpdate:
         plugin_is_outdated = True
     else:
@@ -47,7 +45,48 @@ def compareVersions(pluginId, pluginVersion):
     return plugin_is_outdated
 
 
-def getInstalledPackages(pluginFolderPath):
+def checkInstalledPackage(pluginFolderPath, inputSelectedObject="all"):
+    #if inputSelectedObject is not ('all', '*'):
+     #   print(oColors.brightRed + "Only *all* as selected object is supported!" + oColors.standardWhite)
+     #   inputSelectedObject = 'all'
+    createPluginList()
+    pluginList = os.listdir(pluginFolderPath)
+    i = 0
+    oldPackages = 0
+    print("Index / Name / Installed Version / Update available")
+
+    for plugin in pluginList:
+        fileName = getFileName(plugin)
+        fileVersion = getFileVersion(plugin)
+        pluginId = getInstalledPlugin(fileName, fileVersion)
+        pluginIdStr = str(pluginId)
+
+        if fileVersion == '':
+            fileVersion = 'N/A'
+
+        try:
+            pluginIsOutdated = INSTALLEDPLUGINLIST[i][2]
+        except IndexError:
+            pluginIsOutdated = 'N/A'
+
+        if pluginIsOutdated == True:
+            oldPackages = oldPackages + 1
+
+        if inputSelectedObject != "*":
+            if inputSelectedObject != "all":
+                if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
+                    print(f"[{1}] {fileName} - {fileVersion} - {pluginIsOutdated}")
+                    break
+            else:
+                print(f"[{i+1}] {fileName} - {fileVersion} - {pluginIsOutdated}") # TODO find better way
+        else:
+            print(f"[{i+1}] {fileName} - {fileVersion} - {pluginIsOutdated}")
+
+        i = i + 1
+    print(f"Old packages: [{oldPackages}/{i}]")
+
+
+def updateInstalledPackage(pluginFolderPath, inputSelectedObject='all'):
     createPluginList()
     pluginList = os.listdir(pluginFolderPath)
     print(pluginList)
@@ -57,27 +96,38 @@ def getInstalledPackages(pluginFolderPath):
         fileName = getFileName(plugin)
         fileVersion = getFileVersion(plugin)
         pluginId = getInstalledPlugin(fileName, fileVersion)
-
+        pluginIdStr = str(pluginId)
         print(f"name: {fileName}")
         print(f"version: {fileVersion}")
-
+        # debug purpose
+        print(inputSelectedObject)
         print(INSTALLEDPLUGINLIST)
-        
+        print(f"pluginId: {pluginId}")
+
         if pluginId == None:
             print(oColors.brightRed + "Couldn't find plugin id. Sorry :(" + oColors.standardWhite)
             continue
-        if INSTALLEDPLUGINLIST[i][2] == True:
+
+        if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
+            print(f"Updating: {fileName}")
             os.remove(f"C:\\Users\\USER\\Desktop\\plugins\\{plugin}")
-            getLatestPackageVersion(pluginId, r"C:\\Users\\USER\\Desktop\\plugins\\")
+            getPackageVersion(pluginId, r"C:\\Users\\USER\\Desktop\\plugins\\")
+            break
+
+        if inputSelectedObject == 'all':
+            if INSTALLEDPLUGINLIST[i][2] == True:
+                print("Deleting old plugin...")
+                os.remove(f"C:\\Users\\USER\\Desktop\\plugins\\{plugin}")
+                print("Downloading new plugin...")
+                getPackageVersion(pluginId, r"C:\\Users\\USER\\Desktop\\plugins\\")
         i = i + 1
-    print(INSTALLEDPLUGINLIST[1][0])
+    #print(INSTALLEDPLUGINLIST[1][0])
         #getLatestPackageVersion(pluginID, r"C:\\Users\USER\Desktop\\plugins\\")
 
 
 def getInstalledPlugin(localFileName, localFileVersion):
     url = "https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name"
     packageName = doAPIRequest(url)
-    print("https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name")
     #packageName = response.json()
     i = 1
     plugin_match_found = False
@@ -87,7 +137,7 @@ def getInstalledPlugin(localFileName, localFileVersion):
             break
         pName = ressource["name"]
         pID = ressource["id"]
-        print(f"    [{i}] {pName} - {pID}")
+        #print(f"    [{i}] {pName} - {pID}")
         url2 = f"https://api.spiget.org/v2/resources/{pID}/versions?size=100&sort=-name"
         packageVersions = doAPIRequest(url2)
         for updates in packageVersions:
@@ -98,9 +148,6 @@ def getInstalledPlugin(localFileName, localFileVersion):
                 updateId = updates["id"]
                 plugin_is_outdated = compareVersions(pID, updateVersion)
                 addToPluginList(pID, updateId, plugin_is_outdated)
-                print(updateId)
-                print(pID)
-                print("Found match")
                 break
         i = i + 1
     return pluginID

@@ -1,28 +1,58 @@
 import time
-from consoleoutput import consoleTitle, clearConsole, printMainMenu
-from plugin_downloader import downloadPackageManual, apiCallTest, searchPackage, getLatestPackageVersionInteractive, getPackageVersion
-from plugin_updatechecker import getInstalledPackages
-from web_request import createCloudScraperInstance#, CLOUDSCRAPER
+import sys
+from consoleoutput import consoleTitle, clearConsole, printMainMenu, oColors
+from plugin_downloader import downloadPackageManual, apiCallTest, searchPackage, getPackageVersion
+from plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
 
 
+def createInputLists():
+    global COMMANDLIST
+    COMMANDLIST = [
+        'get',
+        'update',
+        'check',
+        'exit'
+    ]
+    global INPUTSELECTEDOBJECT
+    INPUTSELECTEDOBJECT = [
+        'all',
+        '*'
+    ]
 
-def handleInput(inputCommand, inputSelectedObject, inputParams="latest"):
-    if inputCommand == 'get':
-        getPackageVersion(inputSelectedObject, inputParams, r"C:\\Users\USER\Desktop\\")
 
+def handleInput(inputCommand, inputSelectedObject, inputParams):
+    while True:
+        if inputCommand == 'get':
+            getPackageVersion(r"C:\\Users\USER\Desktop\\", inputSelectedObject, inputParams)
+            break
+        if inputCommand == 'update':
+            #if inputSelectedObject in INPUTSELECTEDOBJECT:
+            updateInstalledPackage(r'C:\\Users\\USER\\Desktop\\plugins', inputSelectedObject)
+            break
+        if inputCommand == 'check':
+            checkInstalledPackage(r'C:\\Users\\USER\\Desktop\\plugins', inputSelectedObject)
+            break
+        if inputCommand == 'exit':
+            sys.exit()
+        else:
+            print(oColors.brightRed + "Command not found. Please try again." + oColors.standardWhite)
+            getInput()
+    getInput()
 
 
 def getInput():
-    inputCommand, inputSelectedObject, *inputParams = input("pluGET >> ").split()
-    inputParams = inputParams[0] if inputParams else ''
+    while True:
+        try:
+            inputCommand, inputSelectedObject, *inputParams = input("pluGET >> ").split()
+            break
+        except ValueError:
+            print(oColors.brightRed + "Wrong input! Use: > *command* *selectedObject* *optionalParams*" + oColors.standardWhite)
+
+    inputParams = inputParams[0] if inputParams else None
     print(inputCommand)
     print(inputSelectedObject)
     print(inputParams)
-    handleInput(inputCommand, inputSelectedObject,inputParams)
-
-
-
-
+    handleInput(inputCommand, inputSelectedObject, inputParams)
 
 
 def inputOption(inputOptionString):
@@ -48,12 +78,15 @@ def handleInputOLD(inputString):
         ressourceName = inputOption(3)
         searchPackage(ressourceName)
     if inputString == "4":
-        getLatestPackageVersionInteractive(r"C:\\Users\USER\Desktop\\")
+        #getLatestPackageVersionInteractive(r"C:\\Users\USER\Desktop\\")
+        print("4")
     if inputString == "5":
-        getInstalledPackages('C:\\Users\\USER\\Desktop\\plugins')
+        #updateAllInstalledPackages(r'C:\\Users\\USER\\Desktop\\plugins')
+        print("5")
 
 
 def inputMainMenu():
+    createInputLists()
     clearConsole()
     printMainMenu()
     getInput()
@@ -77,7 +110,7 @@ def outputTest():
     input("Press key to end program...")
 
 
-createCloudScraperInstance()
+#createCloudScraperInstance()
 consoleTitle()
 inputMainMenu()
 outputTest()

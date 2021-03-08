@@ -1,5 +1,2 @@
 urllib3 >= 1.21.1
 requests >=2.25.1
-requests_toolbelt >= 0.9.1
-pyparsing >= 2.4.7
-cloudscraper >= 1.2.56
