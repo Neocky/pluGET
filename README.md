@@ -16,7 +16,7 @@ It can download the newest version of plugins.
 ### Python
 Python needs to be installed on your machine.  
 Get it [here](https://www.python.org/downloads/).  
-### Needed packages
+### Dependencies
 Install the needed packages for this project.  
 Execute this command in the ```/plugGET``` folder:  
 ```python
