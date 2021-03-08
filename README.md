@@ -13,7 +13,7 @@ It uses the [Spiget](https://spiget.org/) API to download and compare plugin ver
 It can download the newest version of plugins.
 
 ## Installation
-#### Python
+### Python
 Python needs to be installed on your machine.  
 Get it [here](https://www.python.org/downloads/).  
 ### Needed packages
