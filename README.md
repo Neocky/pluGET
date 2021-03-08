@@ -28,17 +28,16 @@ When run the first time, the config will be created in the root package folder a
 Edit the config to your needs and rerun it.  
 **Now you are good to go!**  
 
-## Usage
-Run programm.  
+## Usage  
 The following are examples for the general usage:  
 (Hint: 'all' can always be exchanged through the plugin name or the plugin id and reverse)  
 #### Download the latest update of a specific package:  
 ```
-get 'pluginName'
+get 'pluginID'
 ```  
 or:    
 ```
-get 'pluginID'
+get 'pluginName'
 ```  
 #### Check all installed plugins for updates:  
 ```
