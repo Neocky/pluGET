@@ -18,7 +18,37 @@ Python needs to be installed on your machine.
 Get it [here](https://www.python.org/downloads/).  
 ### Needed packages
 Install the needed packages for this project.  
-Execute this command in the /plugGET folder:  
+Execute this command in the ```/plugGET``` folder:  
 ```python
 pip install -r requirements.txt
 ```
+
+## Usage
+Run programm.  
+The following are examples for the general usage:  
+(Hint: 'all' can always be exchanged through the plugin name or the plugin id and reverse)  
+#### Download latest update of specific package:  
+```
+get 'pluginName'
+```  
+or:    
+```
+get 'pluginID'
+```  
+#### Check all installed plugins for updates:  
+```
+check all
+```  
+#### Check one plugin for updates:
+```
+check 'pluginName'
+```  
+#### Update all installed plugins:  
+```
+update all
+```  
+#### Update only one plugin:  
+```
+update 'pluginName'
+```  
+
