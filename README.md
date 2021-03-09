@@ -24,7 +24,7 @@ A plugin manager that handles [Spigot plugins](https://www.spigotmc.org/resource
 ## About  
 This is a plugin manager for minecraft [Spigot](https://www.spigotmc.org/) servers and its forks (e.g. [PaperMC](https://papermc.io/)).  
 It uses the [Spiget](https://spiget.org/) API to download and compare plugin versions.  
-It can download the newest version of plugins.
+It can download the latest version of plugins.
 
 ## Installation
 ### Python
