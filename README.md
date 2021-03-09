@@ -1,7 +1,19 @@
-# pluGET
+
 <p align="center">
 <img src="https://i.ibb.co/JyCxnQn/logoreal.png" alt="pluGET" border="0"></a>
 </p>
+
+<p align="center">  
+<a href="https://www.python.org/"> <img src="https://forthebadge.com/images/badges/made-with-python.svg" alt="madewithpython" border="0"></a>
+</p>
+
+<p align="center">  
+<img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="Apache-2.0" border="0"></a>
+<img src="https://img.shields.io/github/stars/Neocky/pluGET?color=yellow" alt="stars" border="0"></a>
+<img src="https://img.shields.io/github/downloads/Neocky/pluGET/total" alt="downloads" border="0"></a>
+</p>
+
+# pluGET
 
 A plugin manager that handles [Spigot plugins](https://www.spigotmc.org/resources/) for minecraft servers written in python.  
 
