@@ -104,7 +104,6 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
     if not checkConfig().localPluginFolder:
         print(downloadPath)
         sftpSession = createSFTPConnection()
-        #sftp_cdPluginDir(sftpSession)
         sftp_upload_file(sftpSession, downloadPath)
 
 

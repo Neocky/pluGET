@@ -6,6 +6,7 @@ from plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
 from handle_config import checkConfig
 from utilities import getHelp, check_requirements
 from handle_sftp import createSFTPConnection, sftp_showPlugins
+from plugin_remover import removePlugin
 
 def createInputLists():
     global COMMANDLIST
@@ -14,7 +15,8 @@ def createInputLists():
         'update',
         'check',
         'exit',
-        'help'
+        'help',
+        'remove'
     ]
     global INPUTSELECTEDOBJECT
     INPUTSELECTEDOBJECT = [
@@ -46,9 +48,8 @@ def handleInput(inputCommand, inputSelectedObject, inputParams):
         if inputCommand == 'help':
             getHelp()
             break
-        if inputCommand == 'sftp':
-            sftp = createSFTPConnection()
-            sftp_showPlugins(sftp)
+        if inputCommand == 'remove':
+            removePlugin(inputSelectedObject)
             break
         else:
             print(oColors.brightRed + "Command not found. Please try again." + oColors.standardWhite)
