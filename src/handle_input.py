@@ -4,7 +4,8 @@ from consoleoutput import consoleTitle, clearConsole, printMainMenu, oColors
 from plugin_downloader import searchPackage, getSpecificPackage
 from plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
 from handle_config import checkConfig
-from utilities import getHelp
+from utilities import getHelp, check_requirements
+from handle_sftp import createSFTPConnection, sftp_showPlugins
 
 def createInputLists():
     global COMMANDLIST
@@ -26,21 +27,28 @@ def handleInput(inputCommand, inputSelectedObject, inputParams):
     while True:
         if inputCommand == 'get':
             if inputSelectedObject.isdigit():
-                getSpecificPackage(inputSelectedObject, checkConfig().pathToPluginFolder,  inputParams)
-                break
+                if not checkConfig().localPluginFolder:
+                    getSpecificPackage(inputSelectedObject, checkConfig().sftp_folderPath,  inputParams)
+                    break
+                else:
+                    getSpecificPackage(inputSelectedObject, checkConfig().pathToPluginFolder,  inputParams)
             else:
                 searchPackage(inputSelectedObject)
                 break
         if inputCommand == 'update':
-            updateInstalledPackage(checkConfig().pathToPluginFolder, inputSelectedObject)
+            updateInstalledPackage(inputSelectedObject)
             break
         if inputCommand == 'check':
-            checkInstalledPackage(checkConfig().pathToPluginFolder, inputSelectedObject)
+            checkInstalledPackage(inputSelectedObject)
             break
         if inputCommand == 'exit':
             sys.exit()
         if inputCommand == 'help':
             getHelp()
+            break
+        if inputCommand == 'sftp':
+            sftp = createSFTPConnection()
+            sftp_showPlugins(sftp)
             break
         else:
             print(oColors.brightRed + "Command not found. Please try again." + oColors.standardWhite)
@@ -64,11 +72,14 @@ def getInput():
 
 
 def inputMainMenu():
+    consoleTitle()
     clearConsole()
     checkConfig()
+    check_requirements()
     createInputLists()
     printMainMenu()
     getInput()
+    outputTest()
 
 
 def outputTest():
@@ -87,6 +98,4 @@ def outputTest():
     input("Press key to end program...")
 
 
-consoleTitle()
 inputMainMenu()
-outputTest()

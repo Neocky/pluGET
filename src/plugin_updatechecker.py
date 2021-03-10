@@ -5,6 +5,7 @@ from consoleoutput import oColors
 from plugin_downloader import getSpecificPackage #handleInput
 from web_request import doAPIRequest
 from handle_config import checkConfig
+from handle_sftp import createSFTPConnection, sftp_listAll
 
 
 def createPluginList():
@@ -19,10 +20,13 @@ def addToPluginList(pluginId, versionId, plugin_is_outdated):
 
 def getFileName(pluginName):
     pluginNameFull = pluginName
-    pluginVersion = re.search(r'([\d.]+[.jar]+)', pluginNameFull)
-    pluginVersionFull = pluginVersion.group()
-    pluginNameOnly = pluginNameFull.replace(pluginVersionFull, '')
-    pluginNameOnly = re.sub(r'(\-$)', '', pluginNameOnly)
+    pluginVersion = re.search(r'([\d.]+[.jar]+)', pluginNameFull) #errors out when for example .yaml file in plugins
+    try:
+        pluginVersionFull = pluginVersion.group() # TODO fix this
+    except AttributeError:
+        pluginVersionFull = pluginVersion
+    pluginNameOnlyy = pluginNameFull.replace(pluginVersionFull, '')
+    pluginNameOnly = re.sub(r'(\-$)', '', pluginNameOnlyy)
     return pluginNameOnly
 
 
@@ -46,9 +50,13 @@ def compareVersions(pluginId, pluginVersion):
     return plugin_is_outdated
 
 
-def checkInstalledPackage(pluginFolderPath, inputSelectedObject="all"):
+def checkInstalledPackage(inputSelectedObject="all"):
     createPluginList()
-    pluginList = os.listdir(pluginFolderPath)
+    if not checkConfig().localPluginFolder:
+        sftp = createSFTPConnection()
+        pluginList = sftp_listAll(sftp)
+    else:
+        pluginList = os.listdir(checkConfig().pathToPluginFolder)
     i = 0
     oldPackages = 0
     print("Index / Name / Installed Version / Update available")
@@ -84,10 +92,13 @@ def checkInstalledPackage(pluginFolderPath, inputSelectedObject="all"):
     print(f"Old packages: [{oldPackages}/{i}]")
 
 
-def updateInstalledPackage(pluginFolderPath, inputSelectedObject='all'):
+def updateInstalledPackage(inputSelectedObject='all'):
     createPluginList()
-    pluginList = os.listdir(pluginFolderPath)
-    print(pluginList)
+    if not checkConfig().localPluginFolder:
+        sftp = createSFTPConnection()
+        pluginList = sftp_listAll(sftp)
+    else:
+        pluginList = os.listdir(checkConfig().pathToPluginFolder)
     i = 0
     for plugin in pluginList:
         print(plugin)
@@ -102,29 +113,43 @@ def updateInstalledPackage(pluginFolderPath, inputSelectedObject='all'):
 
         if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
             print(f"Updating: {fileName}")
-            pluginPath = checkConfig().pathToPluginFolder
-            pluginPath = f"{pluginPath}\\{plugin}"
-            os.remove(pluginPath)
-            getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
+            if not checkConfig().localPluginFolder:
+                pluginPath = checkConfig().sftp_folderPath
+                pluginPath = f"{pluginPath}\\{plugin}"
+                sftp = createSFTPConnection()
+                sftp.remove(pluginPath)
+                getSpecificPackage(pluginId, checkConfig().sftp_folderPath)
+            else:
+                pluginPath = checkConfig().pathToPluginFolder
+                pluginPath = f"{pluginPath}\\{plugin}"
+                os.remove(pluginPath)
+                getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
             break
 
         if inputSelectedObject == 'all':
             if INSTALLEDPLUGINLIST[i][2] == True:
-                print("Deleting old plugin...")
-                pluginPath = checkConfig().pathToPluginFolder
-                pluginPath = f"{pluginPath}\\{plugin}"
-                os.remove(pluginPath)
-                print("Downloading new plugin...")
-                getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
+                if not checkConfig().localPluginFolder:
+                    pluginPath = checkConfig().sftp_folderPath
+                    pluginPath = f"{pluginPath}\\{plugin}"
+                    print("Deleting old plugin...")
+                    sftp = createSFTPConnection()
+                    sftp.remove(pluginPath)
+                    print("Downloading new plugin...")
+                    getSpecificPackage(pluginId, checkConfig().sftp_folderPath)
+
+                else:
+                    pluginPath = checkConfig().pathToPluginFolder
+                    pluginPath = f"{pluginPath}\\{plugin}"
+                    print("Deleting old plugin...")
+                    os.remove(pluginPath)
+                    print("Downloading new plugin...")
+                    getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
         i = i + 1
-    #print(INSTALLEDPLUGINLIST[1][0])
-        #getLatestPackageVersion(pluginID, r"C:\\Users\USER\Desktop\\plugins\\")
 
 
 def getInstalledPlugin(localFileName, localFileVersion):
     url = "https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name"
     packageName = doAPIRequest(url)
-    #packageName = response.json()
     i = 1
     plugin_match_found = False
     pluginID = None

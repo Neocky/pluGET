@@ -4,6 +4,8 @@ import re
 from web_request import doAPIRequest
 from consoleoutput import oColors
 from handle_config import checkConfig
+from utilities import createTempPluginFolder, deleteTempPluginFolder
+from handle_sftp import sftp_upload_file, sftp_cdPluginDir, createSFTPConnection
 
 
 def calculateFileSize(downloadFileSize):
@@ -78,7 +80,10 @@ def searchPackage(ressourceName):
     #fileInfo = packageName[ressourceSelected]["file"]
     #packageUrl = fileInfo["url"]
     ressourceId = packageName[ressourceSelected]["id"]
-    getSpecificPackage(ressourceId, checkConfig().pathToPluginFolder)
+    if not checkConfig().localPluginFolder:
+        getSpecificPackage(ressourceId, checkConfig().sftp_folderPath)
+    else:
+        getSpecificPackage(ressourceId, checkConfig().pathToPluginFolder)
 
 
 def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
@@ -96,9 +101,16 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
     filesizeData = calculateFileSize(filesize)
     print(f"Downloadsize: {filesizeData} KB")
     print(f"File downloaded here: {downloadPath}")
+    if not checkConfig().localPluginFolder:
+        print(downloadPath)
+        sftpSession = createSFTPConnection()
+        #sftp_cdPluginDir(sftpSession)
+        sftp_upload_file(sftpSession, downloadPath)
 
 
 def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
+    if checkConfig().localPluginFolder == False:
+        downloadPath = createTempPluginFolder()
     url = f"https://api.spiget.org/v2/resources/{ressourceId}"
     packageDetails = doAPIRequest(url)
     packageName = packageDetails["name"]
@@ -108,17 +120,31 @@ def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
     #packageVersion = getlatestVersion(ressourceId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
     downloadPackagePath = f"{downloadPath}\\{packageDownloadName}"
+    if checkConfig().localPluginFolder:
+        if inputPackageVersion is None or inputPackageVersion == 'latest':
+            try:
+                downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
+            except HTTPError as err:
+                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+        else:
+            try:
+                downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
+            except HTTPError as err:
+                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
 
-    if inputPackageVersion is None or inputPackageVersion == 'latest':
-        try:
-            downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
-        except HTTPError as err:
-            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
-    else:
-        try:
-            downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
-        except HTTPError as err:
-            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+    if not checkConfig().localPluginFolder:
+        if inputPackageVersion is None or inputPackageVersion == 'latest':
+            try:
+                downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
+                deleteTempPluginFolder(downloadPath)
+            except HTTPError as err:
+                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+        else:
+            try:
+                downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
+                deleteTempPluginFolder(downloadPath)
+            except HTTPError as err:
+                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
 
 # get latest update > https://api.spiget.org/v2/resources/28140/updates/latest
 # this also > https://api.spiget.org/v2/resources/28140/versions/latest
