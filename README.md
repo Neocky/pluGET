@@ -25,6 +25,7 @@ A powerfull package manager which handles [Plugins](https://www.spigotmc.org/res
 
 ## About  
 This is a package manager for minecraft [Spigot](https://www.spigotmc.org/) servers and its forks (e.g. [PaperMC](https://papermc.io/)).  
+This is a standalone program written in python.  
 The program works with a locally installed server or with a remote host through SFTP, when configured in the config.  
 It uses the [Spiget](https://spiget.org/) API to download and compare plugin versions and can download the latest version of plugins from the [Spigot](https://www.spigotmc.org/) site.  
 
