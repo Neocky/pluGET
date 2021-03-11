@@ -16,7 +16,7 @@
 
 # pluGET
 
-A package manager that handles [Spigot plugins](https://www.spigotmc.org/resources/) for minecraft servers written in python.   
+A powerfull package manager which handles [Plugins](https://www.spigotmc.org/resources/) for minecraft servers.   
 
 
 ## Issues? Found a bug? 
@@ -29,10 +29,10 @@ The program works with a locally installed server or with a remote host through 
 It uses the [Spiget](https://spiget.org/) API to download and compare plugin versions and can download the latest version of plugins from the [Spigot](https://www.spigotmc.org/) site.  
 
 Plugin management was the hard part of mangaging a minecraft server. The time it took to check the [Spigot ressource](https://www.spigotmc.org/resources/) page for updates for the installed plugins and updating all plugins manually which have available updates was too long and shocking.  
-So I built pluGET to automate/ease the plugin handling for a minecraft server and to turn the shocking part of managing a minecraft server to an easy one.  
+So I built pluGET to automate and ease the plugin handling of a minecraft server and to turn the most time consuming part of managing a minecraft server to an easy one.  
 
 This program is suited for minecraft server owners who want to save time and stay on top of their plugin versions.  
-The program input and the associated config file are pretty clear so every server owner and not only the most tech savy ones can use pluGET to ease their plugin handling.  
+The program input and the associated config file are pretty simple so every server owner and not only the most tech savy ones can use pluGET to ease their plugin handling.  
 Follow the [Installation](https://github.com/Neocky/pluGET#installation) guide below for an easy and hassle free setup of pluGET.  
 Read [Usage](https://github.com/Neocky/pluGET#usage) below to get some example inputs when using pluGET.  
 If you still have questions [here](https://github.com/Neocky/pluGET#need-help) is the best place to ask for support.  
@@ -47,7 +47,7 @@ pluGET can:
 
 There are more features in the work. Check [Projects](https://github.com/Neocky/pluGET/projects) for a complete list.  
 
-**So why do it manually when you can use pluGET to automate everything?** 🚀  
+**So why do it manually when you can use pluGET to automate it?** 🚀  
 [Get the latest release here.](https://github.com/Neocky/pluGET/releases)  
 
 
