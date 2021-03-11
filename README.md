@@ -71,13 +71,13 @@ pip install -r requirements.txt
 
 
 ### Edit the Config
-When run the first time, the config will be created in the root package folder and the program will close.  
+When run the first time, the `config.ini` file will be created in the root package folder and the program will close.  
 Edit the config to your needs and relaunch pluGET.  
 **Now you are good to go!**  
 
 
 ## Usage  
-Execute the launcher.bat in the ```\pluGET``` folder. This will launch pluGET correctly.  
+Execute the `launcher.bat` in the `\pluGET` folder. This will launch pluGET correctly.  
 The following are examples of input for the general usage:  
 (Hint: 'all' can always be exchanged through the plugin name or the plugin id and reverse)  
 #### Download the latest update of a specific package:  
