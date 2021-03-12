@@ -78,6 +78,7 @@ Edit the config to your needs and relaunch pluGET.
 
 ## Usage  
 Execute the `launcher.bat` in the `\pluGET` folder. This will launch pluGET correctly.  
+Another way is to launch the `src\__main__.py` file.  
 The following are examples of input for the general usage:  
 (Hint: 'all' can always be exchanged through the plugin name or the plugin id and reverse)  
 #### Download the latest update of a specific package:  
@@ -103,6 +104,14 @@ update all
 #### Update only one plugin:  
 ```
 update 'pluginName'
+```  
+#### Remove a plugin with the id:  
+```
+remove 'pluginID'
+```  
+#### Remove a plugin with the name:  
+```
+remove 'pluginName'
 ```  
 #### Exit program:
 ```
