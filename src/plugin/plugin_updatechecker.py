@@ -1,11 +1,11 @@
 import os
 import re
 
-from consoleoutput import oColors
-from plugin_downloader import getSpecificPackage #handleInput
-from web_request import doAPIRequest
-from handle_config import checkConfig
-from handle_sftp import createSFTPConnection, sftp_listAll
+from utils.consoleoutput import oColors
+from utils.web_request import doAPIRequest
+from handlers.handle_config import checkConfig
+from handlers.handle_sftp import createSFTPConnection, sftp_listAll
+from plugin.plugin_downloader import getSpecificPackage
 
 
 def createPluginList():
@@ -31,7 +31,6 @@ def getFileName(pluginName):
 
 
 def getFileVersion(pluginName):
-    #pluginVersionString = None
     pluginNameFull = pluginName
     pluginVersion = re.search(r'([\d.]+[.jar]+)', pluginNameFull)
     pluginVersionFull = pluginVersion.group()
@@ -60,38 +59,40 @@ def checkInstalledPackage(inputSelectedObject="all"):
     i = 0
     oldPackages = 0
     print("Index / Name / Installed Version / Update available")
+    try:
+        for plugin in pluginList:
+            try:
+                fileName = getFileName(plugin)
+                fileVersion = getFileVersion(plugin)
+                pluginId = getInstalledPlugin(fileName, fileVersion)
+            except TypeError:
+                continue
+            pluginIdStr = str(pluginId)
 
-    for plugin in pluginList:
-        try:
-            fileName = getFileName(plugin)
-            fileVersion = getFileVersion(plugin)
-            pluginId = getInstalledPlugin(fileName, fileVersion)
-        except TypeError:
-            continue
-        pluginIdStr = str(pluginId)
+            if fileVersion == '':
+                fileVersion = 'N/A'
 
-        if fileVersion == '':
-            fileVersion = 'N/A'
+            try:
+                pluginIsOutdated = INSTALLEDPLUGINLIST[i][2]
+            except IndexError:
+                pluginIsOutdated = 'N/A'
 
-        try:
-            pluginIsOutdated = INSTALLEDPLUGINLIST[i][2]
-        except IndexError:
-            pluginIsOutdated = 'N/A'
+            if pluginIsOutdated == True:
+                oldPackages = oldPackages + 1
 
-        if pluginIsOutdated == True:
-            oldPackages = oldPackages + 1
-
-        if inputSelectedObject != "*":
-            if inputSelectedObject != "all":
-                if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
-                    print(f"[{1}] {fileName} - {fileVersion} - {pluginIsOutdated}")
-                    break
+            if inputSelectedObject != "*":
+                if inputSelectedObject != "all":
+                    if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
+                        print(f"[{1}] {fileName} - {fileVersion} - {pluginIsOutdated}")
+                        break
+                else:
+                    print(f"[{i+1}] {fileName} - {fileVersion} - {pluginIsOutdated}") # TODO find better way for the 2 else
             else:
-                print(f"[{i+1}] {fileName} - {fileVersion} - {pluginIsOutdated}") # TODO find better way for the 2 else
-        else:
-            print(f"[{i+1}] {fileName} - {fileVersion} - {pluginIsOutdated}")
+                print(f"[{i+1}] {fileName} - {fileVersion} - {pluginIsOutdated}")
 
-        i = i + 1
+            i = i + 1
+    except TypeError:
+        print(oColors.brightRed + "Aborted checking for plugins." + oColors.standardWhite)
     print(f"Old packages: [{oldPackages}/{i}]")
 
 
@@ -104,58 +105,61 @@ def updateInstalledPackage(inputSelectedObject='all'):
         pluginList = os.listdir(checkConfig().pathToPluginFolder)
     i = 0
     pluginsUpdated = 0
-    for plugin in pluginList:
-        print(plugin)
-        try:
-            fileName = getFileName(plugin)
-            fileVersion = getFileVersion(plugin)
-            pluginId = getInstalledPlugin(fileName, fileVersion)
-        except TypeError:
-            continue
-        pluginIdStr = str(pluginId)
+    try:
+        for plugin in pluginList:
+            print(plugin)
+            try:
+                fileName = getFileName(plugin)
+                fileVersion = getFileVersion(plugin)
+                pluginId = getInstalledPlugin(fileName, fileVersion)
+            except TypeError:
+                continue
+            pluginIdStr = str(pluginId)
 
-        if pluginId == None:
-            print(oColors.brightRed + "Couldn't find plugin id. Sorry :(" + oColors.standardWhite)
-            continue
+            if pluginId == None:
+                print(oColors.brightRed + "Couldn't find plugin id. Sorry :(" + oColors.standardWhite)
+                continue
 
-        if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
-            print(f"Updating: {fileName}")
-            if not checkConfig().localPluginFolder:
-                pluginPath = checkConfig().sftp_folderPath
-                pluginPath = f"{pluginPath}\\{plugin}"
-                sftp = createSFTPConnection()
-                sftp.remove(pluginPath)
-                getSpecificPackage(pluginId, checkConfig().sftp_folderPath)
-                pluginsUpdated += 1
-            else:
-                pluginPath = checkConfig().pathToPluginFolder
-                pluginPath = f"{pluginPath}\\{plugin}"
-                os.remove(pluginPath)
-                getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
-                pluginsUpdated += 1
-            break
-
-        if inputSelectedObject == 'all':
-            if INSTALLEDPLUGINLIST[i][2] == True:
+            if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
+                print(f"Updating: {fileName}")
                 if not checkConfig().localPluginFolder:
                     pluginPath = checkConfig().sftp_folderPath
                     pluginPath = f"{pluginPath}\\{plugin}"
-                    print("Deleting old plugin...")
                     sftp = createSFTPConnection()
                     sftp.remove(pluginPath)
-                    print("Downloading new plugin...")
                     getSpecificPackage(pluginId, checkConfig().sftp_folderPath)
                     pluginsUpdated += 1
-
                 else:
                     pluginPath = checkConfig().pathToPluginFolder
                     pluginPath = f"{pluginPath}\\{plugin}"
-                    print("Deleting old plugin...")
                     os.remove(pluginPath)
-                    print("Downloading new plugin...")
                     getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
                     pluginsUpdated += 1
-        i = i + 1
+                break
+
+            if inputSelectedObject == 'all':
+                if INSTALLEDPLUGINLIST[i][2] == True:
+                    if not checkConfig().localPluginFolder:
+                        pluginPath = checkConfig().sftp_folderPath
+                        pluginPath = f"{pluginPath}\\{plugin}"
+                        print("Deleting old plugin...")
+                        sftp = createSFTPConnection()
+                        sftp.remove(pluginPath)
+                        print("Downloading new plugin...")
+                        getSpecificPackage(pluginId, checkConfig().sftp_folderPath)
+                        pluginsUpdated += 1
+
+                    else:
+                        pluginPath = checkConfig().pathToPluginFolder
+                        pluginPath = f"{pluginPath}\\{plugin}"
+                        print("Deleting old plugin...")
+                        os.remove(pluginPath)
+                        print("Downloading new plugin...")
+                        getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
+                        pluginsUpdated += 1
+            i = i + 1
+    except TypeError:
+        print(oColors.brightRed + "Aborted updating for plugins." + oColors.standardWhite)
     print(f"[{pluginsUpdated}/{i}] Plugins updated")
 
 

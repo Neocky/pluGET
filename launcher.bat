@@ -1,2 +1,2 @@
 @ECHO OFF
-py "%~dp0\src\handle_input.py"
+py "%~dp0\src\__main__.py"

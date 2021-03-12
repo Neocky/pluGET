@@ -1,10 +1,11 @@
 # misc functions
 import os
 import sys
-import requests
 import shutil
-from consoleoutput import oColors
-from handle_config import checkConfig
+import requests
+
+from utils.consoleoutput import oColors
+from handlers.handle_config import checkConfig
 
 
 def getHelp():
@@ -34,7 +35,7 @@ def apiTest():
     try:
         r = requests.get(apiStatusUrl)
     except requests.exceptions.HTTPError:
-        print(oColors.brightRed + "Couldn*t make a connection to the API. Check you connection to the internet!" + oColors.standardWhite)
+        print(oColors.brightRed + "Couldn't make a connection to the API. Check you connection to the internet!" + oColors.standardWhite)
         sys.exit()
     if r.status_code != 200:
         print(oColors.brightRed + "Problems with the API detected. Plese try it again later!" + oColors.standardWhite)

@@ -1,9 +1,8 @@
-# handles the config and everything around it
+import os.path
 import sys
 import configparser
-import os.path
 
-from consoleoutput import oColors
+from utils.consoleoutput import oColors
 
 
 def checkConfig():
@@ -21,11 +20,11 @@ def checkConfig():
         localPluginFolder = config['General']['LocalPluginFolder']
         pathToPluginFolder = config['General']['PathToPluginFolder']
 
-        sftp_server = config['Remote Server']['Server']
-        sftp_user = config['Remote Server']['Username']
-        sftp_password = config['Remote Server']['Password']
-        sftp_port = config['Remote Server']['Port']
-        sftp_folderPath = config['Remote Server']['PluginFolder']
+        sftp_server = config['SFTP - Remote Server']['Server']
+        sftp_user = config['SFTP - Remote Server']['Username']
+        sftp_password = config['SFTP - Remote Server']['Password']
+        sftp_port = config['SFTP - Remote Server']['Port']
+        sftp_folderPath = config['SFTP - Remote Server']['PluginFolderForUpload']
 
         sftp_port = int(sftp_port)
         if localPluginFolder == 'True':
@@ -39,15 +38,16 @@ def checkConfig():
 def createConfig():
     config = configparser.ConfigParser(allow_no_value=True)
     config['General'] = {}
-    config['General'][';'] = 'If a local plugin folder exists (True/False): (If false use sftp)'
+    config['General'][';'] = 'If a local plugin folder exists (True/False): (If False use SFTP)'
     config['General']['LocalPluginFolder'] = 'True'
     config['General']['PathToPluginFolder'] = 'C:\\Users\\USER\\Desktop\\plugins'
-    config['Remote Server'] = {}
-    config['Remote Server']['Server'] = '0.0.0.0'
-    config['Remote Server']['Username'] = 'user'
-    config['Remote Server']['Password'] = 'longpassword'
-    config['Remote Server']['Port'] = '22'
-    config['Remote Server']['PluginFolder'] = '.\\plugins'
+    config['SFTP - Remote Server'] = {}
+    config['SFTP - Remote Server']['Server'] = '0.0.0.0'
+    config['SFTP - Remote Server']['Username'] = 'user'
+    config['SFTP - Remote Server']['Password'] = 'longpassword'
+    config['SFTP - Remote Server'][';'] = 'Normally you won*t need to change anything below this line'
+    config['SFTP - Remote Server']['Port'] = '22'
+    config['SFTP - Remote Server']['PluginFolderForUpload'] = '.\\plugins'
 
     with open('./config.ini', 'w') as configfile:
         config.write(configfile)

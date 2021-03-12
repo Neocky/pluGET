@@ -1,11 +1,12 @@
+import re
 import urllib.request
 from urllib.error import HTTPError
-import re
-from web_request import doAPIRequest
-from consoleoutput import oColors
-from handle_config import checkConfig
-from utilities import createTempPluginFolder, deleteTempPluginFolder
-from handle_sftp import sftp_upload_file, sftp_cdPluginDir, createSFTPConnection
+
+from utils.consoleoutput import oColors
+from utils.web_request import doAPIRequest
+from utils.utilities import createTempPluginFolder, deleteTempPluginFolder
+from handlers.handle_config import checkConfig
+from handlers.handle_sftp import sftp_upload_file, sftp_cdPluginDir, createSFTPConnection
 
 
 def calculateFileSize(downloadFileSize):
@@ -102,7 +103,6 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
     print(f"Downloadsize: {filesizeData} KB")
     print(f"File downloaded here: {downloadPath}")
     if not checkConfig().localPluginFolder:
-        print(downloadPath)
         sftpSession = createSFTPConnection()
         sftp_upload_file(sftpSession, downloadPath)
 

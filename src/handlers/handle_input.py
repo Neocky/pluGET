@@ -1,12 +1,12 @@
-import time
 import sys
-from consoleoutput import consoleTitle, clearConsole, printMainMenu, oColors
-from plugin_downloader import searchPackage, getSpecificPackage
-from plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
-from handle_config import checkConfig
-from utilities import getHelp, check_requirements
-from handle_sftp import createSFTPConnection, sftp_showPlugins
-from plugin_remover import removePlugin
+import time
+
+from utils.consoleoutput import oColors
+from utils.utilities import getHelp
+from handlers.handle_config import checkConfig
+from plugin.plugin_downloader import searchPackage, getSpecificPackage
+from plugin.plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
+from plugin.plugin_remover import removePlugin
 
 def createInputLists():
     global COMMANDLIST
@@ -34,6 +34,7 @@ def handleInput(inputCommand, inputSelectedObject, inputParams):
                     break
                 else:
                     getSpecificPackage(inputSelectedObject, checkConfig().pathToPluginFolder,  inputParams)
+                    break
             else:
                 searchPackage(inputSelectedObject)
                 break
@@ -72,17 +73,7 @@ def getInput():
     handleInput(inputCommand, inputSelectedObject, inputParams)
 
 
-def inputMainMenu():
-    consoleTitle()
-    clearConsole()
-    checkConfig()
-    check_requirements()
-    createInputLists()
-    printMainMenu()
-    getInput()
-    outputTest()
-
-
+# only for testing purposes
 def outputTest():
     print("Hello world")
     print("Waiting still seconds: 5", end='\r')
@@ -97,6 +88,3 @@ def outputTest():
     time.sleep(1)
     print("Done ✅☑✔                ")
     input("Press key to end program...")
-
-
-inputMainMenu()

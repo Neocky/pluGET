@@ -1,6 +1,5 @@
 # Handles the web requests
 import requests
-#import urllib.request
 
 
 def doAPIRequest(url):
