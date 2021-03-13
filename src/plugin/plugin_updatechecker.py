@@ -204,7 +204,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
 
 
 def getInstalledPlugin(localFileName, localFileVersion):
-    url = "https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name"
+    url = "https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name&sort=-downloads"
     packageName = doAPIRequest(url)
     i = 1
     plugin_match_found = False
