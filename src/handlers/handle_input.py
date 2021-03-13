@@ -67,9 +67,9 @@ def getInput():
             print(oColors.brightRed + "Wrong input! Use: > *command* *selectedObject* *optionalParams*" + oColors.standardWhite)
 
     inputParams = inputParams[0] if inputParams else None
-    print(inputCommand)
-    print(inputSelectedObject)
-    print(inputParams)
+    #print(inputCommand)
+    #print(inputSelectedObject)
+    #print(inputParams)
     handleInput(inputCommand, inputSelectedObject, inputParams)
 
 

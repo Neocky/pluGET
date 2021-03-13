@@ -16,6 +16,7 @@ class oColors:
     brightYellow = "\033[93m"
     brightMagenta = "\033[95m"
     brightRed = "\033[91m"
+    brightGreen = "\033[92m"
     darkMagenta = "\033[35m"
 
 
