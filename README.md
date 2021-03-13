@@ -53,9 +53,14 @@ There are more features in the work. Check [Projects](https://github.com/Neocky/
 [Get the latest release here.](https://github.com/Neocky/pluGET/releases)  
 
 
+## Donations
+If you feel like showing your love and/or appreciation for this project then how about buying me a coffee! :)  
+  
+<a href="https://www.buymeacoffee.com/Neocky" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="76" width="272"></a>
+
 
 ## Need help?
-[<img src="https://i.imgur.com/D5vyVzC.png" alt="Discord" width="400"/>](https://discord.gg/475Uf4NBPF)
+[<img src="https://i.imgur.com/D5vyVzC.png" alt="Discord" width="272"/>](https://discord.gg/475Uf4NBPF)
 
 
 ## Installation
@@ -81,7 +86,8 @@ Execute the `launcher.bat` in the `\pluGET` folder. This will launch pluGET corr
 Another way is to launch the `src\__main__.py` file.  
 The following are examples of input for the general usage:  
 (Hint: 'all' can always be exchanged through the plugin name or the plugin id and reverse)  
-#### Download the latest update of a specific package:  
+#### Download the latest update of a specific package: 
+`get [pluginID/pluginName]`  
 ```
 get 'pluginID'
 ```  
@@ -89,35 +95,45 @@ or:
 ```
 get 'pluginName'
 ```  
-#### Check all installed plugins for updates:  
+#### Check all plugins/one specific plugin for updates:  
+`check [all/pluginName]`  
 ```
 check all
 ```  
-#### Check one plugin for updates:
+or:  
 ```
 check 'pluginName'
 ```  
-#### Update all installed plugins:  
+#### Update all plugins/one specific plugin:  
+`update [all/pluginName]`  
 ```
 update all
 ```  
-#### Update only one plugin:  
+or:  
 ```
 update 'pluginName'
 ```  
-#### Remove a plugin with the id:  
+#### Remove a plugin with the ID/Name:  
+`remove [pluginID/pluginName]`
 ```
 remove 'pluginID'
 ```  
-#### Remove a plugin with the name:  
+or:  
 ```
 remove 'pluginName'
 ```  
+#### Search for a plugin:  
+`search [pluginName]`  
+```
+search 'pluginName'
+```
 #### Exit program:
+`exit [anything]`  
 ```
 exit .
 ```
 #### Get link to here:
+`help [anything]`  
 ```
 help .
 ```
