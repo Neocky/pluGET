@@ -137,3 +137,37 @@ exit .
 ```
 help .
 ```
+
+## Known problems
+### Can't get installed version  
+For example:  
+```
+pluGET >> check all
+Checking: all
+Index | Name                           | Installed V. | Latest V. |  Update available
+ [1]    Vault                            N/A            1.7.3        False
+```
+This is a known issue because the filename in the `\plugin` folder doesn't include a version.  
+This is the plugin file in the `\plugin` folder right now: `Vault.jar`  
+How it should be: `Vault-1.7.3.jar`  
+Many plugins which get download from Spigot won't have a file version in the name.  
+#### How to solve:  
+Delete the `Vault.jar` file and download the newest version with the `get` command:  
+```
+pluGET >> get vault
+Index | Name                        | Description                                                                                                          |  Downloads
+ [1]    Vault                         Vault is a Permissions, Chat, & Economy API to give plugins easy hooks into these systems.                              989046
+Select your wanted Ressource (Index)(0 to exit): 1
+Downloadsize: 267.31 KB
+File downloaded here: C:\Users\USER\Desktop\plugins\Vault-1.7.3.jar
+```
+Now you got the plugin with the correct name inside your `\plugin` folder: `Vault-1.7.3.jar`  
+  
+And pluGET will tell you the installed version and check if an update is available when checking again:  
+```
+pluGET >> check all
+Checking: all
+Index | Name                           | Installed V. | Latest V. |  Update available
+ [1]    Vault                            1.7.3          1.7.3        False
+ ```
+
