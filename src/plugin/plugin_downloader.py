@@ -57,7 +57,7 @@ def getVersionName(packageId, versionId):
 
 
 def searchPackage(ressourceName):
-    url = f"https://api.spiget.org/v2/search/resources/{ressourceName}?field=name"
+    url = f"https://api.spiget.org/v2/search/resources/{ressourceName}?field=name&sort=-downloads"
     packageName = doAPIRequest(url)
     i = 1
     print(f"Searching: {ressourceName}")
