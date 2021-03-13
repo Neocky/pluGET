@@ -6,6 +6,7 @@ import requests
 
 from utils.consoleoutput import oColors
 from handlers.handle_config import checkConfig
+from handlers.handle_sftp import createSFTPConnection
 
 
 def getHelp():
@@ -45,12 +46,13 @@ def apiTest():
 def check_requirements():
     apiTest()
     check_local_plugin_folder()
-    # sftp test
+    if not checkConfig().localPluginFolder:
+        createSFTPConnection()
+
 
 def createTempPluginFolder():
     tempPluginFolder = ".\\plugins"
     if not os.path.isdir(tempPluginFolder):
-        #print(oColors.brightRed + "Plugin folder coulnd*t be found. Creating one..." + oColors.standardWhite)
         try:
             os.mkdir(tempPluginFolder)
         except OSError:

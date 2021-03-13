@@ -1,2 +1,4 @@
 @ECHO OFF
-py "%~dp0\src\__main__.py"
+cd "%~dp0"
+cd src
+py "__main__.py"

@@ -31,14 +31,6 @@ def handleRegexPackageName(packageNameFull):
     return packageNameOnly
 
 
-# TODO ununsed function
-def getlatestVersion(packageId):
-    url = f"https://api.spiget.org/v2/resources/{packageId}/versions/latest"
-    response = doAPIRequest(url)
-    packageVersion = response["name"]
-    return packageVersion
-
-
 def getVersionID(packageId, packageVersion):
     if packageVersion == None or packageVersion == 'latest':
         url = f"https://api.spiget.org/v2/resources/{packageId}/versions/latest"
@@ -68,23 +60,27 @@ def searchPackage(ressourceName):
     url = f"https://api.spiget.org/v2/search/resources/{ressourceName}?field=name"
     packageName = doAPIRequest(url)
     i = 1
-    print("Index  /  Name  /  Description  /  Downloads")
+    print(f"Searching: {ressourceName}")
+    print("Index | Name                        | Description                                                                                                          |  Downloads")
     for ressource in packageName:
         pName = ressource["name"]
+        newName = handleRegexPackageName(pName)
         pTag = ressource["tag"]
         pDownloads = ressource["downloads"]
-        print(f"    [{i}] {pName} / {pTag}/ {pDownloads}")
+        print(f" [{i}]".ljust(8), end='')
+        print(f"{newName}".ljust(30), end='')
+        print(f"{pTag}".ljust(120), end='')
+        print(f"{pDownloads}".ljust(7))
         i = i + 1
 
-    ressourceSelected = int(input("Select your wanted Ressource: "))
-    ressourceSelected = ressourceSelected - 1
-    #fileInfo = packageName[ressourceSelected]["file"]
-    #packageUrl = fileInfo["url"]
-    ressourceId = packageName[ressourceSelected]["id"]
-    if not checkConfig().localPluginFolder:
-        getSpecificPackage(ressourceId, checkConfig().sftp_folderPath)
-    else:
-        getSpecificPackage(ressourceId, checkConfig().pathToPluginFolder)
+    ressourceSelected = int(input("Select your wanted Ressource (Index)(0 to exit): "))
+    if ressourceSelected != 0:
+        ressourceSelected = ressourceSelected - 1
+        ressourceId = packageName[ressourceSelected]["id"]
+        if not checkConfig().localPluginFolder:
+            getSpecificPackage(ressourceId, checkConfig().sftp_folderPath)
+        else:
+            getSpecificPackage(ressourceId, checkConfig().pathToPluginFolder)
 
 
 def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
@@ -94,7 +90,7 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
         print(oColors.brightRed + "Reverting to latest version." + oColors.standardWhite)
 
     url = f"https://api.spiget.org/v2/resources/{ressourceId}/download"
-    #url = f"https://api.spiget.org/v2/resources/{ressourceId}/versions/latest/download" #throws 403 forbidden error
+    #url = f"https://api.spiget.org/v2/resources/{ressourceId}/versions/latest/download" #throws 403 forbidden error...cloudflare :(
 
     remotefile = urllib.request.urlopen(url)
     filesize = remotefile.info()['Content-Length']
@@ -116,7 +112,6 @@ def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
     packageNameNew = handleRegexPackageName(packageName)
     versionId = getVersionID(ressourceId, inputPackageVersion)
     packageVersion = getVersionName(ressourceId, versionId)
-    #packageVersion = getlatestVersion(ressourceId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
     downloadPackagePath = f"{downloadPath}\\{packageDownloadName}"
     if checkConfig().localPluginFolder:
@@ -145,7 +140,3 @@ def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
             except HTTPError as err:
                 print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
 
-# get latest update > https://api.spiget.org/v2/resources/28140/updates/latest
-# this also > https://api.spiget.org/v2/resources/28140/versions/latest
-# get latest download with correct name > https://api.spiget.org/v2/resources/28140/versions/latest/download cloudflare protected
-# query for a plugin https://api.spiget.org/v2/search/resources/luckperms?field=name

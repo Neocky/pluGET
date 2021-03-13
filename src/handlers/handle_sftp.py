@@ -40,7 +40,7 @@ def sftp_upload_file(sftp, itemPath):
         sftp.put(itemPath)
 
     except FileNotFoundError:
-        print(oColors.brightRed + "The *plugins* folder couldn*t be found on the remote host!" + oColors.standardWhite)
+        print(oColors.brightRed + "The 'plugins' folder couldn*t be found on the remote host!" + oColors.standardWhite)
         print(oColors.brightRed + "Aborting installation." + oColors.standardWhite)
     sftp.close()
 
@@ -51,7 +51,7 @@ def sftp_listAll(sftp):
         installedPlugins = sftp.listdir()
 
     except FileNotFoundError:
-        print(oColors.brightRed + "The *plugins* folder couldn*t be found on the remote host!" + oColors.standardWhite)
+        print(oColors.brightRed + "The 'plugins' folder couldn*t be found on the remote host!" + oColors.standardWhite)
 
     try:
         return installedPlugins

@@ -1,9 +1,9 @@
-# Handles the console output
 from os import system
 from os import name
 
+
 def consoleTitle():
-    system("title " + "pluGET │ by Neocky")
+    system("title " + "pluGET │ By Neocky")
 
 
 def clearConsole():
@@ -72,7 +72,7 @@ def printLogo():
     oColors.standardWhite)
     print()
     print()
-    print(oColors.brightYellow + "                                      [" + oColors.darkMagenta + "by Neocky" +
+    print(oColors.brightYellow + "                                      [" + oColors.darkMagenta + "By Neocky" +
     oColors.brightYellow + "]                                    " + oColors.standardWhite)
     print()
 
@@ -84,9 +84,3 @@ def printHorizontalLine():
 def printMainMenu():
     printLogo()
     printHorizontalLine()
-    #print("    [1] Download a specific package")
-    #print("    [2] Get update info of package")
-    #print("    [3] Search for a plugin")
-    #print("    [4] Download latest version of package")
-    #print("    [5] Check update for installed plugins")
-    #print()

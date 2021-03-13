@@ -1,6 +1,6 @@
 from utils.consoleoutput import consoleTitle, clearConsole, printMainMenu, oColors
 from utils.utilities import getHelp, check_requirements
-from handlers.handle_input import createInputLists, getInput, outputTest
+from handlers.handle_input import createInputLists, getInput
 from handlers.handle_config import checkConfig
 from plugin.plugin_downloader import searchPackage, getSpecificPackage
 from plugin.plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
@@ -15,6 +15,5 @@ def mainFunction():
     createInputLists()
     printMainMenu()
     getInput()
-    #outputTest()
 
 mainFunction()

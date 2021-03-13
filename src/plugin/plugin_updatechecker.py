@@ -18,7 +18,7 @@ def addToPluginList(pluginId, versionId, plugin_latest_version, plugin_is_outdat
     INSTALLEDPLUGINLIST.append([pluginId, versionId, plugin_latest_version, plugin_is_outdated])
 
 
-def getFileName(pluginName): # TODO delete end of pluginName -v like BossShopPro-v 
+def getFileName(pluginName):
     pluginNameFull = pluginName
     pluginVersion = re.search(r'([\d.]+[.jar]+)', pluginNameFull)
     try:
@@ -27,7 +27,8 @@ def getFileName(pluginName): # TODO delete end of pluginName -v like BossShopPro
         pluginVersionFull = pluginVersion
     pluginNameOnlyy = pluginNameFull.replace(pluginVersionFull, '')
     pluginNameOnly = re.sub(r'(\-$)', '', pluginNameOnlyy)
-    return pluginNameOnly
+    pluginNameOnlyy = re.sub(r'(\-v$)', '', pluginNameOnly)
+    return pluginNameOnlyy
 
 
 def getFileVersion(pluginName):
@@ -217,7 +218,7 @@ def getInstalledPlugin(localFileName, localFileVersion):
         packageVersions = doAPIRequest(url2)
         for updates in packageVersions:
             updateVersion = updates["name"]
-            if localFileVersion == updateVersion:
+            if localFileVersion in updateVersion:
                 plugin_match_found = True
                 pluginID = pID
                 updateId = updates["id"]

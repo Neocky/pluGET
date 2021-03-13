@@ -1,5 +1,4 @@
 import sys
-import time
 
 from utils.consoleoutput import oColors
 from utils.utilities import getHelp
@@ -14,6 +13,7 @@ def createInputLists():
         'get',
         'update',
         'check',
+        'search',
         'exit',
         'help',
         'remove'
@@ -44,6 +44,9 @@ def handleInput(inputCommand, inputSelectedObject, inputParams):
         if inputCommand == 'check':
             checkInstalledPackage(inputSelectedObject)
             break
+        if inputCommand == 'search':
+            searchPackage(inputSelectedObject)
+            break
         if inputCommand == 'exit':
             sys.exit()
         if inputCommand == 'help':
@@ -67,24 +70,4 @@ def getInput():
             print(oColors.brightRed + "Wrong input! Use: > *command* *selectedObject* *optionalParams*" + oColors.standardWhite)
 
     inputParams = inputParams[0] if inputParams else None
-    #print(inputCommand)
-    #print(inputSelectedObject)
-    #print(inputParams)
     handleInput(inputCommand, inputSelectedObject, inputParams)
-
-
-# only for testing purposes
-def outputTest():
-    print("Hello world")
-    print("Waiting still seconds: 5", end='\r')
-    time.sleep(1)
-    print("Waiting still seconds: 4", end='\r')
-    time.sleep(1)
-    print("Waiting still seconds: 3", end='\r')
-    time.sleep(1)
-    print("Waiting still seconds: 2", end='\r')
-    time.sleep(1)
-    print("Waiting still seconds: 1", end='\r')
-    time.sleep(1)
-    print("Done ✅☑✔                ")
-    input("Press key to end program...")
