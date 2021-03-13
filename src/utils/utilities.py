@@ -26,6 +26,7 @@ def check_local_plugin_folder():
             except OSError:
                 print(oColors.brightRed + "Creation of directory %s failed" % checkConfig().pathToPluginFolder)
                 print(oColors.brightRed + "Please check the config file!" + oColors.standardWhite)
+                input("Press any key + enter to exit...")
                 sys.exit()
             else:
                 print("Created directory %s" % checkConfig().pathToPluginFolder)
@@ -37,9 +38,11 @@ def apiTest():
         r = requests.get(apiStatusUrl)
     except requests.exceptions.HTTPError:
         print(oColors.brightRed + "Couldn't make a connection to the API. Check you connection to the internet!" + oColors.standardWhite)
+        input("Press any key + enter to exit...")
         sys.exit()
     if r.status_code != 200:
         print(oColors.brightRed + "Problems with the API detected. Plese try it again later!" + oColors.standardWhite)
+        input("Press any key + enter to exit...")
         sys.exit()
 
 
@@ -58,6 +61,7 @@ def createTempPluginFolder():
         except OSError:
             print(oColors.brightRed + "Creation of directory %s failed" % checkConfig().pathToPluginFolder)
             print(oColors.brightRed + "Please check the config file!" + oColors.standardWhite)
+            input("Press any key + enter to exit...")
             sys.exit()
     return tempPluginFolder
 
