@@ -162,7 +162,10 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         getSpecificPackage(pluginId, checkConfig().sftp_folderPath)
                         pluginsUpdated += 1
                     else:
-                        pluginPath = checkConfig().pathToPluginFolder
+                        if checkConfig().seperateDownloadPath is True:
+                            pluginPath = checkConfig().pathToSeperateDownloadPath
+                        else:
+                            pluginPath = checkConfig().pathToPluginFolder
                         pluginPath = f"{pluginPath}\\{plugin}"
                         os.remove(pluginPath)
                         getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
@@ -182,6 +185,10 @@ def updateInstalledPackage(inputSelectedObject='all'):
                     print(f"{latestVersion}".ljust(8))
 
                     if not checkConfig().localPluginFolder:
+                        if checkConfig().sftp_seperateDownloadPath is True:
+                            pluginPath = checkConfig().sftp_pathToSeperateDownloadPath
+                        else:
+                            pluginPath = checkConfig().sftp_folderPath
                         pluginPath = checkConfig().sftp_folderPath
                         pluginPath = f"{pluginPath}\\{plugin}"
                         sftp = createSFTPConnection()
@@ -190,7 +197,10 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         pluginsUpdated += 1
 
                     else:
-                        pluginPath = checkConfig().pathToPluginFolder
+                        if checkConfig().seperateDownloadPath is True:
+                            pluginPath = checkConfig().pathToSeperateDownloadPath
+                        else:
+                            pluginPath = checkConfig().pathToPluginFolder
                         pluginPath = f"{pluginPath}\\{plugin}"
                         os.remove(pluginPath)
                         getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
@@ -226,14 +236,15 @@ def getInstalledPlugin(localFileName, localFileVersion):
                 plugin_is_outdated = compareVersions(plugin_latest_version, updateVersion)
                 addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
                 break
-    
+
         i = i + 1
     else:
-        pID = None
-        updateId = None
-        plugin_latest_version = None
-        plugin_is_outdated = None
-        addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
+        if plugin_match_found != True:
+            pID = None
+            updateId = None
+            plugin_latest_version = None
+            plugin_is_outdated = None
+            addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
 
     return pluginID
 

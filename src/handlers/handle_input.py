@@ -30,10 +30,18 @@ def handleInput(inputCommand, inputSelectedObject, inputParams):
         if inputCommand == 'get':
             if inputSelectedObject.isdigit():
                 if not checkConfig().localPluginFolder:
-                    getSpecificPackage(inputSelectedObject, checkConfig().sftp_folderPath,  inputParams)
+                    if checkConfig().sftp_seperateDownloadPath is True:
+                        pluginPath = checkConfig().sftp_pathToSeperateDownloadPath
+                    else:
+                        pluginPath = checkConfig().sftp_folderPath
+                    getSpecificPackage(inputSelectedObject, pluginPath,  inputParams)
                     break
                 else:
-                    getSpecificPackage(inputSelectedObject, checkConfig().pathToPluginFolder,  inputParams)
+                    if checkConfig().seperateDownloadPath is True:
+                        pluginPath = checkConfig().pathToSeperateDownloadPath
+                    else:
+                        pluginPath = checkConfig().pathToPluginFolder
+                    getSpecificPackage(inputSelectedObject, pluginPath,  inputParams)
                     break
             else:
                 searchPackage(inputSelectedObject)

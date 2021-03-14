@@ -19,17 +19,22 @@ def getHelp():
 
 def check_local_plugin_folder():
     if checkConfig().localPluginFolder:
-        if not os.path.isdir(checkConfig().pathToPluginFolder):
+        if checkConfig().seperateDownloadPath:
+            pluginFolderPath = checkConfig().pathToSeperateDownloadPath
+        else:
+            pluginFolderPath = checkConfig().pathToPluginFolder
+
+        if not os.path.isdir(pluginFolderPath):
             print(oColors.brightRed + "Plugin folder coulnd*t be found. Creating one..." + oColors.standardWhite)
             try:
-                os.mkdir(checkConfig().pathToPluginFolder)
+                os.mkdir(pluginFolderPath)
             except OSError:
-                print(oColors.brightRed + "Creation of directory %s failed" % checkConfig().pathToPluginFolder)
+                print(oColors.brightRed + "Creation of directory %s failed" % pluginFolderPath)
                 print(oColors.brightRed + "Please check the config file!" + oColors.standardWhite)
                 input("Press any key + enter to exit...")
                 sys.exit()
             else:
-                print("Created directory %s" % checkConfig().pathToPluginFolder)
+                print("Created directory %s" % pluginFolderPath)
 
 
 def apiTest():
