@@ -1,3 +1,4 @@
+[![HitCount](http://hits.dwyl.com/Neocky/pluGET.svg)](http://hits.dwyl.com/Neocky/pluGET)  
 
 <p align="center">
 <img src="https://i.ibb.co/JyCxnQn/logoreal.png" alt="pluGET" border="0"></a>
@@ -17,7 +18,7 @@
 
 # pluGET
 
-[![HitCount](http://hits.dwyl.com/Neocky/pluGET.svg)](http://hits.dwyl.com/Neocky/pluGET)  
+
 A powerfull package manager which handles [Plugins](https://www.spigotmc.org/resources/) for minecraft servers.   
 
 
