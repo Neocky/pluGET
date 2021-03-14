@@ -12,7 +12,9 @@
 <a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/downloads/Neocky/pluGET/total" alt="downloads" border="0"></a>
 <a href="http://hits.dwyl.com/Neocky/pluGET"> <img src="http://hits.dwyl.com/Neocky/pluGET.svg" alt="hits" border="0"></a>
 </p>  
-
+<p align="center"> 
+[![HitCount](http://hits.dwyl.com/Neocky/pluGET.svg)](http://hits.dwyl.com/Neocky/pluGET)
+</p> 
 
 # pluGET
 
