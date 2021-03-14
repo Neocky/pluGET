@@ -1,5 +1,6 @@
 import os
 import re
+from urllib.error import HTTPError
 
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
@@ -127,6 +128,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
         pluginList = os.listdir(checkConfig().pathToPluginFolder)
     i = 0
     pluginsUpdated = 0
+    indexNumberUpdated = 0
     print(f"Updating: {inputSelectedObject}")
     print("Index | Name                        |   Old V.   |   New V.")
     try:
@@ -148,28 +150,47 @@ def updateInstalledPackage(inputSelectedObject='all'):
 
             if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
                 if INSTALLEDPLUGINLIST[i][3] == True:
-                    print(f" [{pluginsUpdated+1}]".ljust(8), end='')
+                    print(f" [{indexNumberUpdated+1}]".ljust(8), end='')
                     print(f"{fileName}".ljust(30), end='')
                     print(f"{fileVersion}".ljust(8), end='')
                     print("     ", end='')
                     print(f"{latestVersion}".ljust(8))
 
                     if not checkConfig().localPluginFolder:
-                        pluginPath = checkConfig().sftp_folderPath
+                        if checkConfig().sftp_pathToSeperateDownloadPath is True:
+                            pluginPath = checkConfig().sftp_pathToSeperateDownloadPath
+                        else:
+                            pluginPath = checkConfig().sftp_folderPath
                         pluginPath = f"{pluginPath}\\{plugin}"
                         sftp = createSFTPConnection()
-                        sftp.remove(pluginPath)
-                        getSpecificPackage(pluginId, checkConfig().sftp_folderPath)
+                        indexNumberUpdated += 1
                         pluginsUpdated += 1
+                        try:
+                            getSpecificPackage(pluginId, checkConfig().sftp_folderPath)
+                            if checkConfig().sftp_seperateDownloadPath is False:
+                                sftp.remove(pluginPath)
+                        except HTTPError as err:
+                            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+                            pluginsUpdated -= 1
+                        except FileNotFoundError:
+                            print(oColors.brightRed +  f"Error: Old plugin file coulnd't be deleted" + oColors.standardWhite)
                     else:
                         if checkConfig().seperateDownloadPath is True:
                             pluginPath = checkConfig().pathToSeperateDownloadPath
                         else:
                             pluginPath = checkConfig().pathToPluginFolder
                         pluginPath = f"{pluginPath}\\{plugin}"
-                        os.remove(pluginPath)
-                        getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
+                        indexNumberUpdated += 1
                         pluginsUpdated += 1
+                        try:
+                            getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
+                            if checkConfig().seperateDownloadPath is False:
+                                os.remove(pluginPath)
+                        except HTTPError as err:
+                            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+                            pluginsUpdated -= 1
+                        except FileNotFoundError:
+                            print(oColors.brightRed +  f"Error: Old plugin file coulnd't be deleted" + oColors.standardWhite)
                     break
                 else:
                     print(f"{fileName} is already on {latestVersion}")
@@ -178,7 +199,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
 
             if inputSelectedObject == 'all':
                 if INSTALLEDPLUGINLIST[i][3] == True:
-                    print(f" [{pluginsUpdated+1}]".ljust(8), end='')
+                    print(f" [{indexNumberUpdated+1}]".ljust(8), end='')
                     print(f"{fileName}".ljust(30), end='')
                     print(f"{fileVersion}".ljust(8), end='')
                     print("     ", end='')
@@ -192,9 +213,17 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         pluginPath = checkConfig().sftp_folderPath
                         pluginPath = f"{pluginPath}\\{plugin}"
                         sftp = createSFTPConnection()
-                        sftp.remove(pluginPath)
-                        getSpecificPackage(pluginId, checkConfig().sftp_folderPath)
+                        indexNumberUpdated += 1
                         pluginsUpdated += 1
+                        try:
+                            getSpecificPackage(pluginId, checkConfig().sftp_folderPath)
+                            if checkConfig().sftp_seperateDownloadPath is False:
+                                sftp.remove(pluginPath)
+                        except HTTPError as err:
+                            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+                            pluginsUpdated -= 1
+                        except FileNotFoundError:
+                            print(oColors.brightRed +  f"Error: Old plugin file coulnd't be deleted" + oColors.standardWhite)
 
                     else:
                         if checkConfig().seperateDownloadPath is True:
@@ -202,9 +231,18 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         else:
                             pluginPath = checkConfig().pathToPluginFolder
                         pluginPath = f"{pluginPath}\\{plugin}"
-                        os.remove(pluginPath)
-                        getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
+                        indexNumberUpdated += 1
                         pluginsUpdated += 1
+                        try:
+                            getSpecificPackage(pluginId, checkConfig().pathToPluginFolder)
+                            if checkConfig().seperateDownloadPath is False:
+                                os.remove(pluginPath)
+                        except HTTPError as err:
+                            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+                            pluginsUpdated -= 1
+                        except FileNotFoundError:
+                            print(oColors.brightRed +  f"Error: Old plugin file coulnd't be deleted" + oColors.standardWhite)
+
             i = i + 1
     except TypeError:
         print(oColors.brightRed + "Aborted updating for plugins." + oColors.standardWhite)

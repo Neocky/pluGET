@@ -116,15 +116,9 @@ def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
     downloadPackagePath = f"{downloadPath}\\{packageDownloadName}"
     if checkConfig().localPluginFolder:
         if inputPackageVersion is None or inputPackageVersion == 'latest':
-            try:
-                downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
-            except HTTPError as err:
-                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+            downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
         else:
-            try:
-                downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
-            except HTTPError as err:
-                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+            downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
 
     if not checkConfig().localPluginFolder:
         if inputPackageVersion is None or inputPackageVersion == 'latest':
