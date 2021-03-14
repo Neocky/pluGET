@@ -122,15 +122,8 @@ def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
 
     if not checkConfig().localPluginFolder:
         if inputPackageVersion is None or inputPackageVersion == 'latest':
-            try:
-                downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
-                deleteTempPluginFolder(downloadPath)
-            except HTTPError as err:
-                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+            downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
+            deleteTempPluginFolder(downloadPath)
         else:
-            try:
-                downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
-                deleteTempPluginFolder(downloadPath)
-            except HTTPError as err:
-                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
-
+            downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
+            deleteTempPluginFolder(downloadPath)
