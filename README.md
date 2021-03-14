@@ -16,7 +16,7 @@
 <a href="https://github.com/Neocky/pluGET/blob/main/LICENSE"> <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="Apache-2.0" border="0"></a>  
 <a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/downloads/Neocky/pluGET/total" alt="downloads" border="0"></a>
 <a href="http://hits.dwyl.com/Neocky/pluGET" >
-    <img src="http://hits.dwyl.com/Neocky/pluGET.svg" alt="Hit Count">
+    <img src="http://hits.dwyl.com/Neocky/pluGET.svg" alt="HitCount">
   </a>
 </p>
 
