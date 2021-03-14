@@ -12,12 +12,13 @@
 <a href="https://github.com/Neocky/pluGET/blob/main/LICENSE"> <img src="https://img.shields.io/github/license/Neocky/pluGET" alt="Apache-2.0" border="0"></a>  
 <a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/downloads/Neocky/pluGET/total" alt="downloads" border="0"></a>
 <a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/v/release/Neocky/pluGET?include_prereleases" alt"latestrelease"></a>
+<img src="https://hitcounter.pythonanywhere.com/count/tag.svg?url=https%3A%2F%2Fgithub.com%2FNeocky%2FpluGET" alt="Hits">
+
 
 </p>
 
 
-# pluGET
-[![HitCount](http://hits.dwyl.com/Neocky/pluGET.svg)](http://hits.dwyl.com/Neocky/pluGET)  
+# pluGET  
 A powerfull package manager which handles [Plugins](https://www.spigotmc.org/resources/) for minecraft servers.   
 
 
