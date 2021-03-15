@@ -78,9 +78,15 @@ def searchPackage(ressourceName):
         ressourceSelected = ressourceSelected - 1
         ressourceId = packageName[ressourceSelected]["id"]
         if not checkConfig().localPluginFolder:
-            getSpecificPackage(ressourceId, checkConfig().sftp_folderPath)
+            try:
+                getSpecificPackage(ressourceId, checkConfig().sftp_folderPath)
+            except HTTPError as err:
+                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
         else:
-            getSpecificPackage(ressourceId, checkConfig().pathToPluginFolder)
+            try:
+                getSpecificPackage(ressourceId, checkConfig().pathToPluginFolder)
+            except HTTPError as err:
+                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
 
 
 def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
