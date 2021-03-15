@@ -45,6 +45,17 @@ def sftp_upload_file(sftp, itemPath):
     sftp.close()
 
 
+def sftp_upload_server_jar(sftp, itemPath):
+    try:
+        sftp.chdir('.')
+        sftp.put(itemPath)
+
+    except FileNotFoundError:
+        print(oColors.brightRed + "The 'plugins' folder couldn*t be found on the remote host!" + oColors.standardWhite)
+        print(oColors.brightRed + "Aborting installation." + oColors.standardWhite)
+    sftp.close()
+
+
 def sftp_listAll(sftp):
     try:
         sftp.chdir('plugins')
@@ -57,3 +68,17 @@ def sftp_listAll(sftp):
         return installedPlugins
     except UnboundLocalError:
         print(oColors.brightRed + "No plugins were found." + oColors.standardWhite)
+
+
+def sftp_listFilesInServerRoot(sftp):
+    try:
+        #sftp.chdir('plugins')
+        filesInServerRoot = sftp.listdir()
+
+    except FileNotFoundError:
+        print(oColors.brightRed + "The 'root' folder couldn*t be found on the remote host!" + oColors.standardWhite)
+
+    try:
+        return filesInServerRoot
+    except UnboundLocalError:
+        print(oColors.brightRed + "No Serverjar was found." + oColors.standardWhite)

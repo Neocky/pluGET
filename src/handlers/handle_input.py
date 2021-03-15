@@ -6,6 +6,9 @@ from handlers.handle_config import checkConfig
 from plugin.plugin_downloader import searchPackage, getSpecificPackage
 from plugin.plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
 from plugin.plugin_remover import removePlugin
+from serverjar.serverjar_checker import checkInstalledServerjar, updateServerjar
+from serverjar.serverjar_paper import papermc_downloader 
+
 
 def createInputLists():
     global COMMANDLIST
@@ -16,7 +19,8 @@ def createInputLists():
         'search',
         'exit',
         'help',
-        'remove'
+        'remove',
+        'get-paper'
     ]
     global INPUTSELECTEDOBJECT
     INPUTSELECTEDOBJECT = [
@@ -47,10 +51,16 @@ def handleInput(inputCommand, inputSelectedObject, inputParams):
                 searchPackage(inputSelectedObject)
                 break
         if inputCommand == 'update':
-            updateInstalledPackage(inputSelectedObject)
+            if inputSelectedObject == 'serverjar':
+                updateServerjar(inputParams)
+            else:
+                updateInstalledPackage(inputSelectedObject)
             break
         if inputCommand == 'check':
-            checkInstalledPackage(inputSelectedObject)
+            if inputSelectedObject == 'serverjar':
+                checkInstalledServerjar()
+            else:
+                checkInstalledPackage(inputSelectedObject)
             break
         if inputCommand == 'search':
             searchPackage(inputSelectedObject)
@@ -62,6 +72,9 @@ def handleInput(inputCommand, inputSelectedObject, inputParams):
             break
         if inputCommand == 'remove':
             removePlugin(inputSelectedObject)
+            break
+        if inputCommand == 'get-paper':
+            papermc_downloader(inputSelectedObject, inputParams)
             break
         else:
             print(oColors.brightRed + "Command not found. Please try again." + oColors.standardWhite)

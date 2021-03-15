@@ -59,7 +59,7 @@ def check_requirements():
 
 
 def createTempPluginFolder():
-    tempPluginFolder = ".\\plugins"
+    tempPluginFolder = ".\\TempSFTPUploadFolder"
     if not os.path.isdir(tempPluginFolder):
         try:
             os.mkdir(tempPluginFolder)
