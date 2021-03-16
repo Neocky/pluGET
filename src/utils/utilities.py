@@ -3,6 +3,7 @@ import os
 import sys
 import shutil
 import requests
+from pathlib import Path
 
 from utils.consoleoutput import oColors
 from handlers.handle_config import checkConfig
@@ -59,7 +60,7 @@ def check_requirements():
 
 
 def createTempPluginFolder():
-    tempPluginFolder = ".\\plugins"
+    tempPluginFolder = Path("./TempSFTPUploadFolder")
     if not os.path.isdir(tempPluginFolder):
         try:
             os.mkdir(tempPluginFolder)
@@ -76,3 +77,10 @@ def deleteTempPluginFolder(tempPluginFolder):
         shutil.rmtree(tempPluginFolder)
     except OSError as e:
         print ("Error: %s - %s." % (e.filename, e.strerror))
+
+
+def calculateFileSizeMb(downloadFileSize):
+    fileSizeDownload = int(downloadFileSize)
+    fileSizeMb = fileSizeDownload / 1024 / 1024
+    roundedFileSize = round(fileSizeMb, 2)
+    return roundedFileSize

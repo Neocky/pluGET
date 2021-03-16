@@ -1,6 +1,7 @@
 import re
 import urllib.request
 from urllib.error import HTTPError
+from pathlib import Path
 
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
@@ -78,9 +79,15 @@ def searchPackage(ressourceName):
         ressourceSelected = ressourceSelected - 1
         ressourceId = packageName[ressourceSelected]["id"]
         if not checkConfig().localPluginFolder:
-            getSpecificPackage(ressourceId, checkConfig().sftp_folderPath)
+            try:
+                getSpecificPackage(ressourceId, checkConfig().sftp_folderPath)
+            except HTTPError as err:
+                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
         else:
-            getSpecificPackage(ressourceId, checkConfig().pathToPluginFolder)
+            try:
+                getSpecificPackage(ressourceId, checkConfig().pathToPluginFolder)
+            except HTTPError as err:
+                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
 
 
 def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
@@ -113,7 +120,7 @@ def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
     versionId = getVersionID(ressourceId, inputPackageVersion)
     packageVersion = getVersionName(ressourceId, versionId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
-    downloadPackagePath = f"{downloadPath}\\{packageDownloadName}"
+    downloadPackagePath = Path(f"{downloadPath}/{packageDownloadName}")
     if checkConfig().localPluginFolder:
         if inputPackageVersion is None or inputPackageVersion == 'latest':
             downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)

@@ -1,6 +1,7 @@
 import os
 import re
 from urllib.error import HTTPError
+from pathlib import Path
 
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
@@ -73,6 +74,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 fileVersion = getFileVersion(plugin)
                 pluginId = getInstalledPlugin(fileName, fileVersion)
             except TypeError:
+                i += 1
                 continue
             pluginIdStr = str(pluginId)
 
@@ -83,7 +85,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 pluginLatestVersion = INSTALLEDPLUGINLIST[i][2]
             except IndexError:
                 pluginLatestVersion = 'N/A'
-            
+
             if pluginLatestVersion == None:
                 pluginLatestVersion = 'N/A'
 
@@ -97,7 +99,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
 
             if pluginIsOutdated == True:
                 oldPackages = oldPackages + 1
-
+            
             if inputSelectedObject != "*" and inputSelectedObject != "all":
                 if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
                     print(f" [{1}]".ljust(8), end='')
@@ -113,7 +115,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 print(f"{pluginLatestVersion}".ljust(12), end='')
                 print(f" {pluginIsOutdated}".ljust(5))
 
-            i = i + 1
+            i += 1
     except TypeError:
         print(oColors.brightRed + "Aborted checking for plugins." + oColors.standardWhite)
     print(oColors.brightYellow + f"Old packages: [{oldPackages}/{i}]" + oColors.standardWhite)
@@ -139,8 +141,10 @@ def updateInstalledPackage(inputSelectedObject='all'):
                 pluginId = getInstalledPlugin(fileName, fileVersion)
                 latestVersion = getLatestPluginVersion(pluginId)
             except TypeError:
+                i += 1
                 continue
             except ValueError:
+                i += 1
                 continue
             pluginIdStr = str(pluginId)
 
@@ -161,7 +165,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
                             pluginPath = checkConfig().sftp_pathToSeperateDownloadPath
                         else:
                             pluginPath = checkConfig().sftp_folderPath
-                        pluginPath = f"{pluginPath}\\{plugin}"
+                        pluginPath = Path(f"{pluginPath}/{plugin}")
                         sftp = createSFTPConnection()
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
@@ -173,13 +177,13 @@ def updateInstalledPackage(inputSelectedObject='all'):
                             print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
                             pluginsUpdated -= 1
                         except FileNotFoundError:
-                            print(oColors.brightRed +  f"Error: Old plugin file coulnd't be deleted" + oColors.standardWhite)
+                            print(oColors.brightRed +  "Error: Old plugin file coulnd't be deleted" + oColors.standardWhite)
                     else:
                         if checkConfig().seperateDownloadPath is True:
                             pluginPath = checkConfig().pathToSeperateDownloadPath
                         else:
                             pluginPath = checkConfig().pathToPluginFolder
-                        pluginPath = f"{pluginPath}\\{plugin}"
+                        pluginPath = Path(f"{pluginPath}/{plugin}")
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
                         try:
@@ -211,7 +215,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         else:
                             pluginPath = checkConfig().sftp_folderPath
                         pluginPath = checkConfig().sftp_folderPath
-                        pluginPath = f"{pluginPath}\\{plugin}"
+                        pluginPath = f"{pluginPath}/{plugin}"
                         sftp = createSFTPConnection()
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
@@ -230,7 +234,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
                             pluginPath = checkConfig().pathToSeperateDownloadPath
                         else:
                             pluginPath = checkConfig().pathToPluginFolder
-                        pluginPath = f"{pluginPath}\\{plugin}"
+                        pluginPath = Path(f"{pluginPath}/{plugin}")
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
                         try:
@@ -254,13 +258,11 @@ def updateInstalledPackage(inputSelectedObject='all'):
 def getInstalledPlugin(localFileName, localFileVersion):
     url = "https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name&sort=-downloads"
     packageName = doAPIRequest(url)
-    i = 1
     plugin_match_found = False
     pluginID = None
     for ressource in packageName:
         if plugin_match_found == True:
             break
-
         pID = ressource["id"]
         url2 = f"https://api.spiget.org/v2/resources/{pID}/versions?size=100&sort=-name"
         packageVersions = doAPIRequest(url2)
@@ -273,9 +275,8 @@ def getInstalledPlugin(localFileName, localFileVersion):
                 plugin_latest_version = getLatestPluginVersion(pID)
                 plugin_is_outdated = compareVersions(plugin_latest_version, updateVersion)
                 addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
-                break
+                return pluginID
 
-        i = i + 1
     else:
         if plugin_match_found != True:
             pID = None
@@ -285,11 +286,3 @@ def getInstalledPlugin(localFileName, localFileVersion):
             addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
 
     return pluginID
-
-
-    # start query
-    # get id
-    # search with id for all version upates
-    # get version that matches installed version
-    # if match then download latest update
-    # else get second query
