@@ -7,7 +7,7 @@ from plugin.plugin_downloader import searchPackage, getSpecificPackage
 from plugin.plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
 from plugin.plugin_remover import removePlugin
 from serverjar.serverjar_checker import checkInstalledServerjar, updateServerjar
-from serverjar.serverjar_paper import papermc_downloader 
+from serverjar.serverjar_paper import papermc_downloader
 
 
 def createInputLists():

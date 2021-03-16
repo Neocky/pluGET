@@ -74,6 +74,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 fileVersion = getFileVersion(plugin)
                 pluginId = getInstalledPlugin(fileName, fileVersion)
             except TypeError:
+                i += 1
                 continue
             pluginIdStr = str(pluginId)
 
@@ -84,7 +85,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 pluginLatestVersion = INSTALLEDPLUGINLIST[i][2]
             except IndexError:
                 pluginLatestVersion = 'N/A'
-            
+
             if pluginLatestVersion == None:
                 pluginLatestVersion = 'N/A'
 
@@ -114,7 +115,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 print(f"{pluginLatestVersion}".ljust(12), end='')
                 print(f" {pluginIsOutdated}".ljust(5))
 
-            i = i + 1
+            i += 1
     except TypeError:
         print(oColors.brightRed + "Aborted checking for plugins." + oColors.standardWhite)
     print(oColors.brightYellow + f"Old packages: [{oldPackages}/{i}]" + oColors.standardWhite)
@@ -139,18 +140,18 @@ def updateInstalledPackage(inputSelectedObject='all'):
                 fileVersion = getFileVersion(plugin)
                 pluginId = getInstalledPlugin(fileName, fileVersion)
                 latestVersion = getLatestPluginVersion(pluginId)
-                print(fileName)
-                print(fileVersion)
             except TypeError:
+                i += 1
                 continue
             except ValueError:
+                i += 1
                 continue
             pluginIdStr = str(pluginId)
 
             if pluginId == None:
                 print(oColors.brightRed + "Couldn't find plugin id. Sorry :(" + oColors.standardWhite)
                 continue
-            print(INSTALLEDPLUGINLIST[i])
+
             if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
                 if INSTALLEDPLUGINLIST[i][3] == True:
                     print(f" [{indexNumberUpdated+1}]".ljust(8), end='')
@@ -257,12 +258,10 @@ def updateInstalledPackage(inputSelectedObject='all'):
 def getInstalledPlugin(localFileName, localFileVersion):
     url = "https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name&sort=-downloads"
     packageName = doAPIRequest(url)
-    #i = 1
     plugin_match_found = False
     pluginID = None
     for ressource in packageName:
         if plugin_match_found == True:
-            plugin_match_found = False
             break
         pID = ressource["id"]
         url2 = f"https://api.spiget.org/v2/resources/{pID}/versions?size=100&sort=-name"
@@ -276,19 +275,14 @@ def getInstalledPlugin(localFileName, localFileVersion):
                 plugin_latest_version = getLatestPluginVersion(pID)
                 plugin_is_outdated = compareVersions(plugin_latest_version, updateVersion)
                 addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
-                print("in if")
-                print(plugin_match_found)
-                return pluginID # just testing
-                #break
+                return pluginID
 
-    else: # TODO fix duplicate entrys when update all
+    else:
         if plugin_match_found != True:
             pID = None
             updateId = None
             plugin_latest_version = None
             plugin_is_outdated = None
             addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
-            print("in else")
-            print(plugin_match_found)
 
     return pluginID
