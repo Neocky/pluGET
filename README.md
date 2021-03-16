@@ -10,8 +10,8 @@
 
 <p align="center">  
 <a href="https://github.com/Neocky/pluGET/blob/main/LICENSE"> <img src="https://img.shields.io/github/license/Neocky/pluGET" alt="Apache-2.0" border="0"></a>  
-<a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/downloads/Neocky/pluGET/total" alt="downloads" border="0"></a>
 <a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/v/release/Neocky/pluGET?include_prereleases" alt"latestrelease"></a>
+<a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/downloads/Neocky/pluGET/total" alt="downloads" border="0"></a>
 <img src="https://hitcounter.pythonanywhere.com/count/tag.svg?url=https%3A%2F%2Fgithub.com%2FNeocky%2FpluGET" alt="Hits">
 
 
@@ -19,7 +19,7 @@
 
 
 # pluGET  
-A powerfull package manager which handles [Plugins](https://www.spigotmc.org/resources/) for minecraft servers.   
+A powerfull package manager which handles [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
 
 
 ## Issues? Found a bug? 
@@ -31,6 +31,7 @@ This is a package manager for minecraft [Spigot](https://www.spigotmc.org/) serv
 This is a standalone program written in python.  
 The program works with a locally installed server or with a remote host through SFTP, when configured in the config.  
 It uses the [Spiget](https://spiget.org/) API to download and compare plugin versions and can download the latest version of plugins from the [Spigot](https://www.spigotmc.org/) site.  
+It can also compare and download the latest update of specifif server software (e.g. [PaperMC](https://papermc.io/)).  
 
 Plugin management was the hard part of mangaging a minecraft server. The time it took to check the [Spigot ressource](https://www.spigotmc.org/resources/) page for updates for the installed plugins and updating all plugins manually which have available updates was too long and shocking.  
 So I built pluGET to automate and ease the plugin handling of a minecraft server and to turn the most time consuming part of managing a minecraft server to an easy one.  
@@ -45,10 +46,16 @@ If you still have questions [here](https://github.com/Neocky/pluGET#need-help) i
 So what can it do exactly?  
 pluGET can:
 - work locally or through sftp
-- download the latest version of a plugin
-- update every installed/one specific plugin
-- check for an update of every installed/one specific plugin
-- remove a plugin from the plugin folder  
+- manage plugins:
+  - download the latest version of a plugin
+  - update every installed/one specific plugin
+  - check for an update of every installed/one specific plugin
+  - remove a plugin from the plugin folder
+- manager server software:
+  - download a specific server software version
+  - check instlalled server software for update
+  - update installed server software to a specific version
+  - supported server software: [PaperMc](https://papermc.io/)
 
 There are more features in the work. Check [Projects](https://github.com/Neocky/pluGET/projects) for a complete list.  
 
@@ -85,10 +92,13 @@ Edit the config to your needs and relaunch pluGET.
 
 
 ## Usage  
+> As always, if you update plugins, shut down your server!  
+
 Execute the `launcher.bat` in the `\pluGET` folder. This will launch pluGET correctly.  
 Another way is to launch the `src\__main__.py` file.  
 The following are examples of input for the general usage:  
-(Hint: 'all' can always be exchanged through the plugin name or the plugin id and reverse)  
+(Hint: [thingsInBrackets] are optional & 'all' can always be exchanged through the plugin name or the plugin id and reverse)  
+### Manage Plugins
 #### Download the latest update of a specific package: 
 `get [pluginID/pluginName]`  
 ```
@@ -139,6 +149,26 @@ exit .
 `help [anything]`  
 ```
 help .
+```
+### Manage Server Software
+#### Check installed server software for updates:
+`check serverjar`  
+```
+check serverjar
+```
+### Update installed server software to latest/specific version:
+`update serverjar [Version]`  
+```
+update serverjar 'PaperMCVersion'
+```
+### Download specific paper version:
+`get-paper [paperBuild] [minecraftVersion]`
+```
+get-paper 550 1.16.5
+```
+or:
+```
+get-paper 321
 ```
 
 ## Known problems
