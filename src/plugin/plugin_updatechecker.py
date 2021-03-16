@@ -1,6 +1,7 @@
 import os
 import re
 from urllib.error import HTTPError
+from pathlib import Path
 
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
@@ -97,7 +98,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
 
             if pluginIsOutdated == True:
                 oldPackages = oldPackages + 1
-
+            
             if inputSelectedObject != "*" and inputSelectedObject != "all":
                 if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
                     print(f" [{1}]".ljust(8), end='')
@@ -138,6 +139,8 @@ def updateInstalledPackage(inputSelectedObject='all'):
                 fileVersion = getFileVersion(plugin)
                 pluginId = getInstalledPlugin(fileName, fileVersion)
                 latestVersion = getLatestPluginVersion(pluginId)
+                print(fileName)
+                print(fileVersion)
             except TypeError:
                 continue
             except ValueError:
@@ -147,7 +150,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
             if pluginId == None:
                 print(oColors.brightRed + "Couldn't find plugin id. Sorry :(" + oColors.standardWhite)
                 continue
-
+            print(INSTALLEDPLUGINLIST[i])
             if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
                 if INSTALLEDPLUGINLIST[i][3] == True:
                     print(f" [{indexNumberUpdated+1}]".ljust(8), end='')
@@ -161,7 +164,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
                             pluginPath = checkConfig().sftp_pathToSeperateDownloadPath
                         else:
                             pluginPath = checkConfig().sftp_folderPath
-                        pluginPath = f"{pluginPath}\\{plugin}"
+                        pluginPath = Path(f"{pluginPath}/{plugin}")
                         sftp = createSFTPConnection()
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
@@ -173,13 +176,13 @@ def updateInstalledPackage(inputSelectedObject='all'):
                             print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
                             pluginsUpdated -= 1
                         except FileNotFoundError:
-                            print(oColors.brightRed +  f"Error: Old plugin file coulnd't be deleted" + oColors.standardWhite)
+                            print(oColors.brightRed +  "Error: Old plugin file coulnd't be deleted" + oColors.standardWhite)
                     else:
                         if checkConfig().seperateDownloadPath is True:
                             pluginPath = checkConfig().pathToSeperateDownloadPath
                         else:
                             pluginPath = checkConfig().pathToPluginFolder
-                        pluginPath = f"{pluginPath}\\{plugin}"
+                        pluginPath = Path(f"{pluginPath}/{plugin}")
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
                         try:
@@ -211,7 +214,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         else:
                             pluginPath = checkConfig().sftp_folderPath
                         pluginPath = checkConfig().sftp_folderPath
-                        pluginPath = f"{pluginPath}\\{plugin}"
+                        pluginPath = f"{pluginPath}/{plugin}"
                         sftp = createSFTPConnection()
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
@@ -230,7 +233,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
                             pluginPath = checkConfig().pathToSeperateDownloadPath
                         else:
                             pluginPath = checkConfig().pathToPluginFolder
-                        pluginPath = f"{pluginPath}\\{plugin}"
+                        pluginPath = Path(f"{pluginPath}/{plugin}")
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
                         try:
@@ -254,13 +257,13 @@ def updateInstalledPackage(inputSelectedObject='all'):
 def getInstalledPlugin(localFileName, localFileVersion):
     url = "https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name&sort=-downloads"
     packageName = doAPIRequest(url)
-    i = 1
+    #i = 1
     plugin_match_found = False
     pluginID = None
     for ressource in packageName:
         if plugin_match_found == True:
+            plugin_match_found = False
             break
-
         pID = ressource["id"]
         url2 = f"https://api.spiget.org/v2/resources/{pID}/versions?size=100&sort=-name"
         packageVersions = doAPIRequest(url2)
@@ -273,23 +276,19 @@ def getInstalledPlugin(localFileName, localFileVersion):
                 plugin_latest_version = getLatestPluginVersion(pID)
                 plugin_is_outdated = compareVersions(plugin_latest_version, updateVersion)
                 addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
-                break
+                print("in if")
+                print(plugin_match_found)
+                return pluginID # just testing
+                #break
 
-        i = i + 1
-    else:
+    else: # TODO fix duplicate entrys when update all
         if plugin_match_found != True:
             pID = None
             updateId = None
             plugin_latest_version = None
             plugin_is_outdated = None
             addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
+            print("in else")
+            print(plugin_match_found)
 
     return pluginID
-
-
-    # start query
-    # get id
-    # search with id for all version upates
-    # get version that matches installed version
-    # if match then download latest update
-    # else get second query

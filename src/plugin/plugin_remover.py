@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 
 from utils.consoleoutput import oColors
 from handlers.handle_config import checkConfig
@@ -29,7 +30,7 @@ def removePlugin(pluginToRemove):
                 print(f"Removing: {fileName}")
                 if not checkConfig().localPluginFolder:
                     pluginPath = checkConfig().sftp_folderPath
-                    pluginPath = f"{pluginPath}\\{plugin}"
+                    pluginPath = f"{pluginPath}/{plugin}"
                     sftp = createSFTPConnection()
                     sftp.remove(pluginPath)
                     print(f"Removed: {fileName}")
@@ -37,7 +38,7 @@ def removePlugin(pluginToRemove):
                     break
                 else:
                     pluginPath = checkConfig().pathToPluginFolder
-                    pluginPath = f"{pluginPath}\\{plugin}"
+                    pluginPath = Path(f"{pluginPath}/{plugin}")
                     os.remove(pluginPath)
                     print(f"Removed: {fileName}")
                     i += 1

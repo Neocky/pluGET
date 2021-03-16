@@ -1,13 +1,13 @@
 import os
 import sys
 import configparser
+from pathlib import Path
 
 from utils.consoleoutput import oColors
 
 
 def checkConfig():
     currentFolder = os.getcwd()
-    os.chdir('..')
     configAvailable = os.path.isfile("config.ini")
     
     if not configAvailable:
@@ -21,9 +21,9 @@ def checkConfig():
         config.sections()
         config.read("config.ini")
         localPluginFolder = config['General']['LocalPluginFolder']
-        pathToPluginFolder = config['General']['PathToPluginFolder']
+        pathToPluginFolder = Path(config['General']['PathToPluginFolder'])
         seperateDownloadPath = config['General']['SeperateDownloadPath']
-        pathToSeperateDownloadPath = config['General']['PathToSeperateDownloadPath']
+        pathToSeperateDownloadPath = Path(config['General']['PathToSeperateDownloadPath'])
 
         sftp_server = config['SFTP - Remote Server']['Server']
         sftp_user = config['SFTP - Remote Server']['Username']
@@ -75,5 +75,5 @@ def createConfig():
     config['SFTP - Remote Server']['PathToSeperateDownloadPath'] = '.\\plugins'
 
 
-    with open('./config.ini', 'w') as configfile:
+    with open('config.ini', 'w') as configfile:
         config.write(configfile)
