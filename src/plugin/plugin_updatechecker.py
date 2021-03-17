@@ -1,7 +1,10 @@
 import os
 import re
+import io
+from zipfile import ZipFile
 from urllib.error import HTTPError
 from pathlib import Path
+from rich.progress import track
 
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
@@ -38,6 +41,10 @@ def getFileVersion(pluginName):
     pluginVersion = re.search(r'([\d.]+[.jar]+)', pluginNameFull)
     pluginVersionFull = pluginVersion.group()
     pluginVersionString = pluginVersionFull.replace('.jar', '')
+    if pluginVersionString.endswith('.'):
+        pluginVersionString = ''
+    if pluginVersionString == '':
+        pluginVersionString = eggCrackingJar(pluginNameFull)
     return pluginVersionString
 
 
@@ -56,6 +63,29 @@ def compareVersions(plugin_latest_version, pluginVersion):
     return plugin_is_outdated
 
 
+def eggCrackingJar(localJarFileName):
+    if not checkConfig().localPluginFolder:
+        pluginPath = checkConfig().sftp_folderPath
+    else:
+        pluginPath = checkConfig().pathToPluginFolder
+    pathToPluginJar = Path(f"{pluginPath}/{localJarFileName}")
+    pluginVersion = ''
+    with ZipFile(pathToPluginJar, 'r') as pluginJar:
+        try:
+            with io.TextIOWrapper(pluginJar.open('plugin.yml', 'r'), encoding="utf-8") as pluginYml:
+                pluginYmlContentLine = pluginYml.readlines()
+                for line in pluginYmlContentLine:
+                    if "version: " in line:
+                        pluginVersion = line.replace('version: ', '')
+                        pluginVersion = pluginVersion.replace('\n', '')
+                        break
+
+        except FileNotFoundError:
+            pluginVersion = ''
+    return pluginVersion
+
+
+
 def checkInstalledPackage(inputSelectedObject="all"):
     createPluginList()
     if not checkConfig().localPluginFolder:
@@ -68,7 +98,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
     print(f"Checking: {inputSelectedObject}")
     print("Index | Name                           | Installed V. | Latest V. |  Update available")
     try:
-        for plugin in pluginList:
+        for plugin in track(pluginList, description="Checking plugins" ,transient=True, complete_style="cyan"):
             try:
                 fileName = getFileName(plugin)
                 fileVersion = getFileVersion(plugin)
@@ -77,7 +107,6 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 i += 1
                 continue
             pluginIdStr = str(pluginId)
-
             if fileVersion == '':
                 fileVersion = 'N/A'
 
@@ -99,7 +128,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
 
             if pluginIsOutdated == True:
                 oldPackages = oldPackages + 1
-            
+
             if inputSelectedObject != "*" and inputSelectedObject != "all":
                 if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
                     print(f" [{1}]".ljust(8), end='')

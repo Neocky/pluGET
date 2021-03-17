@@ -58,10 +58,10 @@ def createConfig():
     config['General'] = {}
     config['General'][';'] = 'If a local plugin folder exists (True/False): (If False SFTP will be used)'
     config['General']['LocalPluginFolder'] = 'True'
-    config['General']['PathToPluginFolder'] = 'C:\\Users\\USER\\Desktop\\plugins'
+    config['General']['PathToPluginFolder'] = 'C:/Users/USER/Desktop/plugins'
     config['General'][';_'] = 'If you want a different folder to store the updated plugins change to (True/False) and the path below'
     config['General']['SeperateDownloadPath'] = 'False'
-    config['General']['PathToSeperateDownloadPath'] = 'C:\\Users\\USER\\Desktop\\plugins'
+    config['General']['PathToSeperateDownloadPath'] = 'C:/Users/USER/Desktop/plugins'
 
     config['SFTP - Remote Server'] = {}
     config['SFTP - Remote Server']['Server'] = '0.0.0.0'
