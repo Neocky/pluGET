@@ -8,3 +8,7 @@ cffi >= 1.14.5
 six >= 1.15.0
 pycparser >= 2.20
 pysftp >= 0.2.9
+rich >= 9.13.0
+commonmark >= 0.9.1
+Pygments >= 2.8.1
+typing_extensions >= 3.7.4.3
