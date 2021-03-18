@@ -18,6 +18,7 @@ class oColors:
     brightRed = "\033[91m"
     brightGreen = "\033[92m"
     darkMagenta = "\033[35m"
+    brightBlack = "\033[90m"
 
 
 def printLogo():
@@ -72,9 +73,12 @@ def printLogo():
     oColors.standardWhite)
     print()
     print()
-    print(oColors.brightYellow + "                                      [" + oColors.darkMagenta + "By Neocky" +
-    oColors.brightYellow + "]                                    " + oColors.standardWhite)
-    print()
+    print(oColors.brightBlack + "                        ┌────────────────────────────────────┐" + oColors.standardWhite)
+    print(oColors.brightBlack + "                        │             [" + oColors.brightMagenta + "By Neocky" +oColors.brightBlack +
+     "]            │                                   " + oColors.standardWhite)
+    print(oColors.brightBlack + "                        │  " + oColors.brightMagenta + "https://github.com/Neocky/pluGET" + oColors.brightBlack +
+     "  │                                                  " + oColors.standardWhite)
+    print(oColors.brightBlack + "                        └────────────────────────────────────┘" + oColors.standardWhite)
 
 
 def printHorizontalLine():
