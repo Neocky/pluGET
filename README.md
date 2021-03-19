@@ -19,7 +19,10 @@
 
 
 # pluGET  
-A powerfull package manager which handles [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
+### A powerfull package manager which handles [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
+
+<img src="https://i.ibb.co/82dnyrK/image.png" alt="meme" border="0" height="350" width="350"></a>
+
 
 
 ## Issues? Found a bug? 
