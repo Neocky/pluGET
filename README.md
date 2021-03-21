@@ -21,8 +21,21 @@
 # pluGET  
 #### A powerfull package manager which handles [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
 
-<img src="https://i.ibb.co/82dnyrK/image.png" alt="meme" border="0" height="350" width="350"></a>
+<details>
+  <summary>Screenshots</summary>  
+  
+  `check all` to check installed plugins for updates:  
+  ![screenshot1](https://i.ibb.co/QM7xh7w/pluget-checkall-small.png)
+  
+  `check all` with more plugins:  
+  ![screenshot2](https://i.ibb.co/VmSNh6K/pluget-checkall.png)
+  
+  `help command` list all available commands:  
+  ![screenshot3](https://i.ibb.co/9VZCjD6/pluget-help2.png)
+  
+</details>
 
+<img src="https://i.ibb.co/82dnyrK/image.png" alt="meme" border="0" height="350" width="350"></a>
 
 
 ## Issues? Found a bug? 
