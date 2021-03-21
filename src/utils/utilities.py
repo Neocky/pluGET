@@ -12,7 +12,7 @@ from handlers.handle_sftp import createSFTPConnection
 
 def getHelp():
     print(oColors.brightYellow+ "Need help?" + oColors.standardWhite)
-    print("For a list of all the commands: 'help command'")
+    print("For a list of all commands: 'help command'")
     print("Or check the docs here:")
     print("https://github.com/Neocky/pluGET")
     print("Or go to the official discord.")
@@ -22,6 +22,7 @@ def getHelp():
 def getCommandHelp(optionalParams):
     if optionalParams == None:
         optionalParams = 'all'
+    print(oColors.brightBlack + f"Help for command: {optionalParams}" +oColors.standardWhite)
     print("┌────────────────┬─────────────────┬─────────────────┬────────────────────────────────────────────────────────┐")
     print("│ Command        │ Selected Object │ Optional Params │ Function                                               │")
     print("└────────────────┴─────────────────┴─────────────────┴────────────────────────────────────────────────────────┘")
@@ -40,7 +41,7 @@ def getCommandHelp(optionalParams):
             print(oColors.brightBlack + " SERVER SOFTWARE MANAGEMENT:" + oColors.standardWhite)
             print("  check            serverjar                           Check installed server software for an update")
             print("  update           serverjar         Version/Latest    Update installed server software to a specific version")
-            print("  get-paper        PaperVersion      McVersion         Downloads specific PaperMc version")
+            print("  get-paper        PaperVersion      McVersion         Downloads a specific PaperMc version")
             break
 
         if optionalParams == 'exit':
@@ -85,7 +86,7 @@ def getCommandHelp(optionalParams):
 
         if optionalParams == 'get-paper':
             print(oColors.brightBlack + " SERVER SOFTWARE MANAGEMENT:" + oColors.standardWhite)
-            print("  get-paper        PaperVersion      McVersion         Downloads specific PaperMc version")
+            print("  get-paper        PaperVersion      McVersion         Downloads a specific PaperMc version")
             break
 
         else:

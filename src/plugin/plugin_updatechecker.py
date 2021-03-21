@@ -132,7 +132,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
             if inputSelectedObject != "*" and inputSelectedObject != "all":
                 if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
                     if pluginLatestVersion == 'N/A':
-                        print(oColors.darkBlack + f" [{1}]".ljust(8), end='')
+                        print(oColors.brightBlack + f" [{1}]".ljust(8), end='')
                     else:
                         print(f" [{1}]".ljust(8), end='')
                     print(f"{fileName}".ljust(33), end='')
@@ -142,7 +142,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
                     break
             else:
                 if pluginLatestVersion == 'N/A':
-                    print(oColors.darkBlack + f" [{i+1}]".ljust(8), end='')
+                    print(oColors.brightBlack + f" [{i+1}]".ljust(8), end='')
                 else:
                     print(f" [{i+1}]".ljust(8), end='')
                 print(f"{fileName}".ljust(33), end='')

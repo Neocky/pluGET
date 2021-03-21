@@ -68,7 +68,6 @@ def handleInput(inputCommand, inputSelectedObject, inputParams):
         if inputCommand == 'exit':
             sys.exit()
         if inputCommand == 'help':
-            print(inputParams)
             if inputSelectedObject == 'command' or inputSelectedObject == 'commands':
                 getCommandHelp(inputParams)
             else:
