@@ -85,7 +85,6 @@ def eggCrackingJar(localJarFileName):
     return pluginVersion
 
 
-
 def checkInstalledPackage(inputSelectedObject="all"):
     createPluginList()
     if not checkConfig().localPluginFolder:
@@ -95,9 +94,10 @@ def checkInstalledPackage(inputSelectedObject="all"):
         pluginList = os.listdir(checkConfig().pathToPluginFolder)
     i = 0
     oldPackages = 0
-    print(f"Checking: {inputSelectedObject}")
-    print("Index | Name                           | Installed V. | Latest V. |  Update available")
-    print("─────────────────────────────────────────────────────────────────────────────────────")
+    print(oColors.brightBlack + f"Checking: {inputSelectedObject}" + oColors.standardWhite)
+    print("┌─────┬────────────────────────────────┬──────────────┬───────────┬───────────────────┐")
+    print("│ No. │ Name                           │ Installed V. │ Latest V. │  Update available │")
+    print("└─────┴────────────────────────────────┴──────────────┴───────────┴───────────────────┘")
     try:
         for plugin in track(pluginList, description="Checking for updates" ,transient=True, complete_style="cyan"):
             try:
@@ -131,22 +131,28 @@ def checkInstalledPackage(inputSelectedObject="all"):
 
             if inputSelectedObject != "*" and inputSelectedObject != "all":
                 if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
-                    print(f" [{1}]".ljust(8), end='')
+                    if pluginLatestVersion == 'N/A':
+                        print(oColors.darkBlack + f" [{1}]".ljust(8), end='')
+                    else:
+                        print(f" [{1}]".ljust(8), end='')
                     print(f"{fileName}".ljust(33), end='')
                     print(f"{fileVersion}".ljust(15), end='')
                     print(f"{pluginLatestVersion}".ljust(12), end='')
-                    print(f" {pluginIsOutdated}".ljust(5))
+                    print(f" {pluginIsOutdated}".ljust(5) + oColors.standardWhite)
                     break
             else:
-                print(f" [{i+1}]".ljust(8), end='')
+                if pluginLatestVersion == 'N/A':
+                    print(oColors.darkBlack + f" [{i+1}]".ljust(8), end='')
+                else:
+                    print(f" [{i+1}]".ljust(8), end='')
                 print(f"{fileName}".ljust(33), end='')
                 print(f"{fileVersion}".ljust(15), end='')
                 print(f"{pluginLatestVersion}".ljust(12), end='')
-                print(f" {pluginIsOutdated}".ljust(5))
+                print(f" {pluginIsOutdated}".ljust(5) + oColors.standardWhite)
 
             i += 1
     except TypeError:
-        print(oColors.brightRed + "Aborted checking for updates." + oColors.standardWhite)
+        print(oColors.brightRed + "Error occured: Aborted checking for updates." + oColors.standardWhite)
     print(oColors.brightYellow + f"Old packages: [{oldPackages}/{i}]" + oColors.standardWhite)
 
 
@@ -160,9 +166,10 @@ def updateInstalledPackage(inputSelectedObject='all'):
     i = 0
     pluginsUpdated = 0
     indexNumberUpdated = 0
-    print(f"Updating: {inputSelectedObject}")
-    print("Index | Name                        |   Old V.   |   New V.")
-    print("───────────────────────────────────────────────────────────")
+    print(oColors.brightBlack + f"Updating: {inputSelectedObject}" + oColors.standardWhite)
+    print("┌─────┬────────────────────────────────┬────────────┬──────────┐")
+    print("│ No. │ Name                           │   Old V.   │   New V. │")
+    print("└─────┴────────────────────────────────┴────────────┴──────────┘")
     try:
         for plugin in track(pluginList, description="Updating" ,transient=True, complete_style="red"):
             try:
@@ -177,14 +184,13 @@ def updateInstalledPackage(inputSelectedObject='all'):
                 i += 1
                 continue
             pluginIdStr = str(pluginId)
-
             if pluginId == None or pluginId == '':
                 print(oColors.brightRed + "Couldn't find plugin id. Sorry :(" + oColors.standardWhite)
                 continue
             if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
                 if INSTALLEDPLUGINLIST[i][3] == True:
                     print(f" [{indexNumberUpdated+1}]".ljust(8), end='')
-                    print(f"{fileName}".ljust(30), end='')
+                    print(f"{fileName}".ljust(33), end='')
                     print(f"{fileVersion}".ljust(8), end='')
                     print("     ", end='')
                     print(f"{latestVersion}".ljust(8))
@@ -233,7 +239,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
             if inputSelectedObject == 'all':
                 if INSTALLEDPLUGINLIST[i][3] == True:
                     print(f" [{indexNumberUpdated+1}]".ljust(8), end='')
-                    print(f"{fileName}".ljust(30), end='')
+                    print(f"{fileName}".ljust(33), end='')
                     print(f"{fileVersion}".ljust(8), end='')
                     print("     ", end='')
                     print(f"{latestVersion}".ljust(8))
@@ -277,10 +283,10 @@ def updateInstalledPackage(inputSelectedObject='all'):
 
             i = i + 1
     except TypeError:
-        print(oColors.brightRed + "Aborted updating for plugins." + oColors.standardWhite)
-    print(f"[{pluginsUpdated}/{i}] Plugins updated")
+        print(oColors.brightRed + "Error occured: Aborted updating for plugins." + oColors.standardWhite)
+    print(oColors.brightYellow + f"[{pluginsUpdated}/{i}] Plugins updated" + oColors.standardWhite)
     if inputSelectedObject =='all' and pluginsUpdated == 0:
-        print(oColors.brightGreen + "All plugins are on the latest version!" + oColors.standardWhite)
+        print(oColors.brightGreen + "All found plugins are on the latest version!" + oColors.standardWhite)
 
 
 def getInstalledPlugin(localFileName, localFileVersion):

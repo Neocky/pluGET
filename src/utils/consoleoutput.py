@@ -13,12 +13,11 @@ def clearConsole():
 # https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 class oColors:
     standardWhite = "\033[0m"
-    brightYellow = "\033[93m"
-    brightMagenta = "\033[95m"
+    brightBlack = "\033[90m"
     brightRed = "\033[91m"
     brightGreen = "\033[92m"
-    darkMagenta = "\033[35m"
-    brightBlack = "\033[90m"
+    brightYellow = "\033[93m"
+    brightMagenta = "\033[95m"
 
 
 def printLogo():
