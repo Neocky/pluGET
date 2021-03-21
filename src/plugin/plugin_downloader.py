@@ -61,7 +61,7 @@ def searchPackage(ressourceName):
     url = f"https://api.spiget.org/v2/search/resources/{ressourceName}?field=name&sort=-downloads"
     packageName = doAPIRequest(url)
     i = 1
-    print(f"Searching: {ressourceName}")
+    print(oColors.brightBlack + f"Searching: {ressourceName}" + oColors.standardWhite)
     print("Index | Name                        | Description                                                                                                          |  Downloads")
     for ressource in packageName:
         pName = ressource["name"]

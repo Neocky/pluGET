@@ -13,11 +13,11 @@ def clearConsole():
 # https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 class oColors:
     standardWhite = "\033[0m"
-    brightYellow = "\033[93m"
-    brightMagenta = "\033[95m"
+    brightBlack = "\033[90m"
     brightRed = "\033[91m"
     brightGreen = "\033[92m"
-    darkMagenta = "\033[35m"
+    brightYellow = "\033[93m"
+    brightMagenta = "\033[95m"
 
 
 def printLogo():
@@ -72,9 +72,12 @@ def printLogo():
     oColors.standardWhite)
     print()
     print()
-    print(oColors.brightYellow + "                                      [" + oColors.darkMagenta + "By Neocky" +
-    oColors.brightYellow + "]                                    " + oColors.standardWhite)
-    print()
+    print(oColors.brightBlack + "                        ┌────────────────────────────────────┐" + oColors.standardWhite)
+    print(oColors.brightBlack + "                        │             [" + oColors.brightMagenta + "By Neocky" +oColors.brightBlack +
+     "]            │                                   " + oColors.standardWhite)
+    print(oColors.brightBlack + "                        │  " + oColors.brightMagenta + "https://github.com/Neocky/pluGET" + oColors.brightBlack +
+     "  │                                                  " + oColors.standardWhite)
+    print(oColors.brightBlack + "                        └────────────────────────────────────┘" + oColors.standardWhite)
 
 
 def printHorizontalLine():
