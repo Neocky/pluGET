@@ -100,7 +100,21 @@ Edit the config to your needs and relaunch pluGET.
 Execute the `launcher.bat` in the `\pluGET` folder. This will launch pluGET correctly.  
 Another way is to launch the `src\__main__.py` file.  
 The following are examples of input for the general usage:  
-(Hint: [thingsInBrackets] are optional & 'all' can always be exchanged through the plugin name or the plugin id and reverse)  
+(Hint: [thingsInBrackets] are optional & 'all' can always be exchanged through the plugin name or the plugin id and reverse) 
+
+### General
+#### Command help:
+`help command [all/command]`  
+```
+help command
+```
+<details>
+  <summary>Output</summary>  
+  
+  ![Output](https://i.ibb.co/9VZCjD6/pluget-help2.png)
+  
+</details>
+
 ### Manage Plugins
 #### Download the latest update of a specific package: 
 `get [pluginID/pluginName]`  
@@ -120,6 +134,15 @@ or:
 ```
 check 'pluginName'
 ```  
+
+<details>
+  <summary>Output</summary>  
+  
+  ![Output](https://i.ibb.co/VmSNh6K/pluget-checkall.png)
+  
+</details>
+
+
 #### Update all plugins/one specific plugin:  
 `update [all/pluginName]`  
 ```
@@ -175,35 +198,12 @@ get-paper 321
 ```
 
 ## Known problems
-### Can't get installed version  
+
+### Can't get latest version/Update available
 For example:  
-```
-pluGET >> check all
-Checking: all
-Index | Name                           | Installed V. | Latest V. |  Update available
- [1]    Vault                            N/A            1.7.3        False
-```
-This is a known issue because the filename in the `\plugin` folder doesn't include a version.  
-This is the plugin file in the `\plugin` folder right now: `Vault.jar`  
-How it should be: `Vault-1.7.3.jar`  
-Many plugins which get download from Spigot won't have a file version in the name.  
-#### How to solve:  
-Delete the `Vault.jar` file and download the newest version with the `get` command:  
-```
-pluGET >> get vault
-Index | Name                        | Description                                                                                                          |  Downloads
- [1]    Vault                         Vault is a Permissions, Chat, & Economy API to give plugins easy hooks into these systems.                              989046
-Select your wanted Ressource (Index)(0 to exit): 1
-Downloadsize: 267.31 KB
-File downloaded here: C:\Users\USER\Desktop\plugins\Vault-1.7.3.jar
-```
-Now you got the plugin with the correct name inside your `\plugin` folder: `Vault-1.7.3.jar`  
-  
-And pluGET will tell you the installed version and check if an update is available when checking again:  
-```
-pluGET >> check all
-Checking: all
-Index | Name                           | Installed V. | Latest V. |  Update available
- [1]    Vault                            1.7.3          1.7.3        False
- ```
+![worldguard](https://i.ibb.co/7NJ9HRG/pluget-checkallonlyone.png)  
+As you can see the installed version was found but not the latest version for this plugin.  
+This is because this is a plugin which is not available on [Spigot](https://www.spigotmc.org/resources/).
+pluGET supports currently only plugins from [Spigot](https://www.spigotmc.org/resources/).  
+In this example this is a bukkit plugin.  
 
