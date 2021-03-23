@@ -96,7 +96,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
     oldPackages = 0
     print(oColors.brightBlack + f"Checking: {inputSelectedObject}" + oColors.standardWhite)
     print("┌─────┬────────────────────────────────┬──────────────┬───────────┬───────────────────┐")
-    print("│ No. │ Name                           │ Installed V. │ Latest V. │  Update available │")
+    print("│ No. │ Name                           │ Installed V. │ Latest V. │ Update available  │")
     print("└─────┴────────────────────────────────┴──────────────┴───────────┴───────────────────┘")
     try:
         for plugin in track(pluginList, description="Checking for updates" ,transient=True, complete_style="cyan"):
@@ -168,7 +168,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
     indexNumberUpdated = 0
     print(oColors.brightBlack + f"Updating: {inputSelectedObject}" + oColors.standardWhite)
     print("┌─────┬────────────────────────────────┬────────────┬──────────┐")
-    print("│ No. │ Name                           │   Old V.   │   New V. │")
+    print("│ No. │ Name                           │ Old V.     │ New V.   │")
     print("└─────┴────────────────────────────────┴────────────┴──────────┘")
     try:
         for plugin in track(pluginList, description="Updating" ,transient=True, complete_style="red"):
