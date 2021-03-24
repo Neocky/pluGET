@@ -19,7 +19,7 @@
 
 
 # pluGET  
-#### A powerfull package manager which handles [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
+#### A powerfull package manager which updates [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
 
 <img src="https://www.bildhost.com/images/2021/03/23/pluGET.gif" alt="pluGET.gif" border="0" />
 
@@ -51,7 +51,7 @@ The program works with a locally installed server or with a remote host through 
 It uses the [Spiget](https://spiget.org/) API to download and compare plugin versions and can download the latest version of plugins from the [Spigot](https://www.spigotmc.org/) site.  
 It can also compare and download the latest update of specifif server software (e.g. [PaperMC](https://papermc.io/)).  
 
-Plugin management was the hard part of mangaging a minecraft server. The time it took to check the [Spigot ressource](https://www.spigotmc.org/resources/) page for updates for the installed plugins and updating all plugins manually which have available updates was too long and shocking.  
+Plugin management was the hard part of mangaging a minecraft server. The time it took to check the [Spigot ressource](https://www.spigotmc.org/resources/) page for updates for the installed plugins and updating all plugins manually which have available updates was too long and daunting.  
 So I built pluGET to automate and ease the plugin handling of a minecraft server and to turn the most time consuming part of managing a minecraft server to an easy one.  
 
 This program is suited for minecraft server owners who want to save time and stay on top of their plugin versions.  
@@ -99,7 +99,7 @@ Get it [here](https://www.python.org/downloads/).
 Install the needed packages for this project.  
 Execute this command in the ```\plugGET``` folder:  
 ```python
-pip install -r requirements.txt
+py -m pip install -r requirements.txt
 ```
 
 
