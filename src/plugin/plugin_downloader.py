@@ -5,16 +5,9 @@ from pathlib import Path
 
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
-from utils.utilities import createTempPluginFolder, deleteTempPluginFolder
-from handlers.handle_config import checkConfig
+from utils.utilities import createTempPluginFolder, deleteTempPluginFolder, calculateFileSizeKb, calculateFileSizeMb
+from handlers.handle_config import checkConfig, configurationValues
 from handlers.handle_sftp import sftp_upload_file, sftp_cdPluginDir, createSFTPConnection
-
-
-def calculateFileSize(downloadFileSize):
-    fileSizeDownload = int(downloadFileSize)
-    fileSizeKb = fileSizeDownload / 1024
-    roundedFileSize = round(fileSizeKb, 2)
-    return roundedFileSize
 
 
 def handleRegexPackageName(packageNameFull):
@@ -102,10 +95,15 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
     remotefile = urllib.request.urlopen(url)
     filesize = remotefile.info()['Content-Length']
     urllib.request.urlretrieve(url, downloadPath)
-    filesizeData = calculateFileSize(filesize)
-    print(f"Downloadsize: {filesizeData} KB")
-    print(f"File downloaded here: {downloadPath}")
-    if not checkConfig().localPluginFolder:
+    filesize = int(filesize)
+    print("        ", end='')
+    if filesize >= 1000000:
+        filesizeData = calculateFileSizeMb(filesize)
+        print("Downloaded " + (str(filesizeData)).rjust(9) + f" MB here {downloadPath}")
+    else:
+        filesizeData = calculateFileSizeKb(filesize)
+        print("Downloaded " + (str(filesizeData)).rjust(9) + f" KB here {downloadPath}")
+    if not configurationValues.localPluginFolder:
         sftpSession = createSFTPConnection()
         sftp_upload_file(sftpSession, downloadPath)
 

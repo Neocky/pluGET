@@ -6,7 +6,7 @@ import requests
 from pathlib import Path
 
 from utils.consoleoutput import oColors
-from handlers.handle_config import checkConfig
+from handlers.handle_config import checkConfig, configurationValues
 from handlers.handle_sftp import createSFTPConnection
 
 
@@ -159,4 +159,10 @@ def calculateFileSizeMb(downloadFileSize):
     fileSizeDownload = int(downloadFileSize)
     fileSizeMb = fileSizeDownload / 1024 / 1024
     roundedFileSize = round(fileSizeMb, 2)
+    return roundedFileSize
+
+def calculateFileSizeKb(downloadFileSize):
+    fileSizeDownload = int(downloadFileSize)
+    fileSizeKb = fileSizeDownload / 1024
+    roundedFileSize = round(fileSizeKb, 2)
     return roundedFileSize
