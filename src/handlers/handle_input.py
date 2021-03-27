@@ -2,7 +2,7 @@ import sys
 
 from utils.consoleoutput import oColors
 from utils.utilities import getHelp, getCommandHelp
-from handlers.handle_config import checkConfig
+from handlers.handle_config import configurationValues
 from plugin.plugin_downloader import searchPackage, getSpecificPackage
 from plugin.plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
 from plugin.plugin_remover import removePlugin
@@ -30,21 +30,22 @@ def createInputLists():
 
 
 def handleInput(inputCommand, inputSelectedObject, inputParams):
+    configValues = configurationValues()
     while True:
         if inputCommand == 'get':
             if inputSelectedObject.isdigit():
-                if not checkConfig().localPluginFolder:
-                    if checkConfig().sftp_seperateDownloadPath is True:
-                        pluginPath = checkConfig().sftp_pathToSeperateDownloadPath
+                if not configValues.localPluginFolder:
+                    if configValues.sftp_seperateDownloadPath is True:
+                        pluginPath = configValues.sftp_pathToSeperateDownloadPath
                     else:
-                        pluginPath = checkConfig().sftp_folderPath
+                        pluginPath = configValues.sftp_folderPath
                     getSpecificPackage(inputSelectedObject, pluginPath,  inputParams)
                     break
                 else:
-                    if checkConfig().seperateDownloadPath is True:
-                        pluginPath = checkConfig().pathToSeperateDownloadPath
+                    if configValues.seperateDownloadPath is True:
+                        pluginPath = configValues.pathToSeperateDownloadPath
                     else:
-                        pluginPath = checkConfig().pathToPluginFolder
+                        pluginPath = configValues.pathToPluginFolder
                     getSpecificPackage(inputSelectedObject, pluginPath,  inputParams)
                     break
             else:

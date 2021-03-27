@@ -7,7 +7,7 @@ from pathlib import Path
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
 from handlers.handle_sftp import sftp_upload_server_jar, sftp_cdPluginDir, createSFTPConnection
-from handlers.handle_config import checkConfig
+from handlers.handle_config import configurationValues
 from utils.utilities import createTempPluginFolder, deleteTempPluginFolder, calculateFileSizeMb
 
 
@@ -107,23 +107,24 @@ def paperCheckForUpdate(installedServerjarFullName):
     paperLatestBuild = findLatestBuild(versionGroup)
     paperVersionBehind = versionBehind(paperInstalledBuild, paperLatestBuild)
 
-    print(f"Paper for {mcVersion}")
-    print("Index | Name               | Installed V. | Latest V. | Versions behind ")
-    print(f" [1]".ljust(8), end='')
-    print(f"paper".ljust(21), end='')
-    print(f"{paperInstalledBuild}".ljust(8), end='')
-    print("       ", end='')
-    print(f"{paperLatestBuild}".ljust(8), end='')
-    print("    ", end='')
+    print("┌─────┬────────────────────────────────┬──────────────┬──────────────┬───────────────────┐")
+    print("│ No. │ Name                           │ Installed V. │ Latest V.    │ Versions behind   │")
+    print("└─────┴────────────────────────────────┴──────────────┴──────────────┴───────────────────┘")
+    print("  [1]".rjust(6), end='')
+    print("  ", end='')
+    print("paper".ljust(33), end='')
+    print(f"{paperInstalledBuild}".ljust(15), end='')
+    print(f"{paperLatestBuild}".ljust(15), end='')
     print(f"{paperVersionBehind}".ljust(8))
 
 
 # https://papermc.io/api/docs/swagger-ui/index.html?configUrl=/api/openapi/swagger-config#/
 def papermc_downloader(paperBuild='latest', installedServerjarName=None, mcVersion=None):
-    if checkConfig().localPluginFolder == False:
+    configValues = configurationValues()
+    if configValues.localPluginFolder == False:
         downloadPath = createTempPluginFolder()
     else:
-        downloadPath = checkConfig().pathToPluginFolder
+        downloadPath = configValues.pathToPluginFolder
         helpPath = Path('/plugins')
         helpPathstr = str(helpPath)
         downloadPath = Path(str(downloadPath).replace(helpPathstr, ''))
@@ -149,7 +150,7 @@ def papermc_downloader(paperBuild='latest', installedServerjarName=None, mcVersi
 
     downloadPackagePath = Path(f"{downloadPath}/{downloadFileName}")
 
-    if checkConfig().localPluginFolder == False:
+    if configValues.localPluginFolder == False:
         downloadPath = createTempPluginFolder()
 
     url = f"https://papermc.io/api/v2/projects/paper/versions/{mcVersion}/builds/{paperBuild}/downloads/{downloadFileName}"
@@ -161,7 +162,7 @@ def papermc_downloader(paperBuild='latest', installedServerjarName=None, mcVersi
 
     print(f"Downloadsize: {filesizeData} MB")
     print(f"File downloaded here: {downloadPackagePath}")
-    if not checkConfig().localPluginFolder:
+    if not configValues.localPluginFolder:
         sftpSession = createSFTPConnection()
         sftp_upload_server_jar(sftpSession, downloadPackagePath)
         deleteTempPluginFolder(downloadPath)

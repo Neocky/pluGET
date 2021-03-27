@@ -6,7 +6,7 @@ from pathlib import Path
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
 from utils.utilities import createTempPluginFolder, deleteTempPluginFolder, calculateFileSizeKb, calculateFileSizeMb
-from handlers.handle_config import checkConfig, configurationValues
+from handlers.handle_config import configurationValues
 from handlers.handle_sftp import sftp_upload_file, sftp_cdPluginDir, createSFTPConnection
 
 
@@ -51,6 +51,7 @@ def getVersionName(packageId, versionId):
 
 
 def searchPackage(ressourceName):
+    configValues = configurationValues()
     url = f"https://api.spiget.org/v2/search/resources/{ressourceName}?field=name&sort=-downloads"
     packageName = doAPIRequest(url)
     i = 1
@@ -71,14 +72,14 @@ def searchPackage(ressourceName):
     if ressourceSelected != 0:
         ressourceSelected = ressourceSelected - 1
         ressourceId = packageName[ressourceSelected]["id"]
-        if not checkConfig().localPluginFolder:
+        if not configValues.localPluginFolder:
             try:
-                getSpecificPackage(ressourceId, checkConfig().sftp_folderPath)
+                getSpecificPackage(ressourceId, configValues.sftp_folderPath)
             except HTTPError as err:
                 print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
         else:
             try:
-                getSpecificPackage(ressourceId, checkConfig().pathToPluginFolder)
+                getSpecificPackage(ressourceId, configValues.pathToPluginFolder)
             except HTTPError as err:
                 print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
 
@@ -109,7 +110,8 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
 
 
 def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
-    if checkConfig().localPluginFolder == False:
+    configValues = configurationValues()
+    if configValues.localPluginFolder == False:
         downloadPath = createTempPluginFolder()
     url = f"https://api.spiget.org/v2/resources/{ressourceId}"
     packageDetails = doAPIRequest(url)
@@ -119,13 +121,13 @@ def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
     packageVersion = getVersionName(ressourceId, versionId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
     downloadPackagePath = Path(f"{downloadPath}/{packageDownloadName}")
-    if checkConfig().localPluginFolder:
+    if configValues.localPluginFolder:
         if inputPackageVersion is None or inputPackageVersion == 'latest':
             downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
         else:
             downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
 
-    if not checkConfig().localPluginFolder:
+    if not configValues.localPluginFolder:
         if inputPackageVersion is None or inputPackageVersion == 'latest':
             downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
             deleteTempPluginFolder(downloadPath)

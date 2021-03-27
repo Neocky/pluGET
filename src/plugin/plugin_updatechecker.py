@@ -8,7 +8,7 @@ from rich.progress import track
 
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
-from handlers.handle_config import checkConfig, configurationValues
+from handlers.handle_config import configurationValues
 from handlers.handle_sftp import createSFTPConnection, sftp_listAll
 from plugin.plugin_downloader import getSpecificPackage
 
@@ -64,10 +64,11 @@ def compareVersions(plugin_latest_version, pluginVersion):
 
 
 def eggCrackingJar(localJarFileName):
-    if not checkConfig().localPluginFolder:
-        pluginPath = checkConfig().sftp_folderPath
+    configValues = configurationValues()
+    if not configValues.localPluginFolder:
+        pluginPath = configValues.sftp_folderPath
     else:
-        pluginPath = checkConfig().pathToPluginFolder
+        pluginPath = configValues.pathToPluginFolder
     pathToPluginJar = Path(f"{pluginPath}/{localJarFileName}")
     pluginVersion = ''
     with ZipFile(pathToPluginJar, 'r') as pluginJar:
@@ -139,8 +140,8 @@ def checkInstalledPackage(inputSelectedObject="all"):
                     print("  ", end='')
                     print(f"{fileName}".ljust(33), end='')
                     print(f"{fileVersion}".ljust(15), end='')
-                    print(f"{pluginLatestVersion}".ljust(14), end='')
-                    print(f" {pluginIsOutdated}".ljust(5) + oColors.standardWhite)
+                    print(f"{pluginLatestVersion}".ljust(15), end='')
+                    print(f"{pluginIsOutdated}".ljust(5) + oColors.standardWhite)
                     break
             else:
                 if pluginLatestVersion == 'N/A':
@@ -150,8 +151,8 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 print("  ", end='')
                 print(f"{fileName}".ljust(33), end='')
                 print(f"{fileVersion}".ljust(15), end='')
-                print(f"{pluginLatestVersion}".ljust(14), end='')
-                print(f" {pluginIsOutdated}".ljust(5) + oColors.standardWhite)
+                print(f"{pluginLatestVersion}".ljust(15), end='')
+                print(f"{pluginIsOutdated}".ljust(5) + oColors.standardWhite)
 
             i += 1
     except TypeError:
@@ -290,7 +291,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
             i = i + 1
     except TypeError:
         print(oColors.brightRed + "Error occured: Aborted updating for plugins." + oColors.standardWhite)
-    print(oColors.brightYellow + f"[{pluginsUpdated}/{i}] Plugins updated" + oColors.standardWhite)
+    print(oColors.brightYellow + f"Plugins updated: [{pluginsUpdated}/{i}]" + oColors.standardWhite)
     if inputSelectedObject =='all' and pluginsUpdated == 0:
         print(oColors.brightGreen + "All found plugins are on the latest version!" + oColors.standardWhite)
 
