@@ -3,18 +3,19 @@ import re
 from pathlib import Path
 
 from utils.consoleoutput import oColors
-from handlers.handle_config import checkConfig
+from handlers.handle_config import configurationValues
 from handlers.handle_sftp import createSFTPConnection, sftp_listAll
 from plugin.plugin_updatechecker import getFileName, getFileVersion, getInstalledPlugin, createPluginList
 
 
 def removePlugin(pluginToRemove):
+    configValues = configurationValues()
     createPluginList()
-    if not checkConfig().localPluginFolder:
+    if not configValues.localPluginFolder:
         sftp = createSFTPConnection()
         pluginList = sftp_listAll(sftp)
     else:
-        pluginList = os.listdir(checkConfig().pathToPluginFolder)
+        pluginList = os.listdir(configValues.pathToPluginFolder)
     i = 0
     try:
         for plugin in pluginList:
@@ -28,8 +29,8 @@ def removePlugin(pluginToRemove):
 
             if pluginToRemove == pluginIdStr or re.search(pluginToRemove, fileName, re.IGNORECASE):
                 print(f"Removing: {fileName}")
-                if not checkConfig().localPluginFolder:
-                    pluginPath = checkConfig().sftp_folderPath
+                if not configValues.localPluginFolder:
+                    pluginPath = configValues.sftp_folderPath
                     pluginPath = f"{pluginPath}/{plugin}"
                     sftp = createSFTPConnection()
                     sftp.remove(pluginPath)
@@ -37,7 +38,7 @@ def removePlugin(pluginToRemove):
                     i += 1
                     break
                 else:
-                    pluginPath = checkConfig().pathToPluginFolder
+                    pluginPath = configValues.pathToPluginFolder
                     pluginPath = Path(f"{pluginPath}/{plugin}")
                     os.remove(pluginPath)
                     print(f"Removed: {fileName}")

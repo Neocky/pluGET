@@ -4,17 +4,18 @@ from urllib.error import HTTPError
 from pathlib import Path
 
 from handlers.handle_sftp import createSFTPConnection, sftp_listFilesInServerRoot
-from handlers.handle_config import checkConfig
+from handlers.handle_config import configurationValues
 from utils.consoleoutput import oColors
 from serverjar.serverjar_paper import paperCheckForUpdate, papermc_downloader
 
 
 def checkInstalledServerjar():
-    if not checkConfig().localPluginFolder:
+    configValues = configurationValues()
+    if not configValues.localPluginFolder:
         sftp = createSFTPConnection()
         serverRootList = sftp_listFilesInServerRoot(sftp)
     else:
-        serverRootList = os.path.dirname(checkConfig().pathToPluginFolder)
+        serverRootList = os.path.dirname(configValues.pathToPluginFolder)
         serverRootList = os.listdir(serverRootList)
     installedServerjarFullName = None
     try:
@@ -34,7 +35,7 @@ def checkInstalledServerjar():
         print(oColors.brightRed + "Aborting the process." + oColors.standardWhite)
         input("Press any key + enter to exit...")
         sys.exit()
-
+    print(oColors.brightBlack + f"Checking: {installedServerjarFullName}" + oColors.standardWhite)
     if 'paper' in installedServerjarFullName:
         paperCheckForUpdate(installedServerjarFullName)
 
@@ -44,19 +45,20 @@ def checkInstalledServerjar():
 
 
 def updateServerjar(serverJarBuild='latest'):
+    configValues = configurationValues()
     try:
         if serverJarBuild == None:
             serverJarBuild = 'latest'
-        if not checkConfig().localPluginFolder:
+        if not configValues.localPluginFolder:
             sftp = createSFTPConnection()
-            serverRootPath = checkConfig().sftp_folderPath
+            serverRootPath = configValues.sftp_folderPath
             serverRootPath = Path(str(serverRootPath).replace(r'/plugins', ''))
             serverRootList = sftp_listFilesInServerRoot(sftp)
 
         else:
-            serverRoot = os.path.dirname(checkConfig().pathToPluginFolder)
+            serverRoot = os.path.dirname(configValues.pathToPluginFolder)
             serverRootList = os.listdir(serverRoot)
-            serverRootPath = checkConfig().pathToPluginFolder
+            serverRootPath = configValues.pathToPluginFolder
             helpPath = Path('/plugins')
             helpPathstr = str(helpPath)
             serverRootPath = Path(str(serverRootPath).replace(helpPathstr, ''))
@@ -90,8 +92,8 @@ def updateServerjar(serverJarBuild='latest'):
     serverJarPath = Path(f"{serverRootPath}/{installedServerjarFullName}")
 
     if 'paper' in installedServerjarFullName:
-        print(f"Updating Paper to build: {serverJarBuild}")
-        if not checkConfig().localPluginFolder:
+        print(oColors.brightBlack + f"Updating Paper to build: {serverJarBuild}" + oColors.standardWhite)
+        if not configValues.localPluginFolder:
             try:
                 papermc_downloader(serverJarBuild, installedServerjarFullName)
                 sftp.remove(serverJarPath)

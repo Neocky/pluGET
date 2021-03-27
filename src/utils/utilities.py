@@ -6,7 +6,7 @@ import requests
 from pathlib import Path
 
 from utils.consoleoutput import oColors
-from handlers.handle_config import checkConfig
+from handlers.handle_config import configurationValues
 from handlers.handle_sftp import createSFTPConnection
 
 
@@ -95,11 +95,12 @@ def getCommandHelp(optionalParams):
 
 
 def check_local_plugin_folder():
-    if checkConfig().localPluginFolder:
-        if checkConfig().seperateDownloadPath:
-            pluginFolderPath = checkConfig().pathToSeperateDownloadPath
+    configValues = configurationValues()
+    if configValues.localPluginFolder:
+        if configValues.seperateDownloadPath:
+            pluginFolderPath = configValues.pathToSeperateDownloadPath
         else:
-            pluginFolderPath = checkConfig().pathToPluginFolder
+            pluginFolderPath = configValues.pathToPluginFolder
 
         if not os.path.isdir(pluginFolderPath):
             print(oColors.brightRed + "Plugin folder coulnd*t be found. Creating one..." + oColors.standardWhite)
@@ -129,9 +130,10 @@ def apiTest():
 
 
 def check_requirements():
+    configValues = configurationValues()
     apiTest()
     check_local_plugin_folder()
-    if not checkConfig().localPluginFolder:
+    if not configValues.localPluginFolder:
         createSFTPConnection()
 
 
@@ -159,4 +161,10 @@ def calculateFileSizeMb(downloadFileSize):
     fileSizeDownload = int(downloadFileSize)
     fileSizeMb = fileSizeDownload / 1024 / 1024
     roundedFileSize = round(fileSizeMb, 2)
+    return roundedFileSize
+
+def calculateFileSizeKb(downloadFileSize):
+    fileSizeDownload = int(downloadFileSize)
+    fileSizeKb = fileSizeDownload / 1024
+    roundedFileSize = round(fileSizeKb, 2)
     return roundedFileSize

@@ -6,51 +6,48 @@ from pathlib import Path
 from utils.consoleoutput import oColors
 
 
+class configurationValues:
+    def __init__(self):
+        config = configparser.ConfigParser()
+        config.sections()
+        config.read("config.ini")
+        localPluginFolder = config['General']['LocalPluginFolder']
+        self.pathToPluginFolder = Path(config['General']['PathToPluginFolder'])
+        seperateDownloadPath = config['General']['SeperateDownloadPath']
+        self.pathToSeperateDownloadPath = Path(config['General']['PathToSeperateDownloadPath'])
+
+        self.sftp_server = config['SFTP - Remote Server']['Server']
+        self.sftp_user = config['SFTP - Remote Server']['Username']
+        self.sftp_password = config['SFTP - Remote Server']['Password']
+        sftp_port = config['SFTP - Remote Server']['Port']
+        self.sftp_folderPath = config['SFTP - Remote Server']['PluginFolderOnServer']
+        sftp_seperateDownloadPath = config['SFTP - Remote Server']['SeperateDownloadPath']
+        self.sftp_pathToSeperateDownloadPath = config['SFTP - Remote Server']['PathToSeperateDownloadPath']
+
+        self.sftp_port = int(sftp_port)
+        if localPluginFolder == 'True':
+            self.localPluginFolder = True
+        else:
+            self.localPluginFolder = False
+
+        if seperateDownloadPath == 'True':
+            self.seperateDownloadPath = True
+        else:
+            self.seperateDownloadPath = False
+
+        if sftp_seperateDownloadPath == 'True':
+            self.sftp_seperateDownloadPath = True
+        else:
+            self.sftp_seperateDownloadPath = False
+
+
 def checkConfig():
-    currentFolder = os.getcwd()
     configAvailable = os.path.isfile("config.ini")
-    
     if not configAvailable:
         createConfig()
         print(oColors.brightRed + "Config created. Edit config before executing again!" + oColors.standardWhite)
         input("Press any key + enter to exit...")
         sys.exit()
-
-    class configValues:
-        config = configparser.ConfigParser()
-        config.sections()
-        config.read("config.ini")
-        localPluginFolder = config['General']['LocalPluginFolder']
-        pathToPluginFolder = Path(config['General']['PathToPluginFolder'])
-        seperateDownloadPath = config['General']['SeperateDownloadPath']
-        pathToSeperateDownloadPath = Path(config['General']['PathToSeperateDownloadPath'])
-
-        sftp_server = config['SFTP - Remote Server']['Server']
-        sftp_user = config['SFTP - Remote Server']['Username']
-        sftp_password = config['SFTP - Remote Server']['Password']
-        sftp_port = config['SFTP - Remote Server']['Port']
-        sftp_folderPath = config['SFTP - Remote Server']['PluginFolderOnServer']
-        sftp_seperateDownloadPath = config['SFTP - Remote Server']['SeperateDownloadPath']
-        sftp_pathToSeperateDownloadPath = config['SFTP - Remote Server']['PathToSeperateDownloadPath']
-
-        sftp_port = int(sftp_port)
-        if localPluginFolder == 'True':
-            localPluginFolder = True
-        else:
-            localPluginFolder = False
-
-        if seperateDownloadPath == 'True':
-            seperateDownloadPath = True
-        else:
-            seperateDownloadPath = False
-
-        if sftp_seperateDownloadPath == 'True':
-            sftp_seperateDownloadPath = True
-        else:
-            sftp_seperateDownloadPath = False
-        
-    os.chdir(currentFolder)
-    return configValues
 
 
 def createConfig():
