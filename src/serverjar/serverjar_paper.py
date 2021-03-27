@@ -3,6 +3,7 @@ import sys
 import re
 import urllib.request
 from pathlib import Path
+from rich.console import Console
 
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
@@ -116,6 +117,7 @@ def paperCheckForUpdate(installedServerjarFullName):
     print(f"{paperInstalledBuild}".ljust(15), end='')
     print(f"{paperLatestBuild}".ljust(15), end='')
     print(f"{paperVersionBehind}".ljust(8))
+    print(oColors.brightYellow + f"Versions behind: [{paperVersionBehind}]" + oColors.standardWhite)
 
 
 # https://papermc.io/api/docs/swagger-ui/index.html?configUrl=/api/openapi/swagger-config#/
@@ -156,16 +158,16 @@ def papermc_downloader(paperBuild='latest', installedServerjarName=None, mcVersi
     url = f"https://papermc.io/api/v2/projects/paper/versions/{mcVersion}/builds/{paperBuild}/downloads/{downloadFileName}"
     remotefile = urllib.request.urlopen(url)
     filesize = remotefile.info()['Content-Length']
-    print(f"Starting Paper-{paperBuild} download for {mcVersion}...")
-    urllib.request.urlretrieve(url, downloadPackagePath)
+    print(f"Getting Paper {paperBuild} for {mcVersion}")
+    console = Console()
+    with console.status("Downloading...", spinner='line', spinner_style='bright_magenta') as status:
+        urllib.request.urlretrieve(url, downloadPackagePath)
     filesizeData = calculateFileSizeMb(filesize)
-
-    print(f"Downloadsize: {filesizeData} MB")
-    print(f"File downloaded here: {downloadPackagePath}")
+    print("Downloaded " + (str(filesizeData)).rjust(9) + f" MB here {downloadPackagePath}")
     if not configValues.localPluginFolder:
         sftpSession = createSFTPConnection()
         sftp_upload_server_jar(sftpSession, downloadPackagePath)
         deleteTempPluginFolder(downloadPath)
 
-    print(oColors.brightGreen + "Downloaded successfully " + oColors.standardWhite + f"Paper-{paperBuild}" + \
+    print(oColors.brightGreen + "Downloaded successfully " + oColors.standardWhite + f"Paper {paperBuild}" + \
     oColors.brightGreen + " for " + oColors.standardWhite + f"{mcVersion}" + oColors.standardWhite)

@@ -101,7 +101,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
     print("│ No. │ Name                           │ Installed V. │ Latest V.    │ Update available  │")
     print("└─────┴────────────────────────────────┴──────────────┴──────────────┴───────────────────┘")
     try:
-        for plugin in track(pluginList, description="Checking for updates" ,transient=True, complete_style="cyan"):
+        for plugin in track(pluginList, description="Checking for updates" ,transient=True, complete_style="bright_yellow"):
             try:
                 fileName = getFileName(plugin)
                 fileVersion = getFileVersion(plugin)
@@ -176,7 +176,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
     print("│ No. │ Name                           │ Old V.     │ New V.   │")
     print("└─────┴────────────────────────────────┴────────────┴──────────┘")
     try:
-        for plugin in track(pluginList, description="Updating" ,transient=True, complete_style="red"):
+        for plugin in track(pluginList, description="Updating" ,transient=True, complete_style="bright_magenta"):
             try:
                 fileName = getFileName(plugin)
                 fileVersion = getFileVersion(plugin)
@@ -197,9 +197,9 @@ def updateInstalledPackage(inputSelectedObject='all'):
                     print(f" [{indexNumberUpdated+1}]".rjust(6), end='')
                     print("  ", end='')
                     print(f"{fileName}".ljust(33), end='')
-                    print(f"{fileVersion}".ljust(8), end='')
-                    print("     ", end='')
-                    print(f"{latestVersion}".ljust(8))
+                    print(f"{fileVersion}".ljust(13), end='')
+                    #print("     ", end='')
+                    print(f"{latestVersion}".ljust(13))
 
                     if not configValues.localPluginFolder:
                         if configValues.sftp_seperateDownloadPath is True:
@@ -247,9 +247,9 @@ def updateInstalledPackage(inputSelectedObject='all'):
                     print(f" [{indexNumberUpdated+1}]".rjust(6), end='')
                     print("  ", end='')
                     print(f"{fileName}".ljust(33), end='')
-                    print(f"{fileVersion}".ljust(8), end='')
-                    print("     ", end='')
-                    print(f"{latestVersion}".ljust(8))
+                    print(f"{fileVersion}".ljust(13), end='')
+                    #print("     ", end='')
+                    print(f"{latestVersion}".ljust(13))
 
                     if not configValues.localPluginFolder:
                         if configValues.sftp_seperateDownloadPath is True:

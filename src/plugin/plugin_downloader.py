@@ -85,6 +85,7 @@ def searchPackage(ressourceName):
 
 
 def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
+    configValues = configurationValues()
     if versionID != 'latest':
         #url = f"https://spigotmc.org/resources/{ressourceId}/download?version={versionID}"
         print(oColors.brightRed + "Sorry but specific version downloads aren't supported because of cloudflare protection. :(" + oColors.standardWhite)
@@ -104,7 +105,7 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
     else:
         filesizeData = calculateFileSizeKb(filesize)
         print("Downloaded " + (str(filesizeData)).rjust(9) + f" KB here {downloadPath}")
-    if not configurationValues.localPluginFolder:
+    if not configValues.localPluginFolder:
         sftpSession = createSFTPConnection()
         sftp_upload_file(sftpSession, downloadPath)
 

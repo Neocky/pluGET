@@ -92,7 +92,7 @@ def updateServerjar(serverJarBuild='latest'):
     serverJarPath = Path(f"{serverRootPath}/{installedServerjarFullName}")
 
     if 'paper' in installedServerjarFullName:
-        print(f"Updating Paper to build: {serverJarBuild}")
+        print(oColors.brightBlack + f"Updating Paper to build: {serverJarBuild}" + oColors.standardWhite)
         if not configValues.localPluginFolder:
             try:
                 papermc_downloader(serverJarBuild, installedServerjarFullName)
