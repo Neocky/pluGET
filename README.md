@@ -108,12 +108,25 @@ When run the first time, the `config.ini` file will be created in the root packa
 Edit the config to your needs and relaunch pluGET.  
 **Now you are good to go!**  
 
+## Start pluGET
+### Windows:  
+Execute the `launcher.bat` in the `\pluGET` folder.  
+This will launch pluGET correctly.  
+### Linux:  
+Use `cd` to change into the `/pluGET` directory and change the permission of the `launcher.sh` to make it executeable:  
+```
+$ chmod +x launcher.sh
+```
+Execute the `launcher.sh` file:
+```
+$ ./launcher.sh
+```
+
+> On both OS you can also launch the `src/__main__.py` file.
 
 ## Usage  
 > As always, if you update plugins, shut down your server!  
 
-Execute the `launcher.bat` in the `\pluGET` folder. This will launch pluGET correctly.  
-Another way is to launch the `src\__main__.py` file.  
 The following are examples of input for the general usage:  
 (Hint: [thingsInBrackets] are optional & 'all' can always be exchanged through the plugin name or the plugin id and reverse) 
 
