@@ -56,19 +56,23 @@ def searchPackage(ressourceName):
     packageName = doAPIRequest(url)
     i = 1
     print(oColors.brightBlack + f"Searching: {ressourceName}" + oColors.standardWhite)
-    print("Index | Name                        | Description                                                                                                          |  Downloads")
+    print("┌─────┬─────────────────────────────┬───────────┬──────────────────────────────────────────────────────────────────────┐")
+    print("│ No. │ Name                        │ Downloads │ Description                                                          │")
+    print("└─────┴─────────────────────────────┴───────────┴──────────────────────────────────────────────────────────────────────┘")
     for ressource in packageName:
         pName = ressource["name"]
         newName = handleRegexPackageName(pName)
         pTag = ressource["tag"]
         pDownloads = ressource["downloads"]
-        print(f" [{i}]".ljust(8), end='')
+        print(f" [{i}]".rjust(6), end='')
+        print("  ", end='')
         print(f"{newName}".ljust(30), end='')
-        print(f"{pTag}".ljust(120), end='')
-        print(f"{pDownloads}".ljust(7))
+        print(f"{pDownloads}".rjust(9), end='')
+        print("   ", end='')
+        print(f"{pTag}".ljust(120))
         i = i + 1
 
-    ressourceSelected = int(input("Select your wanted Ressource (Index)(0 to exit): "))
+    ressourceSelected = int(input("Select your wanted Ressource (No.)(0 to exit): "))
     if ressourceSelected != 0:
         ressourceSelected = ressourceSelected - 1
         ressourceId = packageName[ressourceSelected]["id"]
