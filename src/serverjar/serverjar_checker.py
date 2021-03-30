@@ -4,6 +4,7 @@ from urllib.error import HTTPError
 from pathlib import Path
 
 from handlers.handle_sftp import createSFTPConnection, sftp_listFilesInServerRoot
+from handlers.handle_ftp import createFTPConnection, ftp_listFilesInServerRoot
 from handlers.handle_config import configurationValues
 from utils.consoleoutput import oColors
 from serverjar.serverjar_paper import paperCheckForUpdate, papermc_downloader
@@ -12,8 +13,12 @@ from serverjar.serverjar_paper import paperCheckForUpdate, papermc_downloader
 def checkInstalledServerjar():
     configValues = configurationValues()
     if not configValues.localPluginFolder:
-        sftp = createSFTPConnection()
-        serverRootList = sftp_listFilesInServerRoot(sftp)
+        if not configValues.sftp_useSftp:
+            ftp = createFTPConnection()
+            serverRootList = ftp_listFilesInServerRoot(ftp)
+        else:
+            sftp = createSFTPConnection()
+            serverRootList = sftp_listFilesInServerRoot(sftp)
     else:
         serverRootList = os.path.dirname(configValues.pathToPluginFolder)
         serverRootList = os.listdir(serverRootList)

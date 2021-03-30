@@ -7,7 +7,8 @@ from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
 from utils.utilities import createTempPluginFolder, deleteTempPluginFolder, calculateFileSizeKb, calculateFileSizeMb
 from handlers.handle_config import configurationValues
-from handlers.handle_sftp import sftp_upload_file, sftp_cdPluginDir, createSFTPConnection
+from handlers.handle_sftp import sftp_upload_file, createSFTPConnection
+from handlers.handle_ftp import ftp_upload_file, ftp_cdPluginDir, createFTPConnection
 
 
 def handleRegexPackageName(packageNameFull):
@@ -110,8 +111,12 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
         filesizeData = calculateFileSizeKb(filesize)
         print("Downloaded " + (str(filesizeData)).rjust(9) + f" KB here {downloadPath}")
     if not configValues.localPluginFolder:
-        sftpSession = createSFTPConnection()
-        sftp_upload_file(sftpSession, downloadPath)
+        if configValues.sftp_useSftp:
+            sftpSession = createSFTPConnection()
+            sftp_upload_file(sftpSession, downloadPath)
+        else:
+            ftpSession = createFTPConnection()
+            ftp_upload_file(ftpSession, downloadPath)
 
 
 def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
@@ -125,17 +130,14 @@ def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
     versionId = getVersionID(ressourceId, inputPackageVersion)
     packageVersion = getVersionName(ressourceId, versionId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
+    if not configValues.localPluginFolder:
+        downloadPackagePath = f"{downloadPath}/{packageDownloadName}"
+    else:
     downloadPackagePath = Path(f"{downloadPath}/{packageDownloadName}")
-    if configValues.localPluginFolder:
-        if inputPackageVersion is None or inputPackageVersion == 'latest':
-            downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
-        else:
-            downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
+    if inputPackageVersion is None or inputPackageVersion == 'latest':
+        downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
+    else:
+        downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
 
     if not configValues.localPluginFolder:
-        if inputPackageVersion is None or inputPackageVersion == 'latest':
-            downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
-            deleteTempPluginFolder(downloadPath)
-        else:
-            downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
-            deleteTempPluginFolder(downloadPath)
+        deleteTempPluginFolder(downloadPath)

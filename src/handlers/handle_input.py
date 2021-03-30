@@ -82,18 +82,24 @@ def handleInput(inputCommand, inputSelectedObject, inputParams):
             break
         else:
             print(oColors.brightRed + "Error: Command not found. Please try again. :(" + oColors.standardWhite)
+            print(oColors.brightRed + "Use: '" + oColors.standardWhite +"help command" + oColors.brightRed +"' to get all available commands" + oColors.standardWhite)
             getInput()
     getInput()
 
 
 def getInput():
+    inputCommand = None
     while True:
         try:
             inputCommand, inputSelectedObject, *inputParams = input("pluGET >> ").split()
             break
         except ValueError:
-            print(oColors.brightRed + "Wrong input! Use: > 'command' 'selectedObject' [optionalParams]" + oColors.standardWhite)
-            print(oColors.brightRed + "Use: '" + oColors.standardWhite +"help command" + oColors.brightRed +"' to get all available commands" + oColors.standardWhite)
-
+            if inputCommand == None:
+                continue
+            else:
+                print(oColors.brightRed + "Wrong input! Use: > 'command' 'selectedObject' [optionalParams]" + oColors.standardWhite)
+                print(oColors.brightRed + "Use: '" + oColors.standardWhite +"help command" + oColors.brightRed +"' to get all available commands" + oColors.standardWhite)
+        except KeyboardInterrupt:
+            sys.exit()
     inputParams = inputParams[0] if inputParams else None
     handleInput(inputCommand, inputSelectedObject, inputParams)
