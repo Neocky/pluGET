@@ -320,9 +320,9 @@ def updateInstalledPackage(inputSelectedObject='all'):
                             getSpecificPackage(pluginId, configValues.pathToPluginFolder)
                             if configValues.seperateDownloadPath is False:
                                 os.remove(pluginPath)
-                        #except HTTPError as err:
-                        #    print(oColors.brightRed +  f"HTTPError: {err.code} - {err.reason}" + oColors.standardWhite)
-                        #    pluginsUpdated -= 1
+                        except HTTPError as err:
+                            print(oColors.brightRed +  f"HTTPError: {err.code} - {err.reason}" + oColors.standardWhite)
+                            pluginsUpdated -= 1
                         except FileNotFoundError:
                             print(oColors.brightRed +  f"FileNotFoundError: Old plugin file coulnd't be deleted" + oColors.standardWhite)
 

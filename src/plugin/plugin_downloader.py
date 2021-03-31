@@ -8,7 +8,7 @@ from utils.web_request import doAPIRequest
 from utils.utilities import createTempPluginFolder, deleteTempPluginFolder, calculateFileSizeKb, calculateFileSizeMb
 from handlers.handle_config import configurationValues
 from handlers.handle_sftp import sftp_upload_file, createSFTPConnection
-from handlers.handle_ftp import ftp_upload_file, ftp_cdPluginDir, createFTPConnection
+from handlers.handle_ftp import ftp_upload_file, createFTPConnection
 
 
 def handleRegexPackageName(packageNameFull):
@@ -99,6 +99,10 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
     url = f"https://api.spiget.org/v2/resources/{ressourceId}/download"
     #url = f"https://api.spiget.org/v2/resources/{ressourceId}/versions/latest/download" #throws 403 forbidden error...cloudflare :(
 
+    urrlib_opener = urllib.request.build_opener()
+    urrlib_opener.addheaders = [('User-agent', 'pluGET/1.0')]
+    urllib.request.install_opener(urrlib_opener)
+
     remotefile = urllib.request.urlopen(url)
     filesize = remotefile.info()['Content-Length']
     urllib.request.urlretrieve(url, downloadPath)
@@ -130,9 +134,9 @@ def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
     versionId = getVersionID(ressourceId, inputPackageVersion)
     packageVersion = getVersionName(ressourceId, versionId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
-    if not configValues.localPluginFolder:
-        downloadPackagePath = f"{downloadPath}/{packageDownloadName}"
-    else:
+    #if not configValues.localPluginFolder:
+        #downloadPackagePath = f"{downloadPath}/{packageDownloadName}"
+    #else:
     downloadPackagePath = Path(f"{downloadPath}/{packageDownloadName}")
     if inputPackageVersion is None or inputPackageVersion == 'latest':
         downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)

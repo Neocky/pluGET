@@ -25,11 +25,6 @@ def ftp_showPlugins(ftp):
         print(attr.filename, attr)
 
 
-def ftp_cdPluginDir(ftp):
-    configValues = configurationValues()
-    ftp.cwd(configValues.sftp_folderPath)
-
-
 def ftp_upload_file(ftp, itemPath):
     configValues = configurationValues()
     try:
@@ -41,8 +36,8 @@ def ftp_upload_file(ftp, itemPath):
         with open (itemPath, 'rb') as plugin_file:
             ftp.storbinary('STOR '+ str(itemPath), plugin_file)
     except FileNotFoundError:
-        print(oColors.brightRed + "The 'plugins' folder couldn*t be found on the remote host!" + oColors.standardWhite)
-        print(oColors.brightRed + "Aborting uploading." + oColors.standardWhite)
+        print(oColors.brightRed + "[FTP]: The 'plugins' folder couldn*t be found on the remote host!" + oColors.standardWhite)
+        print(oColors.brightRed + "[FTP]: Aborting uploading." + oColors.standardWhite)
     os.chdir(currentDirectory)
     ftp.close()
 
@@ -58,8 +53,8 @@ def ftp_upload_server_jar(ftp, itemPath):
         with open (itemPath, 'rb') as server_jar:
             ftp.storbinary('STOR '+ str(itemPath), server_jar)
     except FileNotFoundError:
-        print(oColors.brightRed + "The 'root' folder couldn*t be found on the remote host!" + oColors.standardWhite)
-        print(oColors.brightRed + "Aborting uploading." + oColors.standardWhite)
+        print(oColors.brightRed + "[FTP]: The 'root' folder couldn*t be found on the remote host!" + oColors.standardWhite)
+        print(oColors.brightRed + "[FTP]: Aborting uploading." + oColors.standardWhite)
     os.chdir(currentDirectory)
     ftp.close()
 
@@ -70,12 +65,12 @@ def ftp_listAll(ftp):
         ftp.cwd(configValues.sftp_folderPath)
         installedPlugins = ftp.nlst()
     except FileNotFoundError:
-        print(oColors.brightRed + "The 'plugins' folder couldn*t be found on the remote host!" + oColors.standardWhite)
+        print(oColors.brightRed + "[FTP]: The 'plugins' folder couldn*t be found on the remote host!" + oColors.standardWhite)
 
     try:
         return installedPlugins
     except UnboundLocalError:
-        print(oColors.brightRed + "No plugins were found." + oColors.standardWhite)
+        print(oColors.brightRed + "[FTP]: No plugins were found." + oColors.standardWhite)
 
 
 def ftp_listFilesInServerRoot(ftp):
@@ -83,12 +78,12 @@ def ftp_listFilesInServerRoot(ftp):
         ftp.cwd('.')
         filesInServerRoot = ftp.nlst()
     except FileNotFoundError:
-        print(oColors.brightRed + "The 'root' folder couldn*t be found on the remote host!" + oColors.standardWhite)
+        print(oColors.brightRed + "[FTP]: The 'root' folder couldn*t be found on the remote host!" + oColors.standardWhite)
 
     try:
         return filesInServerRoot
     except UnboundLocalError:
-        print(oColors.brightRed + "No Serverjar was found." + oColors.standardWhite)
+        print(oColors.brightRed + "[FTP]: No Serverjar was found." + oColors.standardWhite)
 
 
 def ftp_downloadFile(ftp, downloadPath, fileToDownload):

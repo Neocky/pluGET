@@ -12,4 +12,5 @@ def mainFunction():
     createInputLists()
     printMainMenu()
     getInput()
+
 mainFunction()
