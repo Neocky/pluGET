@@ -7,7 +7,8 @@ from rich.console import Console
 
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
-from handlers.handle_sftp import sftp_upload_server_jar, sftp_cdPluginDir, createSFTPConnection
+from handlers.handle_sftp import createSFTPConnection, sftp_upload_server_jar
+from handlers.handle_ftp import createFTPConnection, ftp_upload_server_jar
 from handlers.handle_config import configurationValues
 from utils.utilities import createTempPluginFolder, deleteTempPluginFolder, calculateFileSizeMb
 
@@ -165,8 +166,13 @@ def papermc_downloader(paperBuild='latest', installedServerjarName=None, mcVersi
     filesizeData = calculateFileSizeMb(filesize)
     print("Downloaded " + (str(filesizeData)).rjust(9) + f" MB here {downloadPackagePath}")
     if not configValues.localPluginFolder:
-        sftpSession = createSFTPConnection()
-        sftp_upload_server_jar(sftpSession, downloadPackagePath)
+        if not configValues.sftp_useSftp:
+            ftpSession = createFTPConnection()
+            ftp_upload_server_jar(ftpSession, downloadPackagePath)
+        else:
+            sftpSession = createSFTPConnection()
+            sftp_upload_server_jar(sftpSession, downloadPackagePath)
+        
         deleteTempPluginFolder(downloadPath)
 
     print(oColors.brightGreen + "Downloaded successfully " + oColors.standardWhite + f"Paper {paperBuild}" + \

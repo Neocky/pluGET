@@ -8,6 +8,7 @@ from pathlib import Path
 from utils.consoleoutput import oColors
 from handlers.handle_config import configurationValues
 from handlers.handle_sftp import createSFTPConnection
+from handlers.handle_ftp import createFTPConnection
 
 
 def getHelp():
@@ -134,16 +135,20 @@ def check_requirements():
     apiTest()
     check_local_plugin_folder()
     if not configValues.localPluginFolder:
-        createSFTPConnection()
+        if configValues.sftp_useSftp:
+            createSFTPConnection()
+        else:
+            createFTPConnection()
 
 
 def createTempPluginFolder():
-    tempPluginFolder = Path("./TempSFTPUploadFolder")
+    configValues = configurationValues()
+    tempPluginFolder = Path("./TempSFTPFolder")
     if not os.path.isdir(tempPluginFolder):
         try:
             os.mkdir(tempPluginFolder)
         except OSError:
-            print(oColors.brightRed + "Creation of directory %s failed" % checkConfig().pathToPluginFolder)
+            print(oColors.brightRed + "Creation of directory %s failed" % configValues.pathToPluginFolder)
             print(oColors.brightRed + "Please check the config file!" + oColors.standardWhite)
             input("Press any key + enter to exit...")
             sys.exit()
