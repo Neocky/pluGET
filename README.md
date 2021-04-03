@@ -47,7 +47,7 @@
 ## About  
 This is a package manager for minecraft [Spigot](https://www.spigotmc.org/) servers and its forks (e.g. [PaperMC](https://papermc.io/)).  
 This is a standalone program written in python.  
-The program works with a locally installed server or with a remote host through SFTP, when configured in the config.  
+The program works with a locally installed server or with a remote host through SFTP/FTP, when configured in the config.  
 It uses the [Spiget](https://spiget.org/) API to download and compare plugin versions and can download the latest version of plugins from the [Spigot](https://www.spigotmc.org/) site.  
 It can also compare and download the latest update of specifif server software (e.g. [PaperMC](https://papermc.io/)).  
 
@@ -63,7 +63,7 @@ If you still have questions [here](https://github.com/Neocky/pluGET#need-help) i
 
 So what can it do exactly?  
 pluGET can:
-- work locally or through sftp
+- work locally or through SFTP/FTP
 - manage plugins:
   - download the latest version of a plugin
   - update every installed/one specific plugin
@@ -97,14 +97,14 @@ Python needs to be installed on your machine.
 Get it [here](https://www.python.org/downloads/).  
 ### Dependencies
 Install the needed packages for this project.  
-Execute this command in the ```\plugGET``` folder:  
+Execute this command in the `\plugGET` folder:  
 ```python
 py -m pip install -r requirements.txt
 ```
 
 
 ### Edit the Config
-When run the first time, the `config.ini` file will be created in the root package folder and the program will close.  
+When run the first time, the `config.ini` file will be created in the `\src`folder and the program will close.  
 Edit the config to your needs and relaunch pluGET.  
 **Now you are good to go!**  
 
