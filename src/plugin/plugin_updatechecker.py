@@ -124,7 +124,6 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 fileVersion = getFileVersion(plugin)
                 pluginId = getInstalledPlugin(fileName, fileVersion)
             except TypeError:
-                i += 1
                 continue
             pluginIdStr = str(pluginId)
             if fileVersion == '':
@@ -204,10 +203,8 @@ def updateInstalledPackage(inputSelectedObject='all'):
                 pluginId = getInstalledPlugin(fileName, fileVersion)
                 latestVersion = getLatestPluginVersion(pluginId)
             except TypeError:
-                i += 1
                 continue
             except ValueError:
-                i += 1
                 continue
             pluginIdStr = str(pluginId)
             if pluginId == None or pluginId == '':
@@ -326,7 +323,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         except FileNotFoundError:
                             print(oColors.brightRed +  f"FileNotFoundError: Old plugin file coulnd't be deleted" + oColors.standardWhite)
 
-            i = i + 1
+            i += 1
     except TypeError:
         print(oColors.brightRed + "Error occured: Aborted updating for plugins." + oColors.standardWhite)
     print(oColors.brightYellow + f"Plugins updated: [{pluginsUpdated}/{i}]" + oColors.standardWhite)
