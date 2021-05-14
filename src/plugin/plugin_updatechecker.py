@@ -46,7 +46,7 @@ def getFileVersion(pluginName):
     if pluginVersionString.endswith('.'):
         pluginVersionString = ''
     if pluginVersionString == '':
-        pluginVersionString = eggCrackingJar(pluginNameFull)
+        pluginVersionString = eggCrackingJar(pluginNameFull, 'version')
     return pluginVersionString
 
 
@@ -65,7 +65,7 @@ def compareVersions(plugin_latest_version, pluginVersion):
     return plugin_is_outdated
 
 
-def eggCrackingJar(localJarFileName):
+def eggCrackingJar(localJarFileName, searchMode):
     configValues = configurationValues()
     if not configValues.localPluginFolder:
         if configValues.sftp_useSftp:
@@ -82,21 +82,34 @@ def eggCrackingJar(localJarFileName):
         pluginPath = configValues.pathToPluginFolder
         pathToPluginJar = Path(f"{pluginPath}/{localJarFileName}")
     pluginVersion = ''
+    pluginName = ''
     with ZipFile(pathToPluginJar, 'r') as pluginJar:
         try:
             with io.TextIOWrapper(pluginJar.open('plugin.yml', 'r'), encoding="utf-8") as pluginYml:
                 pluginYmlContentLine = pluginYml.readlines()
                 for line in pluginYmlContentLine:
-                    if "version: " in line:
-                        pluginVersion = line.replace('version: ', '')
-                        pluginVersion = pluginVersion.replace('\n', '')
-                        break
+                    if searchMode == 'version':
+                        if re.match(r'^version: ', line):
+                            pluginVersion = line.replace('version: ', '')
+                            pluginVersion = pluginVersion.replace('\n', '')
+                            pluginVersion = pluginVersion.replace("'", '')
+                            pluginVersion = pluginVersion.replace('"', '')
+                    elif searchMode == 'name':
+                        if re.match(r'^name: ', line):
+                            pluginName = line.replace('name: ', '')
+                            pluginName = pluginName.replace('\n', '')
+                            pluginName = pluginName.replace("'", '')
+                            pluginName = pluginName.replace('"', '')
 
         except FileNotFoundError:
             pluginVersion = ''
+            pluginName = ''
     if not configValues.localPluginFolder:
         deleteTempPluginFolder(tempPluginFolderPath)
-    return pluginVersion
+    if searchMode == 'version':
+        return pluginVersion
+    if searchMode == 'name':
+        return pluginName
 
 
 def checkInstalledPackage(inputSelectedObject="all"):
@@ -122,7 +135,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
             try:
                 fileName = getFileName(plugin)
                 fileVersion = getFileVersion(plugin)
-                pluginId = getInstalledPlugin(fileName, fileVersion)
+                pluginId = getInstalledPlugin(fileName, fileVersion, plugin)
             except TypeError:
                 continue
             pluginIdStr = str(pluginId)
@@ -200,7 +213,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
             try:
                 fileName = getFileName(plugin)
                 fileVersion = getFileVersion(plugin)
-                pluginId = getInstalledPlugin(fileName, fileVersion)
+                pluginId = getInstalledPlugin(fileName, fileVersion, plugin)
                 latestVersion = getLatestPluginVersion(pluginId)
             except TypeError:
                 continue
@@ -331,27 +344,40 @@ def updateInstalledPackage(inputSelectedObject='all'):
         print(oColors.brightGreen + "All found plugins are on the latest version!" + oColors.standardWhite)
 
 
-def getInstalledPlugin(localFileName, localFileVersion):
+def getInstalledPlugin(localFileName, localFileVersion, localPluginFullName):
     url = "https://api.spiget.org/v2/search/resources/" + localFileName + "?field=name&sort=-downloads"
     packageName = doAPIRequest(url)
     plugin_match_found = False
     pluginID = None
-    for ressource in packageName:
+    localFileVersionNew = localFileVersion
+    i = 0
+    for i in range(0, 3):
         if plugin_match_found == True:
-            break
-        pID = ressource["id"]
-        url2 = f"https://api.spiget.org/v2/resources/{pID}/versions?size=100&sort=-name"
-        packageVersions = doAPIRequest(url2)
-        for updates in packageVersions:
-            updateVersion = updates["name"]
-            if localFileVersion in updateVersion:
-                plugin_match_found = True
-                pluginID = pID
-                updateId = updates["id"]
-                plugin_latest_version = getLatestPluginVersion(pID)
-                plugin_is_outdated = compareVersions(plugin_latest_version, updateVersion)
-                addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
-                return pluginID
+                break
+        if i == 1:
+            localFileVersionNew = re.sub(r'(\-\w*)', '', localFileVersion)
+        if i == 2:
+            pluginNameinYML = eggCrackingJar(localPluginFullName, 'name')
+            url = "https://api.spiget.org/v2/search/resources/" + pluginNameinYML + "?field=name&sort=-downloads"
+            packageName = doAPIRequest(url)
+            localFileVersion = localFileVersionNew
+
+        for ressource in packageName:
+            if plugin_match_found == True:
+                break
+            pID = ressource["id"]
+            url2 = f"https://api.spiget.org/v2/resources/{pID}/versions?size=100&sort=-name"
+            packageVersions = doAPIRequest(url2)
+            for updates in packageVersions:
+                updateVersion = updates["name"]
+                if localFileVersionNew in updateVersion:
+                    plugin_match_found = True
+                    pluginID = pID
+                    updateId = updates["id"]
+                    plugin_latest_version = getLatestPluginVersion(pID)
+                    plugin_is_outdated = compareVersions(plugin_latest_version, updateVersion)
+                    addToPluginList(pID, updateId,  plugin_latest_version , plugin_is_outdated)
+                    return pluginID
 
     else:
         if plugin_match_found != True:
