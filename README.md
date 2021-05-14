@@ -88,7 +88,7 @@ If you feel like showing your love and/or appreciation for this project then how
 
 
 ## Need help?
-[<img src="https://i.imgur.com/D5vyVzC.png" alt="Discord" width="272"/>](https://discord.gg/475Uf4NBPF)
+[<img src="https://i.ibb.co/CMKbT0L/rsz-1rsz-discord.png" alt="Discord" width="272"/>](https://discord.gg/475Uf4NBPF)
 
 
 ## Installation
