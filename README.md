@@ -69,7 +69,7 @@ pluGET can:
   - update every installed/one specific plugin
   - check for an update of every installed/one specific plugin
   - remove a plugin from the plugin folder
-- manager server software:
+- manage server software:
   - download a specific server software version
   - check installed server software for update
   - update installed server software to a specific version
