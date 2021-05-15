@@ -76,7 +76,7 @@ def findLatestBuild(paperVersionGroup):
         return False
     url = f"https://papermc.io/api/v2/projects/paper/version_group/{paperVersionGroup}/builds"
     papermcbuilds = doAPIRequest(url)
-    if papermcbuilds["status"] == 404:
+    if "status" in papermcbuilds:  # Checks if the API returns a status. This means that there was an error.
         return False
     latestPaperBuild = papermcbuilds["builds"][-1]["build"]
     return latestPaperBuild
