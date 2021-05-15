@@ -71,6 +71,7 @@ def findBuildVersion(wantedPaperBuild):
                 return paperVersionGroup
     return False  # Not found
 
+
 def findLatestBuild(paperVersionGroup):
     if paperVersionGroup is None:
         return False
@@ -148,10 +149,12 @@ def paperCheckForUpdate(installedServerjarFullName):
     # Report an error if getInstalledPaperVersion encountered an issue.
     if not paperVersionBehind:
         print(oColors.brightRed + f"ERR: An error was encountered while detecting how many versions behind you are. "
-                                  f"Will display as False." + oColors.standardWhite)
-        # Does not return false as versions behind doesn't break things. It is just helpful information.
-        # paperVersionBehind will just display as "False"
+                                  f"Will display as 'N/A'." + oColors.standardWhite)
+        paperVersionBehind = "N/A"  # Sets paperVersionBehind to N/A while still letting the versionBehind check return
+        #                           # False for error-handing reasons.
 
+        # Does not return false as versions behind doesn't break things. It is just helpful information.
+        # paperVersionBehind will just display as "N/A"
 
     print("┌─────┬────────────────────────────────┬──────────────┬──────────────┬───────────────────┐")
     print("│ No. │ Name                           │ Installed V. │ Latest V.    │ Versions behind   │")
