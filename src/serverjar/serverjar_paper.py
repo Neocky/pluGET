@@ -15,6 +15,8 @@ from utils.utilities import createTempPluginFolder, deleteTempPluginFolder, calc
 
 # = 1.16.5
 def getInstalledPaperMinecraftVersion(localPaperName):
+    if localPaperName is None:
+        return False
     mcVersionFull = re.search(r'(\d*\.*\d)+', localPaperName)
     try:
         mcVersion = mcVersionFull.group()
@@ -25,6 +27,8 @@ def getInstalledPaperMinecraftVersion(localPaperName):
 
 # = 550
 def getInstalledPaperVersion(localPaperName):
+    if localPaperName is None:
+        return False
     paperBuildFull = re.search(r'([\d]*.jar)', localPaperName)
     try:
         paperBuild = paperBuildFull.group()
@@ -36,52 +40,52 @@ def getInstalledPaperVersion(localPaperName):
 
 def findVersionGroup(mcVersion):
     versionGroups = ['1.16', '1.15']
-    versionGroupFound = False
+    if mcVersion is None:
+        return False
     for versionGroup in versionGroups:
-        if versionGroupFound == True:
-            break
         url = f"https://papermc.io/api/v2/projects/paper/version_group/{versionGroup}/builds"
         papermcdetails = doAPIRequest(url)
         papermcVersionForMc = papermcdetails["versions"]
         for versions in papermcVersionForMc:
             if versions == mcVersion:
-                versionGroupFound = True
                 paperVersionGroup = versionGroup
-                break
+                return paperVersionGroup
             if versionGroup == mcVersion:
-                versionGroupFound = True
                 paperVersionGroup = versionGroup
-                break
-
-    return paperVersionGroup
+                return paperVersionGroup
+    return False  # Not found
 
 
 def findBuildVersion(wantedPaperBuild):
     versionGroups = ['1.16', '1.15']
-    paperBuildFound = False
+    if wantedPaperBuild is None:
+        return False
     for versionGroup in versionGroups:
-        if paperBuildFound is True:
-            break
         url = f"https://papermc.io/api/v2/projects/paper/version_group/{versionGroup}/builds"
         papermcdetails = doAPIRequest(url)
         paperMcBuilds = papermcdetails["builds"]
         for build in paperMcBuilds:
             paperBuild = str(build["build"])
             if paperBuild == wantedPaperBuild:
-                paperBuildFound = True
                 paperVersionGroup = build["version"]
-                break
-    return paperVersionGroup
+                return paperVersionGroup
+    return False  # Not found
 
 
 def findLatestBuild(paperVersionGroup):
+    if paperVersionGroup is None:
+        return False
     url = f"https://papermc.io/api/v2/projects/paper/version_group/{paperVersionGroup}/builds"
     papermcbuilds = doAPIRequest(url)
+    if "status" in papermcbuilds:  # Checks if the API returns a status. This means that there was an error.
+        return False
     latestPaperBuild = papermcbuilds["builds"][-1]["build"]
     return latestPaperBuild
 
 
 def findLatestBuildForVersion(mcVersion):
+    if mcVersion is None:
+        return False
     url = f"https://papermc.io/api/v2/projects/paper/versions/{mcVersion}"
     papermcbuilds = doAPIRequest(url)
     latestPaperBuild = papermcbuilds["builds"][-1]
@@ -89,6 +93,8 @@ def findLatestBuildForVersion(mcVersion):
 
 
 def versionBehind(installedPaperBuild, latestPaperBuild):
+    if installedPaperBuild or latestPaperBuild is None:
+        return False
     installedPaperBuildint = int(installedPaperBuild)
     latestPaperBuildint = int(latestPaperBuild)
     versionsBehind = latestPaperBuildint - installedPaperBuildint
@@ -96,6 +102,8 @@ def versionBehind(installedPaperBuild, latestPaperBuild):
 
 
 def getDownloadFileName(paperMcVersion, paperBuild):
+    if paperMcVersion or paperBuild is None:
+        return False
     url = f"https://papermc.io/api/v2/projects/paper/versions/{paperMcVersion}/builds/{paperBuild}"
     buildDetails = doAPIRequest(url)
     downloadName = buildDetails["downloads"]["application"]["name"]
@@ -104,10 +112,49 @@ def getDownloadFileName(paperMcVersion, paperBuild):
 
 def paperCheckForUpdate(installedServerjarFullName):
     mcVersion = getInstalledPaperMinecraftVersion(installedServerjarFullName)
+
+    # Report an error if getInstalledPaperMinecraftVersion encountered an issue.
+    if not mcVersion:
+        print(oColors.brightRed + f"ERR: An error was encountered while detecting the server's Minecraft version." +
+              oColors.standardWhite)
+        return False
+
     paperInstalledBuild = getInstalledPaperVersion(installedServerjarFullName)
+
+    # Report an error if getInstalledPaperVersion encountered an issue.
+    if not paperInstalledBuild:
+        print(oColors.brightRed + f"ERR: An error was encountered while detecting the server's Paper version." +
+              oColors.standardWhite)
+        return False
+
     versionGroup = findVersionGroup(mcVersion)
+
+    # Report an error if findVersionGroup encountered an issue.
+    if not versionGroup:
+        print(oColors.brightRed + f"ERR: An error was encountered while fetching the server's version group." +
+              oColors.standardWhite)
+        return False
+
     paperLatestBuild = findLatestBuild(versionGroup)
+
+    # Report an error if findLatestBuild encountered an issue.
+    if not paperLatestBuild:
+        print(oColors.brightRed + f"ERR: An error was encountered while fetching the latest version of PaperMC." +
+              oColors.standardWhite)
+        return False  # Not currently handled, but can be at a later date. Currently just stops the following from
+    #                   being printed.
+
     paperVersionBehind = versionBehind(paperInstalledBuild, paperLatestBuild)
+
+    # Report an error if getInstalledPaperVersion encountered an issue.
+    if not paperVersionBehind:
+        print(oColors.brightRed + f"ERR: An error was encountered while detecting how many versions behind you are. "
+                                  f"Will display as 'N/A'." + oColors.standardWhite)
+        paperVersionBehind = "N/A"  # Sets paperVersionBehind to N/A while still letting the versionBehind check return
+        #                           # False for error-handing reasons.
+
+        # Does not return false as versions behind doesn't break things. It is just helpful information.
+        # paperVersionBehind will just display as "N/A"
 
     print("┌─────┬────────────────────────────────┬──────────────┬──────────────┬───────────────────┐")
     print("│ No. │ Name                           │ Installed V. │ Latest V.    │ Versions behind   │")
@@ -172,8 +219,8 @@ def papermc_downloader(paperBuild='latest', installedServerjarName=None, mcVersi
         else:
             sftpSession = createSFTPConnection()
             sftp_upload_server_jar(sftpSession, downloadPackagePath)
-        
+
         deleteTempPluginFolder(downloadPath)
 
     print(oColors.brightGreen + "Downloaded successfully " + oColors.standardWhite + f"Paper {paperBuild}" + \
-    oColors.brightGreen + " for " + oColors.standardWhite + f"{mcVersion}" + oColors.standardWhite)
+          oColors.brightGreen + " for " + oColors.standardWhite + f"{mcVersion}" + oColors.standardWhite)
