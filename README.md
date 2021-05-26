@@ -92,18 +92,25 @@ If you feel like showing your love and/or appreciation for this project then how
 
 
 ## Installation
-### Python
+### 1. Python
 Python needs to be installed on your machine.  
 Get it [here](https://www.python.org/downloads/).  
-### Dependencies
+### 2. Dependencies
 Install the needed packages for this project.  
+#### Automatically (Windows only)
+Execute the `installer.bat` file to automaticcally install the needed packages for this project.  
+> Sometimes the security warning `Windows protected your PC` comes when launching the `installer.bat` file.  
+> This is a normal behaviour from the windows defender because this is a unknown `.bat` file.  
+> To run the `installer.bat` anyway, click `More Info` and then `Run anyway` when the message pops up.  
+
+##### Manually
 Execute this command in the `\plugGET` folder:  
 ```python
 py -m pip install -r requirements.txt
 ```
 
 
-### Edit the Config
+### 3. Edit the Config
 When run the first time, the `config.ini` file will be created in the `\src` folder and the program will close.  
 Edit the config to your needs and relaunch pluGET.  
 **Now you are good to go!**  
@@ -112,9 +119,9 @@ Edit the config to your needs and relaunch pluGET.
 ### Windows:  
 Execute the `launcher.bat` in the `\pluGET` folder.  
 This will launch pluGET correctly.  
-Sometimes the security warning `Windows protected your PC` comes when launching the `launcher.bat` file.  
-This is a normal behaviour from the windows defender because this is a unknown `.bat` file.  
-To run the `launcher.bat` anyway, click `More Info` and then `Run anyway` when the message pops up.  
+> Sometimes the security warning `Windows protected your PC` comes when launching the `launcher.bat` file.  
+> This is a normal behaviour from the windows defender because this is a unknown `.bat` file.  
+> To run the `launcher.bat` anyway, click `More Info` and then `Run anyway` when the message pops up.  
 
 ### Linux:  
 Use `cd` to change into the `/pluGET` directory and change the permission of the `launcher.sh` to make it executeable:  
