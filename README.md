@@ -239,6 +239,21 @@ get-paper 321
 ## Known problems
 
 ### Can't get latest version/Update available
+
+#### Inconsistent Names and Versions
+For example:  
+![EssentialsX](https://i.ibb.co/fDyCYQ8/essentialsx.png)  
+EssentialsX is a prominent example of inconsisten version naming. The installed version is `2.18.2.0` but on [Spigot](https://www.spigotmc.org/resources/essentialsx.9089/update?update=371379) the version is only described as `2.18.2`.  
+That's the reason pluGET can't detect it automatically.  
+> There are of course many more plugins which have some sort of inconsistency which makes it sadly impossible for pluGET to detect them all. EssentialsX is used only as an example.  
+
+#### Solution
+Download the plugins with the `get [pluginName]` command to make them detectable for pluGET.  
+After downloading EssentialsX with `get EssentialsX` and using `check all`:  
+![EssentialsX](https://i.ibb.co/ws5wHTj/essentialsx-2.png)  
+EssentialsX is now detected from pluGET and can update automatically when a new version comes out.  
+
+#### Bukkit plugins
 For example:  
 ![worldguard](https://i.ibb.co/7NJ9HRG/pluget-checkallonlyone.png)  
 As you can see the installed version was found but not the latest version for this plugin.  
