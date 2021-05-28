@@ -89,14 +89,14 @@ def eggCrackingJar(localJarFileName, searchMode):
                 pluginYmlContentLine = pluginYml.readlines()
                 for line in pluginYmlContentLine:
                     if searchMode == 'version':
-                        if re.match(r'^version: ', line):
-                            pluginVersion = line.replace('version: ', '')
+                        if re.match(r'^\s*?version: ', line):
+                            pluginVersion = re.sub(r'^\s*?version: ', '', line)
                             pluginVersion = pluginVersion.replace('\n', '')
                             pluginVersion = pluginVersion.replace("'", '')
                             pluginVersion = pluginVersion.replace('"', '')
                     elif searchMode == 'name':
-                        if re.match(r'^name: ', line):
-                            pluginName = line.replace('name: ', '')
+                        if re.match(r'^\s*?name: ', line):
+                            pluginName = re.sub(r'^\s*?name: ', '', line)
                             pluginName = pluginName.replace('\n', '')
                             pluginName = pluginName.replace("'", '')
                             pluginName = pluginName.replace('"', '')
@@ -138,6 +138,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 pluginId = getInstalledPlugin(fileName, fileVersion, plugin)
             except TypeError:
                 continue
+
             pluginIdStr = str(pluginId)
             if fileVersion == '':
                 fileVersion = 'N/A'
@@ -159,6 +160,9 @@ def checkInstalledPackage(inputSelectedObject="all"):
 
             if pluginIsOutdated == True:
                 oldPlugins = oldPlugins + 1
+
+            if re.search(r'.jar', fileName):
+                fileName = eggCrackingJar(plugin, "name")
 
             if inputSelectedObject != "*" and inputSelectedObject != "all":
                 if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
@@ -219,6 +223,8 @@ def updateInstalledPackage(inputSelectedObject='all'):
                 continue
             except ValueError:
                 continue
+            if re.search(r'.jar', fileName):
+                fileName = eggCrackingJar(plugin, "name")
             pluginIdStr = str(pluginId)
             if pluginId == None or pluginId == '':
                 print(oColors.brightRed + "Couldn't find plugin id. Sorry :(" + oColors.standardWhite)
@@ -353,21 +359,29 @@ def getInstalledPlugin(localFileName, localFileVersion, localPluginFullName):
     i = 0
     for i in range(0, 3):
         if plugin_match_found == True:
-                break
+            break
         if i == 1:
             localFileVersionNew = re.sub(r'(\-\w*)', '', localFileVersion)
         if i == 2:
             pluginNameinYML = eggCrackingJar(localPluginFullName, 'name')
             url = "https://api.spiget.org/v2/search/resources/" + pluginNameinYML + "?field=name&sort=-downloads"
-            packageName = doAPIRequest(url)
+            try:
+                packageName = doAPIRequest(url)
+            except ValueError:
+                continue
+
             localFileVersion = localFileVersionNew
 
         for ressource in packageName:
             if plugin_match_found == True:
-                break
+                continue
             pID = ressource["id"]
             url2 = f"https://api.spiget.org/v2/resources/{pID}/versions?size=100&sort=-name"
-            packageVersions = doAPIRequest(url2)
+
+            try:
+                packageVersions = doAPIRequest(url2)
+            except ValueError:
+                continue
             for updates in packageVersions:
                 updateVersion = updates["name"]
                 if localFileVersionNew in updateVersion:
