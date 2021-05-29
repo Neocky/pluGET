@@ -115,6 +115,7 @@ def eggCrackingJar(localJarFileName, searchMode):
 def checkInstalledPackage(inputSelectedObject="all"):
     configValues = configurationValues()
     createPluginList()
+    pluginFolderPath = configValues.pathToPluginFolder
     if not configValues.localPluginFolder:
         if configValues.sftp_useSftp:
             connection = createSFTPConnection()
@@ -123,7 +124,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
             connection = createFTPConnection()
             pluginList = ftp_listAll(connection)
     else:
-        pluginList = os.listdir(configValues.pathToPluginFolder)
+        pluginList = os.listdir(pluginFolderPath)
     i = 0
     oldPlugins = 0
     print(oColors.brightBlack + f"Checking: {inputSelectedObject}" + oColors.standardWhite)
@@ -132,6 +133,12 @@ def checkInstalledPackage(inputSelectedObject="all"):
     print("└─────┴────────────────────────────────┴──────────────┴──────────────┴───────────────────┘")
     try:
         for plugin in track(pluginList, description="Checking for updates" ,transient=True, complete_style="bright_yellow"):
+            if not os.path.isfile(Path(f"{pluginFolderPath}/{plugin}")):
+                continue
+
+            if not re.search(r'.jar$', plugin):
+                continue
+
             try:
                 fileName = getFileName(plugin)
                 fileVersion = getFileVersion(plugin)
@@ -161,7 +168,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
             if pluginIsOutdated == True:
                 oldPlugins = oldPlugins + 1
 
-            if re.search(r'.jar', fileName):
+            if re.search(r'.jar$', fileName):
                 fileName = eggCrackingJar(plugin, "name")
 
             if inputSelectedObject != "*" and inputSelectedObject != "all":
@@ -196,6 +203,7 @@ def checkInstalledPackage(inputSelectedObject="all"):
 def updateInstalledPackage(inputSelectedObject='all'):
     configValues = configurationValues()
     createPluginList()
+    pluginFolderPath = configValues.pathToPluginFolder
     if not configValues.localPluginFolder:
         if configValues.sftp_useSftp:
             connection = createSFTPConnection()
@@ -204,7 +212,8 @@ def updateInstalledPackage(inputSelectedObject='all'):
             connection = createFTPConnection()
             pluginList = ftp_listAll(connection)
     else:
-        pluginList = os.listdir(configValues.pathToPluginFolder)
+        pluginList = os.listdir(pluginFolderPath)
+
     i = 0
     pluginsUpdated = 0
     indexNumberUpdated = 0
@@ -214,6 +223,12 @@ def updateInstalledPackage(inputSelectedObject='all'):
     print("└─────┴────────────────────────────────┴────────────┴──────────┘")
     try:
         for plugin in track(pluginList, description="Updating" ,transient=True, complete_style="bright_magenta"):
+            if not os.path.isfile(Path(f"{pluginFolderPath}/{plugin}")):
+                continue
+
+            if not re.search(r'.jar$', plugin):
+                continue
+
             try:
                 fileName = getFileName(plugin)
                 fileVersion = getFileVersion(plugin)
@@ -223,12 +238,15 @@ def updateInstalledPackage(inputSelectedObject='all'):
                 continue
             except ValueError:
                 continue
-            if re.search(r'.jar', fileName):
+
+            if re.search(r'.jar$', fileName):
                 fileName = eggCrackingJar(plugin, "name")
+
             pluginIdStr = str(pluginId)
             if pluginId == None or pluginId == '':
                 print(oColors.brightRed + "Couldn't find plugin id. Sorry :(" + oColors.standardWhite)
                 continue
+
             if inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
                 if INSTALLEDPLUGINLIST[i][3] == True:
                     print(f" [{indexNumberUpdated+1}]".rjust(6), end='')
@@ -259,12 +277,12 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         if configValues.seperateDownloadPath is True:
                             pluginPath = configValues.pathToSeperateDownloadPath
                         else:
-                            pluginPath = configValues.pathToPluginFolder
+                            pluginPath = pluginFolderPath
                         pluginPath = Path(f"{pluginPath}/{plugin}")
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
                         try:
-                            getSpecificPackage(pluginId, configValues.pathToPluginFolder)
+                            getSpecificPackage(pluginId, pluginFolderPath)
                             if configValues.seperateDownloadPath is False:
                                 os.remove(pluginPath)
                         except HTTPError as err:
@@ -328,12 +346,12 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         if configValues.seperateDownloadPath is True:
                             pluginPath = configValues.pathToSeperateDownloadPath
                         else:
-                            pluginPath = configValues.pathToPluginFolder
+                            pluginPath = pluginFolderPath
                         pluginPath = Path(f"{pluginPath}/{plugin}")
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
                         try:
-                            getSpecificPackage(pluginId, configValues.pathToPluginFolder)
+                            getSpecificPackage(pluginId, pluginFolderPath)
                             if configValues.seperateDownloadPath is False:
                                 os.remove(pluginPath)
                         except HTTPError as err:
