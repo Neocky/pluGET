@@ -1,6 +1,8 @@
 import os
 import sys
 import ftplib
+import stat
+import re
 
 from utils.consoleoutput import oColors
 from handlers.handle_config import configurationValues
@@ -93,3 +95,14 @@ def ftp_downloadFile(ftp, downloadPath, fileToDownload):
     ftp.retrbinary('RETR '+fileToDownload, filedata.write)
     filedata.close()
     ftp.quit()
+
+
+def ftp_validateFileAttributes(ftp, pluginPath):
+    pluginFTPAttribute = ftp.lstat(pluginPath)
+    if stat.S_ISDIR(pluginFTPAttribute.st_mode):
+        return False
+    if stat.S_ISDIR(pluginFTPAttribute.st_mode):
+        if re.search(r'.jar$', pluginFTPAttribute.filename):
+            return True
+        else:
+            return False

@@ -1,6 +1,8 @@
 import os
 import re
 import io
+import stat
+import pysftp
 from zipfile import ZipFile
 from urllib.error import HTTPError
 from pathlib import Path
@@ -9,8 +11,8 @@ from rich.progress import track
 from utils.consoleoutput import oColors
 from utils.web_request import doAPIRequest
 from handlers.handle_config import configurationValues
-from handlers.handle_sftp import createSFTPConnection, sftp_listAll, sftp_downloadFile
-from handlers.handle_ftp import createFTPConnection, ftp_listAll, ftp_downloadFile
+from handlers.handle_sftp import createSFTPConnection, sftp_listAll, sftp_downloadFile, sftp_validateFileAttributes
+from handlers.handle_ftp import createFTPConnection, ftp_listAll, ftp_downloadFile, ftp_validateFileAttributes
 from plugin.plugin_downloader import getSpecificPackage
 from utils.utilities import createTempPluginFolder, deleteTempPluginFolder
 
@@ -133,11 +135,25 @@ def checkInstalledPackage(inputSelectedObject="all"):
     print("└─────┴────────────────────────────────┴──────────────┴──────────────┴───────────────────┘")
     try:
         for plugin in track(pluginList, description="Checking for updates" ,transient=True, complete_style="bright_yellow"):
-            if not os.path.isfile(Path(f"{pluginFolderPath}/{plugin}")):
-                continue
+            if not configValues.localPluginFolder:
+                if configValues.sftp_seperateDownloadPath is True:
+                    pluginFile = f"{configValues.sftp_pathToSeperateDownloadPath}/{plugin}"
+                else:
+                    pluginFile = f"{configValues.sftp_folderPath}/{plugin}"
 
-            if not re.search(r'.jar$', plugin):
-                continue
+                if configValues.sftp_useSftp:
+                    pluginAttributes = sftp_validateFileAttributes(connection, pluginFile)
+                    if pluginAttributes == False:
+                        continue
+                else:
+                    pluginAttributes = ftp_validateFileAttributes(connection, pluginFile)
+                    if pluginAttributes == False:
+                        continue
+            else:
+                if not os.path.isfile(Path(f"{pluginFolderPath}/{plugin}")):
+                    continue
+                if not re.search(r'.jar$', plugin):
+                    continue
 
             try:
                 fileName = getFileName(plugin)
@@ -223,11 +239,25 @@ def updateInstalledPackage(inputSelectedObject='all'):
     print("└─────┴────────────────────────────────┴────────────┴──────────┘")
     try:
         for plugin in track(pluginList, description="Updating" ,transient=True, complete_style="bright_magenta"):
-            if not os.path.isfile(Path(f"{pluginFolderPath}/{plugin}")):
-                continue
+            if not configValues.localPluginFolder:
+                if configValues.sftp_seperateDownloadPath is True:
+                    pluginFile = f"{configValues.sftp_pathToSeperateDownloadPath}/{plugin}"
+                else:
+                    pluginFile = f"{configValues.sftp_folderPath}/{plugin}"
 
-            if not re.search(r'.jar$', plugin):
-                continue
+                if configValues.sftp_useSftp:
+                    pluginAttributes = sftp_validateFileAttributes(connection, pluginFile)
+                    if pluginAttributes == False:
+                        continue
+                else:
+                    pluginAttributes = ftp_validateFileAttributes(connection, pluginFile)
+                    if pluginAttributes == False:
+                        continue
+            else:
+                if not os.path.isfile(Path(f"{pluginFolderPath}/{plugin}")):
+                    continue
+                if not re.search(r'.jar$', plugin):
+                    continue
 
             try:
                 fileName = getFileName(plugin)

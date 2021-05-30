@@ -2,6 +2,8 @@ import sys
 import os
 import pysftp
 import paramiko
+import stat
+import re
 
 from utils.consoleoutput import oColors
 from handlers.handle_config import configurationValues
@@ -27,14 +29,16 @@ def createSFTPConnection():
 
 
 def sftp_showPlugins(sftp):
-    sftp.cd('plugins')
+    configValues = configurationValues()
+    sftp.cd(configValues.sftp_folderPath)
     for attr in sftp.listdir_attr():
         print(attr.filename, attr)
 
 
 def sftp_upload_file(sftp, itemPath):
+    configValues = configurationValues()
     try:
-        sftp.chdir('plugins')
+        sftp.chdir(configValues.sftp_folderPath)
         sftp.put(itemPath)
 
     except FileNotFoundError:
@@ -54,8 +58,9 @@ def sftp_upload_server_jar(sftp, itemPath):
 
 
 def sftp_listAll(sftp):
+    configValues = configurationValues()
     try:
-        sftp.chdir('plugins')
+        sftp.chdir(configValues.sftp_folderPath)
         installedPlugins = sftp.listdir()
     except FileNotFoundError:
         print(oColors.brightRed + "[SFTP]: The 'plugins' folder couldn*t be found on the remote host!" + oColors.standardWhite)
@@ -86,4 +91,14 @@ def sftp_downloadFile(sftp, downloadPath, fileToDownload):
     sftp.get(fileToDownload)
     sftp.close()
     os.chdir(currentDirectory)
-    
+
+
+def sftp_validateFileAttributes(sftp, pluginPath):
+    pluginSFTPAttribute = sftp.lstat(pluginPath)
+    if stat.S_ISDIR(pluginSFTPAttribute.st_mode):
+        return False
+    if stat.S_ISDIR(pluginSFTPAttribute.st_mode):
+        if re.search(r'.jar$', pluginSFTPAttribute.filename):
+            return True
+        else:
+            return False

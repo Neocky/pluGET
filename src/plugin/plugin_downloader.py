@@ -79,12 +79,18 @@ def searchPackage(ressourceName):
         ressourceId = packageName[ressourceSelected]["id"]
         if not configValues.localPluginFolder:
             try:
-                getSpecificPackage(ressourceId, configValues.sftp_folderPath)
+                if configValues.sftp_seperateDownloadPath is True:
+                    getSpecificPackage(ressourceId, configValues.sftp_pathToSeperateDownloadPath)
+                else:
+                    getSpecificPackage(ressourceId, configValues.sftp_folderPath)
             except HTTPError as err:
                 print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
         else:
             try:
-                getSpecificPackage(ressourceId, configValues.pathToPluginFolder)
+                if configValues.seperateDownloadPath is True:
+                    getSpecificPackage(ressourceId, configValues.pathToPluginFolder)
+                else:
+                    getSpecificPackage(ressourceId, configValues.pathToSeperateDownloadPath)
             except HTTPError as err:
                 print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
 
@@ -134,9 +140,6 @@ def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
     versionId = getVersionID(ressourceId, inputPackageVersion)
     packageVersion = getVersionName(ressourceId, versionId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
-    #if not configValues.localPluginFolder:
-        #downloadPackagePath = f"{downloadPath}/{packageDownloadName}"
-    #else:
     downloadPackagePath = Path(f"{downloadPath}/{packageDownloadName}")
     if inputPackageVersion is None or inputPackageVersion == 'latest':
         downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
