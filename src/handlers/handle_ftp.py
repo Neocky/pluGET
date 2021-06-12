@@ -101,8 +101,7 @@ def ftp_validateFileAttributes(ftp, pluginPath):
     pluginFTPAttribute = ftp.lstat(pluginPath)
     if stat.S_ISDIR(pluginFTPAttribute.st_mode):
         return False
-    if stat.S_ISDIR(pluginFTPAttribute.st_mode):
-        if re.search(r'.jar$', pluginFTPAttribute.filename):
-            return True
-        else:
-            return False
+    elif re.search(r'.jar$', pluginPath):
+        return True
+    else:
+        return False

@@ -3,6 +3,7 @@ import re
 import io
 import stat
 import pysftp
+import base64
 from zipfile import ZipFile
 from urllib.error import HTTPError
 from pathlib import Path
@@ -114,6 +115,25 @@ def eggCrackingJar(localJarFileName, searchMode):
         return pluginName
 
 
+def getUpdateDescription(pluginId):
+    url = f"https://api.spiget.org/v2/resources/{pluginId}/updates?size=1&sort=-date"
+    latestDescriptionSearch = doAPIRequest(url)
+    versionLatestDescription = latestDescriptionSearch[0]["description"]
+    versionLatestDescription = base64.b64decode(versionLatestDescription)
+    versionLatestDescriptionText =versionLatestDescription.decode('utf-8')
+    htmlRegex = re.compile('<.*?>')
+    versionLatestDescriptionText = re.sub(htmlRegex, '', versionLatestDescriptionText)
+    lines = versionLatestDescriptionText.split("\n")
+    non_empty_lines = [line for line in lines if line.strip() != ""]
+    string_without_empty_lines = ""
+    for line in non_empty_lines:
+        string_without_empty_lines += line + "\n"
+    return string_without_empty_lines
+
+
+
+
+
 def checkInstalledPackage(inputSelectedObject="all"):
     configValues = configurationValues()
     createPluginList()
@@ -154,7 +174,6 @@ def checkInstalledPackage(inputSelectedObject="all"):
                     continue
                 if not re.search(r'.jar$', plugin):
                     continue
-
             try:
                 fileName = getFileName(plugin)
                 fileVersion = getFileVersion(plugin)
@@ -209,6 +228,8 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 print(f"{fileVersion}".ljust(15), end='')
                 print(f"{pluginLatestVersion}".ljust(15), end='')
                 print(f"{pluginIsOutdated}".ljust(5) + oColors.standardWhite)
+                description = getUpdateDescription(pluginId)
+                print(description)
 
             i += 1
     except TypeError:
