@@ -164,14 +164,14 @@ or:
 ```
 get 'pluginName'
 ```  
-#### Check all plugins/one specific plugin for updates:  
-`check [all/pluginName]`  
+#### Check all plugins/one specific plugin for updates with optional changelog output:  
+`check [all/pluginName] [changelog]`  
 ```
 check all
 ```  
 or:  
 ```
-check 'pluginName'
+check 'pluginName' changelog
 ```  
 
 <details>
