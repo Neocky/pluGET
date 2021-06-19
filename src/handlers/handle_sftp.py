@@ -97,8 +97,7 @@ def sftp_validateFileAttributes(sftp, pluginPath):
     pluginSFTPAttribute = sftp.lstat(pluginPath)
     if stat.S_ISDIR(pluginSFTPAttribute.st_mode):
         return False
-    if stat.S_ISDIR(pluginSFTPAttribute.st_mode):
-        if re.search(r'.jar$', pluginSFTPAttribute.filename):
-            return True
-        else:
-            return False
+    elif re.search(r'.jar$', pluginPath):
+        return True
+    else:
+        return False

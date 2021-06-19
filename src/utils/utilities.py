@@ -35,7 +35,7 @@ def getCommandHelp(optionalParams):
             print("  help             command           all/command       Get specific help to the commands of pluGET")
             print(oColors.brightBlack + " PLUGIN MANAGEMENT:" + oColors.standardWhite)
             print("  get              Name/ID           Version           Downloads the latest version of a plugin")
-            print("  check            Name/ID/all                         Check for an update of an installed plugin")
+            print("  check            Name/ID/all       changelog         Check for an update of an installed plugin")
             print("  update           Name/ID/all                         Update installed plugins to the latest version")
             print("  search           Name                                Search for a plugin and download the latest version")
             print("  remove           Name/ID                             Delete an installed plugin")
@@ -120,7 +120,7 @@ def apiTest():
     apiStatusUrl = 'https://api.spiget.org/v2/status'
     try:
         r = requests.get(apiStatusUrl)
-    except requests.exceptions.HTTPError:
+    except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
         print(oColors.brightRed + "Couldn't make a connection to the API. Check you connection to the internet!" + oColors.standardWhite)
         input("Press any key + enter to exit...")
         sys.exit()
