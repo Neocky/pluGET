@@ -120,7 +120,7 @@ def apiTest():
     apiStatusUrl = 'https://api.spiget.org/v2/status'
     try:
         r = requests.get(apiStatusUrl)
-    except requests.exceptions.HTTPError:
+    except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
         print(oColors.brightRed + "Couldn't make a connection to the API. Check you connection to the internet!" + oColors.standardWhite)
         input("Press any key + enter to exit...")
         sys.exit()
