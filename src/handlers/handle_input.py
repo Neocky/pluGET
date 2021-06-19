@@ -61,7 +61,7 @@ def handleInput(inputCommand, inputSelectedObject, inputParams):
             if inputSelectedObject == 'serverjar':
                 checkInstalledServerjar()
             else:
-                checkInstalledPackage(inputSelectedObject)
+                checkInstalledPackage(inputSelectedObject, inputParams)
             break
         if inputCommand == 'search':
             searchPackage(inputSelectedObject)

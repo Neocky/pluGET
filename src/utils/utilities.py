@@ -35,7 +35,7 @@ def getCommandHelp(optionalParams):
             print("  help             command           all/command       Get specific help to the commands of pluGET")
             print(oColors.brightBlack + " PLUGIN MANAGEMENT:" + oColors.standardWhite)
             print("  get              Name/ID           Version           Downloads the latest version of a plugin")
-            print("  check            Name/ID/all                         Check for an update of an installed plugin")
+            print("  check            Name/ID/all       changelog         Check for an update of an installed plugin")
             print("  update           Name/ID/all                         Update installed plugins to the latest version")
             print("  search           Name                                Search for a plugin and download the latest version")
             print("  remove           Name/ID                             Delete an installed plugin")
