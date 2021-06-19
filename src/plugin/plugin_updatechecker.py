@@ -1,8 +1,6 @@
 import os
 import re
 import io
-import stat
-import pysftp
 import base64
 from zipfile import ZipFile
 from urllib.error import HTTPError
@@ -86,6 +84,7 @@ def eggCrackingJar(localJarFileName, searchMode):
         pathToPluginJar = Path(f"{pluginPath}/{localJarFileName}")
     pluginVersion = ''
     pluginName = ''
+    print(localJarFileName)
     with ZipFile(pathToPluginJar, 'r') as pluginJar:
         try:
             with io.TextIOWrapper(pluginJar.open('plugin.yml', 'r'), encoding="utf-8") as pluginYml:
@@ -117,6 +116,7 @@ def eggCrackingJar(localJarFileName, searchMode):
 
 def getUpdateDescription(pluginId):
     url = f"https://api.spiget.org/v2/resources/{pluginId}/updates?size=1&sort=-date"
+    print(url)
     latestDescriptionSearch = doAPIRequest(url)
     versionLatestDescription = latestDescriptionSearch[0]["description"]
     versionLatestDescription = base64.b64decode(versionLatestDescription)
@@ -228,8 +228,10 @@ def checkInstalledPackage(inputSelectedObject="all"):
                 print(f"{fileVersion}".ljust(15), end='')
                 print(f"{pluginLatestVersion}".ljust(15), end='')
                 print(f"{pluginIsOutdated}".ljust(5) + oColors.standardWhite)
-                description = getUpdateDescription(pluginId)
-                print(description)
+                if (pluginLatestVersion != 'N/A'):
+                    print(oColors.brightYellow + "CHANGELOG:" + oColors.standardWhite)
+                    description = getUpdateDescription(pluginId)
+                    print(description)
 
             i += 1
     except TypeError:
