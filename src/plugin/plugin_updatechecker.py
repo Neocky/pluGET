@@ -149,9 +149,9 @@ def checkInstalledPackage(inputSelectedObject="all", inputOptionalParam=None):
     print(oColors.brightBlack + f"Checking: {inputSelectedObject}" + oColors.standardWhite)
     if inputOptionalParam != "changelog":
         print(oColors.brightBlack + f"Use 'check {inputSelectedObject} changelog' to get the latest changelog from plugins" + oColors.standardWhite)
-    print("┌─────┬────────────────────────────────┬──────────────┬──────────────┬───────────────────┐")
-    print("│ No. │ Name                           │ Installed V. │ Latest V.    │ Update available  │")
-    print("└─────┴────────────────────────────────┴──────────────┴──────────────┴───────────────────┘")
+    print("┌─────┬────────────────────────────────┬──────────────┬──────────────┐")
+    print("│ No. │ Name                           │ Installed V. │ Latest V.    │")
+    print("└─────┴────────────────────────────────┴──────────────┴──────────────┘")
     try:
         for plugin in track(pluginList, description="Checking for updates" ,transient=True, complete_style="bright_yellow"):
             if not configValues.localPluginFolder:
@@ -222,10 +222,15 @@ def checkInstalledPackage(inputSelectedObject="all", inputOptionalParam=None):
                     else:
                         print(f" [{i+1}]".rjust(6), end='')
                 print("  ", end='')
-                print(f"{fileName}".ljust(33), end='')
+                if pluginIsOutdated == True:
+                    print(oColors.brightGreen + f"{fileName}".ljust(33) + oColors.standardWhite, end='')
+                elif pluginIsOutdated == False:
+                    print(oColors.brightRed + f"{fileName}".ljust(33) + oColors.standardWhite, end='')
+                else:
+                    print(f"{fileName}".ljust(33), end='')
+
                 print(f"{fileVersion}".ljust(15), end='')
-                print(f"{pluginLatestVersion}".ljust(15), end='')
-                print(f"{pluginIsOutdated}".ljust(5) + oColors.standardWhite)
+                print(f"{pluginLatestVersion}".ljust(15))
                 if (inputOptionalParam == "changelog" and pluginLatestVersion != 'N/A'):
                     print(oColors.brightYellow + f"CHANGELOG {fileName}:" + oColors.standardWhite)
                     description = getUpdateDescription(pluginId)
@@ -252,11 +257,12 @@ def updateInstalledPackage(inputSelectedObject='all'):
             connection = createFTPConnection()
 
     try:
-        print(oColors.brightBlack + "Selected plugins:" + oColors.standardWhite)
+        print(oColors.brightBlack + "Selected plugins with available Updates:" + oColors.standardWhite)
         if inputSelectedObject == "all" or inputSelectedObject == "*":
             for pluginIndex in range(len(INSTALLEDPLUGINLIST)):
-                fileName = getFileName(INSTALLEDPLUGINLIST[pluginIndex][0])
-                print(fileName, end=' ')
+                if INSTALLEDPLUGINLIST[pluginIndex][4] == True:
+                    fileName = getFileName(INSTALLEDPLUGINLIST[pluginIndex][0])
+                    print(fileName, end=' ')
         else:
             print(inputSelectedObject, end=' ')
 

@@ -142,7 +142,6 @@ def paperCheckForUpdate(installedServerjarFullName):
     if not paperVersionBehind:
         print(oColors.brightRed + f"ERR: An error was encountered while detecting how many versions behind you are. "
                                   f"Will display as 'N/A'." + oColors.standardWhite)
-        print(paperVersionBehind)
         paperVersionBehind = "N/A"  # Sets paperVersionBehind to N/A while still letting the versionBehind check return
                                     # False for error-handing reasons.
 
@@ -195,7 +194,6 @@ def papermc_downloader(paperBuild='latest', installedServerjarName=None, mcVersi
         downloadPath = createTempPluginFolder()
 
     url = f"https://papermc.io/api/v2/projects/paper/versions/{mcVersion}/builds/{paperBuild}/downloads/{downloadFileName}"
-    print(url)
     remotefile = urllib.request.urlopen(url)
     filesize = remotefile.info()['Content-Length']
     print(f"Getting Paper {paperBuild} for {mcVersion}")
