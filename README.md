@@ -103,7 +103,7 @@ Execute the `installer.bat` file to automaticcally install the needed packages f
 > This is a normal behaviour from the windows defender because this is a unknown `.bat` file.  
 > To run the `installer.bat` anyway, click `More Info` and then `Run anyway` when the message pops up.  
 
-##### Manually
+#### Manually
 Execute this command in the `\plugGET` folder:  
 ```python
 py -m pip install -r requirements.txt
