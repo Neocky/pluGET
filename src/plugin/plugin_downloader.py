@@ -78,21 +78,19 @@ def searchPackage(ressourceName):
         ressourceSelected = ressourceSelected - 1
         ressourceId = packageName[ressourceSelected]["id"]
         if not configValues.localPluginFolder:
-            try:
-                if configValues.sftp_seperateDownloadPath is True:
-                    getSpecificPackage(ressourceId, configValues.sftp_pathToSeperateDownloadPath)
-                else:
-                    getSpecificPackage(ressourceId, configValues.sftp_folderPath)
-            except HTTPError as err:
-                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+            if configValues.sftp_seperateDownloadPath is True:
+                pluginDownloadPath = configValues.sftp_pathToSeperateDownloadPath
+            else:
+                pluginDownloadPath = configValues.sftp_folderPath
         else:
-            try:
-                if configValues.seperateDownloadPath is True:
-                    getSpecificPackage(ressourceId, configValues.pathToPluginFolder)
-                else:
-                    getSpecificPackage(ressourceId, configValues.pathToSeperateDownloadPath)
-            except HTTPError as err:
-                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+            if configValues.seperateDownloadPath is True:
+                pluginDownloadPath = configValues.pathToSeperateDownloadPath
+            else:
+                pluginDownloadPath = configValues.pathToPluginFolder
+        try:
+            getSpecificPackage(ressourceId, pluginDownloadPath)
+        except HTTPError as err:
+            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
 
 
 def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
