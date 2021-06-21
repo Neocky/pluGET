@@ -155,11 +155,7 @@ def checkInstalledPackage(inputSelectedObject="all", inputOptionalParam=None):
     try:
         for plugin in track(pluginList, description="Checking for updates" ,transient=True, complete_style="bright_yellow"):
             if not configValues.localPluginFolder:
-                if configValues.sftp_seperateDownloadPath is True:
-                    pluginFile = f"{configValues.sftp_pathToSeperateDownloadPath}/{plugin}"
-                else:
-                    pluginFile = f"{configValues.sftp_folderPath}/{plugin}"
-
+                pluginFile = f"{configValues.sftp_folderPath}/{plugin}"
                 if configValues.sftp_useSftp:
                     pluginAttributes = sftp_validateFileAttributes(connection, pluginFile)
                     if pluginAttributes == False:
