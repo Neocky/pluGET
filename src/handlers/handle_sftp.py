@@ -37,8 +37,12 @@ def sftp_showPlugins(sftp):
 
 def sftp_upload_file(sftp, itemPath):
     configValues = configurationValues()
+    if configValues.sftp_seperateDownloadPath is True:
+        uploadFolderPath = configValues.sftp_pathToSeperateDownloadPath
+    else:
+        uploadFolderPath = configValues.sftp_folderPath
     try:
-        sftp.chdir(configValues.sftp_folderPath)
+        sftp.chdir(uploadFolderPath)
         sftp.put(itemPath)
 
     except FileNotFoundError:

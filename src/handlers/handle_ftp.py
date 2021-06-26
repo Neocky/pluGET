@@ -29,8 +29,12 @@ def ftp_showPlugins(ftp):
 
 def ftp_upload_file(ftp, itemPath):
     configValues = configurationValues()
+    if configValues.sftp_seperateDownloadPath is True:
+        uploadFolderPath = configValues.sftp_pathToSeperateDownloadPath
+    else:
+        uploadFolderPath = configValues.sftp_folderPath
     try:
-        ftp.cwd(configValues.sftp_folderPath)
+        ftp.cwd(uploadFolderPath)
         itemPath = os.path.relpath(itemPath, 'TempSFTPFolder/')
         itemPath = str(itemPath)
         currentDirectory = os.getcwd()
@@ -46,7 +50,6 @@ def ftp_upload_file(ftp, itemPath):
 
 def ftp_upload_server_jar(ftp, itemPath):
     try:
-        print(f"itempath: {itemPath}")
         ftp.cwd('.')
         itemPath = os.path.relpath(itemPath, 'TempSFTPFolder/')
         itemPath = str(itemPath)

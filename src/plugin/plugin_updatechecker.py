@@ -86,13 +86,12 @@ def compareVersions(plugin_latest_version, pluginVersion):
 def eggCrackingJar(localJarFileName, searchMode):
     configValues = configurationValues()
     if not configValues.localPluginFolder:
+        tempPluginFolderPath = createTempPluginFolder()
         if configValues.sftp_useSftp:
-            tempPluginFolderPath = createTempPluginFolder()
             sftp = createSFTPConnection()
             pathToPluginJar = Path(f"{tempPluginFolderPath}/{localJarFileName}")
             sftp_downloadFile(sftp, pathToPluginJar, localJarFileName)
         else:
-            tempPluginFolderPath = createTempPluginFolder()
             ftp = createFTPConnection()
             pathToPluginJar = Path(f"{tempPluginFolderPath}/{localJarFileName}")
             ftp_downloadFile(ftp, pathToPluginJar, localJarFileName)
@@ -286,11 +285,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
         for pluginArray in track(INSTALLEDPLUGINLIST, description="Updating" ,transient=True, complete_style="bright_magenta", ):
             plugin = INSTALLEDPLUGINLIST[i][0]
             if not configValues.localPluginFolder:
-                if configValues.sftp_seperateDownloadPath is True:
-                    pluginFile = f"{configValues.sftp_pathToSeperateDownloadPath}/{plugin}"
-                else:
-                    pluginFile = f"{configValues.sftp_folderPath}/{plugin}"
-
+                pluginFile = f"{configValues.sftp_folderPath}/{plugin}"
                 if configValues.sftp_useSftp:
                     pluginAttributes = sftp_validateFileAttributes(connection, pluginFile)
                     if pluginAttributes == False:
@@ -335,17 +330,17 @@ def updateInstalledPackage(inputSelectedObject='all'):
                     print(f"{fileVersion}".ljust(13), end='')
                     print(f"{latestVersion}".ljust(13))
                     if not configValues.localPluginFolder:
+                        if configValues.sftp_seperateDownloadPath is True:
+                            pluginPath = configValues.sftp_pathToSeperateDownloadPath
+                        else:
+                            pluginPath = configValues.sftp_folderPath
+                        pluginPath = f"{pluginPath}/{plugin}"
+                        indexNumberUpdated += 1
+                        pluginsUpdated += 1
                         if configValues.sftp_useSftp:
-                            if configValues.sftp_seperateDownloadPath is True:
-                                pluginPath = configValues.sftp_pathToSeperateDownloadPath
-                            else:
-                                pluginPath = configValues.sftp_folderPath
-                            pluginPath = f"{pluginPath}/{plugin}"
                             sftp = createSFTPConnection()
-                            indexNumberUpdated += 1
-                            pluginsUpdated += 1
                             try:
-                                getSpecificPackage(pluginId, configValues.sftp_folderPath)
+                                getSpecificPackage(pluginId, pluginPath)
                                 if configValues.sftp_seperateDownloadPath is False:
                                     sftp.remove(pluginPath)
                             except HTTPError as err:
@@ -353,17 +348,11 @@ def updateInstalledPackage(inputSelectedObject='all'):
                                 pluginsUpdated -= 1
                             except FileNotFoundError:
                                 print(oColors.brightRed +  f"FileNotFoundError: Old plugin file coulnd't be deleted" + oColors.standardWhite)
+
                         else:
-                            if configValues.sftp_seperateDownloadPath is True:
-                                pluginPath = configValues.sftp_pathToSeperateDownloadPath
-                            else:
-                                pluginPath = configValues.sftp_folderPath
-                            pluginPath = f"{pluginPath}/{plugin}"
                             ftp = createFTPConnection()
-                            indexNumberUpdated += 1
-                            pluginsUpdated += 1
                             try:
-                                getSpecificPackage(pluginId, configValues.sftp_folderPath)
+                                getSpecificPackage(pluginId, pluginPath)
                                 if configValues.sftp_seperateDownloadPath is False:
                                     ftp.delete(pluginPath)
                             except HTTPError as err:
@@ -376,12 +365,11 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         if configValues.seperateDownloadPath is True:
                             pluginPath = configValues.pathToSeperateDownloadPath
                         else:
-                            pluginPath = pluginFolderPath
-                        pluginPath = Path(f"{pluginPath}/{plugin}")
+                            pluginPath = configValues.pathToPluginFolder
                         indexNumberUpdated += 1
                         pluginsUpdated += 1
                         try:
-                            getSpecificPackage(pluginId, pluginFolderPath)
+                            getSpecificPackage(pluginId, pluginPath)
                             if configValues.seperateDownloadPath is False:
                                 os.remove(pluginPath)
                         except HTTPError as err:
