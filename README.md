@@ -21,7 +21,7 @@
 # pluGET  
 #### A powerful package manager which updates [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
 
-<img src="https://www.bildhost.com/images/2021/03/23/pluGET.gif" alt="pluGET.gif" border="0" />
+<img src="https://www.bildhost.com/images/2021/06/27/ezgif-1-28e102202188.gif" alt="pluGET.gif" border="0" />
 
 <details>
   <summary>Screenshots</summary>  
