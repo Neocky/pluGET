@@ -51,20 +51,20 @@ def getVersionName(packageId, versionId):
     return versionName
 
 
-def searchPackage(ressourceName):
+def searchPackage(resourceName):
     configValues = configurationValues()
-    url = f"https://api.spiget.org/v2/search/resources/{ressourceName}?field=name&sort=-downloads"
+    url = f"https://api.spiget.org/v2/search/resources/{resourceName}?field=name&sort=-downloads"
     packageName = doAPIRequest(url)
     i = 1
-    print(oColors.brightBlack + f"Searching: {ressourceName}" + oColors.standardWhite)
+    print(oColors.brightBlack + f"Searching: {resourceName}" + oColors.standardWhite)
     print("┌─────┬─────────────────────────────┬───────────┬──────────────────────────────────────────────────────────────────────┐")
     print("│ No. │ Name                        │ Downloads │ Description                                                          │")
     print("└─────┴─────────────────────────────┴───────────┴──────────────────────────────────────────────────────────────────────┘")
-    for ressource in packageName:
-        pName = ressource["name"]
+    for resource in packageName:
+        pName = resource["name"]
         newName = handleRegexPackageName(pName)
-        pTag = ressource["tag"]
-        pDownloads = ressource["downloads"]
+        pTag = resource["tag"]
+        pDownloads = resource["downloads"]
         print(f" [{i}]".rjust(6), end='')
         print("  ", end='')
         print(f"{newName}".ljust(30), end='')
@@ -73,10 +73,10 @@ def searchPackage(ressourceName):
         print(f"{pTag}".ljust(120))
         i = i + 1
 
-    ressourceSelected = int(input("Select your wanted Ressource (No.)(0 to exit): "))
-    if ressourceSelected != 0:
-        ressourceSelected = ressourceSelected - 1
-        ressourceId = packageName[ressourceSelected]["id"]
+    resourceSelected = int(input("Select your wanted resource (No.)(0 to exit): "))
+    if resourceSelected != 0:
+        resourceSelected = resourceSelected - 1
+        resourceId = packageName[resourceSelected]["id"]
         if not configValues.localPluginFolder:
             if configValues.sftp_seperateDownloadPath is True:
                 pluginDownloadPath = configValues.sftp_pathToSeperateDownloadPath
@@ -88,20 +88,20 @@ def searchPackage(ressourceName):
             else:
                 pluginDownloadPath = configValues.pathToPluginFolder
         try:
-            getSpecificPackage(ressourceId, pluginDownloadPath)
+            getSpecificPackage(resourceId, pluginDownloadPath)
         except HTTPError as err:
             print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
 
 
-def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
+def downloadSpecificVersion(resourceId, downloadPath, versionID='latest'):
     configValues = configurationValues()
     if versionID != 'latest':
-        #url = f"https://spigotmc.org/resources/{ressourceId}/download?version={versionID}"
+        #url = f"https://spigotmc.org/resources/{resourceId}/download?version={versionID}"
         print(oColors.brightRed + "Sorry but specific version downloads aren't supported because of cloudflare protection. :(" + oColors.standardWhite)
         print(oColors.brightRed + "Reverting to latest version." + oColors.standardWhite)
 
-    url = f"https://api.spiget.org/v2/resources/{ressourceId}/download"
-    #url = f"https://api.spiget.org/v2/resources/{ressourceId}/versions/latest/download" #throws 403 forbidden error...cloudflare :(
+    url = f"https://api.spiget.org/v2/resources/{resourceId}/download"
+    #url = f"https://api.spiget.org/v2/resources/{resourceId}/versions/latest/download" #throws 403 forbidden error...cloudflare :(
 
     urrlib_opener = urllib.request.build_opener()
     urrlib_opener.addheaders = [('User-agent', 'pluGET/1.0')]
@@ -127,22 +127,22 @@ def downloadSpecificVersion(ressourceId, downloadPath, versionID='latest'):
             ftp_upload_file(ftpSession, downloadPath)
 
 
-def getSpecificPackage(ressourceId, downloadPath, inputPackageVersion='latest'):
+def getSpecificPackage(resourceId, downloadPath, inputPackageVersion='latest'):
     configValues = configurationValues()
     if configValues.localPluginFolder == False:
         downloadPath = createTempPluginFolder()
-    url = f"https://api.spiget.org/v2/resources/{ressourceId}"
+    url = f"https://api.spiget.org/v2/resources/{resourceId}"
     packageDetails = doAPIRequest(url)
     packageName = packageDetails["name"]
     packageNameNew = handleRegexPackageName(packageName)
-    versionId = getVersionID(ressourceId, inputPackageVersion)
-    packageVersion = getVersionName(ressourceId, versionId)
+    versionId = getVersionID(resourceId, inputPackageVersion)
+    packageVersion = getVersionName(resourceId, versionId)
     packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
     downloadPackagePath = Path(f"{downloadPath}/{packageDownloadName}")
     if inputPackageVersion is None or inputPackageVersion == 'latest':
-        downloadSpecificVersion(ressourceId=ressourceId, downloadPath=downloadPackagePath)
+        downloadSpecificVersion(resourceId=resourceId, downloadPath=downloadPackagePath)
     else:
-        downloadSpecificVersion(ressourceId, downloadPackagePath, versionId)
+        downloadSpecificVersion(resourceId, downloadPackagePath, versionId)
 
     if not configValues.localPluginFolder:
         deleteTempPluginFolder(downloadPath)

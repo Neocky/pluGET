@@ -75,12 +75,24 @@ def getUpdateDescription(pluginId):
     return stringnonEmptyLines
 
 
+def versionTuple(versionString):
+    return tuple(map(int, (versionString.split("."))))
+
+
+def getVersionWithoutLetters(versionString):
+    return re.sub(r'([A-Za-z]*)', '', versionString)
+
+
 def compareVersions(plugin_latest_version, pluginVersion):
-    if pluginVersion < plugin_latest_version:
-        plugin_is_outdated = True
+    try:
+        pluginVersionTuple = versionTuple(getVersionWithoutLetters(pluginVersion))
+        plugin_latest_versionTuple = versionTuple(getVersionWithoutLetters(plugin_latest_version))
+    except ValueError:
+        return False
+    if pluginVersionTuple < plugin_latest_versionTuple:
+        return True
     else:
-        plugin_is_outdated = False
-    return plugin_is_outdated
+        return False
 
 
 def eggCrackingJar(localJarFileName, searchMode):
@@ -119,6 +131,9 @@ def eggCrackingJar(localJarFileName, searchMode):
                             pluginName = pluginName.replace('"', '')
 
         except FileNotFoundError:
+            pluginVersion = ''
+            pluginName = ''
+        except KeyError:
             pluginVersion = ''
             pluginName = ''
     if not configValues.localPluginFolder:
@@ -263,7 +278,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
 
         print()
         updateConfirmation = input("Update these plugins [y/n] ? ")
-        if updateConfirmation != "y":
+        if str.lower(updateConfirmation) != "y":
             print(oColors.brightRed + "Aborting the update process."+ oColors.standardWhite)
             return False
 
@@ -371,6 +386,7 @@ def updateInstalledPackage(inputSelectedObject='all'):
                         try:
                             getSpecificPackage(pluginId, pluginPath)
                             if configValues.seperateDownloadPath is False:
+                                pluginPath = f"{pluginPath}/{plugin}"
                                 os.remove(pluginPath)
                         except HTTPError as err:
                             print(oColors.brightRed +  f"HTTPError: {err.code} - {err.reason}" + oColors.standardWhite)
@@ -423,10 +439,10 @@ def getInstalledPlugin(localFileName, localFileVersion, localPluginFullName):
 
             localFileVersion = localFileVersionNew
 
-        for ressource in packageName:
+        for resource in packageName:
             if plugin_match_found == True:
                 continue
-            pID = ressource["id"]
+            pID = resource["id"]
             url2 = f"https://api.spiget.org/v2/resources/{pID}/versions?size=100&sort=-name"
             try:
                 packageVersions = doAPIRequest(url2)
@@ -445,10 +461,7 @@ def getInstalledPlugin(localFileName, localFileVersion, localPluginFullName):
 
     else:
         if plugin_match_found != True:
-            pID = None
-            updateId = None
-            plugin_latest_version = None
-            plugin_is_outdated = None
+            pID = updateId = plugin_latest_version = plugin_is_outdated = None
             addToPluginList(localPluginFullName, pID, updateId,  plugin_latest_version , plugin_is_outdated)
 
     return pluginID
