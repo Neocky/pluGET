@@ -98,24 +98,16 @@ def updateServerjar(serverJarBuild='latest'):
 
     if 'paper' in installedServerjarFullName:
         print(oColors.brightBlack + f"Updating Paper to build: {serverJarBuild}" + oColors.standardWhite)
-        if not configValues.localPluginFolder:
-            try:
-                papermc_downloader(serverJarBuild, installedServerjarFullName)
+        try:
+            papermc_downloader(serverJarBuild, None, installedServerjarFullName)
+            if not configValues.localPluginFolder:
                 sftp.remove(serverJarPath)
-            except HTTPError as err:
-                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
-            except FileNotFoundError:
-                print(oColors.brightRed +  "Error: Old serverjar file coulnd't be deleted" + oColors.standardWhite)
-
-        else:
-            try:
-                papermc_downloader(serverJarBuild, installedServerjarFullName)
+            else:
                 os.remove(serverJarPath)
-            except HTTPError as err:
-                print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
-            except FileNotFoundError:
-                print(oColors.brightRed +  "Error: Old serverjar file coulnd't be deleted" + oColors.standardWhite)
-
+        except HTTPError as err:
+            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
+        except FileNotFoundError:
+            print(oColors.brightRed +  "Error: Old serverjar file coulnd't be deleted" + oColors.standardWhite)
     else:
         print(oColors.brightRed + f"{installedServerjarFullName} isn't supported.")
         print(oColors.brightRed + "Aborting the process." + oColors.standardWhite)

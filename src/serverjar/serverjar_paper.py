@@ -111,28 +111,28 @@ def paperCheckForUpdate(installedServerjarFullName):
 
     # Report an error if getInstalledPaperMinecraftVersion encountered an issue.
     if not mcVersion:
-        print(oColors.brightRed + f"ERR: An error was encountered while detecting the server's Minecraft version." +
+        print(oColors.brightRed + "ERR: An error was encountered while detecting the server's Minecraft version." +
               oColors.standardWhite)
         return False
 
     paperInstalledBuild = getInstalledPaperVersion(installedServerjarFullName)
     # Report an error if getInstalledPaperVersion encountered an issue.
     if not paperInstalledBuild:
-        print(oColors.brightRed + f"ERR: An error was encountered while detecting the server's Paper version." +
+        print(oColors.brightRed + "ERR: An error was encountered while detecting the server's Paper version." +
               oColors.standardWhite)
         return False
 
     versionGroup = findVersionGroup(mcVersion)
     # Report an error if findVersionGroup encountered an issue.
     if not versionGroup:
-        print(oColors.brightRed + f"ERR: An error was encountered while fetching the server's version group." +
+        print(oColors.brightRed + "ERR: An error was encountered while fetching the server's version group." +
               oColors.standardWhite)
         return False
 
     paperLatestBuild = findLatestBuild(versionGroup)
     # Report an error if findLatestBuild encountered an issue.
     if not paperLatestBuild:
-        print(oColors.brightRed + f"ERR: An error was encountered while fetching the latest version of PaperMC." +
+        print(oColors.brightRed + "ERR: An error was encountered while fetching the latest version of PaperMC." +
               oColors.standardWhite)
         return False  # Not currently handled, but can be at a later date. Currently just stops the following from
     #                   being printed.
@@ -140,27 +140,29 @@ def paperCheckForUpdate(installedServerjarFullName):
     paperVersionBehind = versionBehind(paperInstalledBuild, paperLatestBuild)
     # Report an error if getInstalledPaperVersion encountered an issue.
     if not paperVersionBehind:
-        print(oColors.brightRed + f"ERR: An error was encountered while detecting how many versions behind you are. "
+        print(oColors.brightRed + "ERR: An error was encountered while detecting how many versions behind you are. "
                                   f"Will display as 'N/A'." + oColors.standardWhite)
         paperVersionBehind = "N/A"  # Sets paperVersionBehind to N/A while still letting the versionBehind check return
                                     # False for error-handing reasons.
 
         # Does not return false as versions behind doesn't break things. It is just helpful information.
         # paperVersionBehind will just display as "N/A"
-    print("┌─────┬────────────────────────────────┬──────────────┬──────────────┬───────────────────┐")
-    print("│ No. │ Name                           │ Installed V. │ Latest V.    │ Versions behind   │")
-    print("└─────┴────────────────────────────────┴──────────────┴──────────────┴───────────────────┘")
+    print("┌─────┬────────────────────────────────┬──────────────┬──────────────┐")
+    print("│ No. │ Name                           │ Installed V. │ Latest V.    │")
+    print("└─────┴────────────────────────────────┴──────────────┴──────────────┘")
     print("  [1]".rjust(6), end='')
     print("  ", end='')
-    print("paper".ljust(33), end='')
+    if paperVersionBehind != 0:
+        print(oColors.brightRed + "paper".ljust(33) + oColors.standardWhite, end='')
+    else:
+        print(oColors.brightGreen + "paper".ljust(33) + oColors.standardWhite, end='')
     print(f"{paperInstalledBuild}".ljust(15), end='')
-    print(f"{paperLatestBuild}".ljust(15), end='')
-    print(f"{paperVersionBehind}".ljust(8))
+    print(f"{paperLatestBuild}".ljust(15))
     print(oColors.brightYellow + f"Versions behind: [{paperVersionBehind}]" + oColors.standardWhite)
 
 
 # https://papermc.io/api/docs/swagger-ui/index.html?configUrl=/api/openapi/swagger-config#/
-def papermc_downloader(paperBuild='latest', installedServerjarName=None, mcVersion=None):
+def papermc_downloader(paperBuild='latest', mcVersion=None, installedServerjarName=None):
     configValues = configurationValues()
     if configValues.localPluginFolder == False:
         downloadPath = createTempPluginFolder()
@@ -172,7 +174,7 @@ def papermc_downloader(paperBuild='latest', installedServerjarName=None, mcVersi
 
     if mcVersion == None:
         if paperBuild == 'latest':
-            mcVersion = '1.17'
+            mcVersion = '1.17.1'
         else:
             mcVersion = findBuildVersion(paperBuild)
 

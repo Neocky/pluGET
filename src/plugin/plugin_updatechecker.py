@@ -233,9 +233,9 @@ def checkInstalledPackage(inputSelectedObject="all", inputOptionalParam=None):
                         print(f" [{i+1}]".rjust(6), end='')
                 print("  ", end='')
                 if pluginIsOutdated == True:
-                    print(oColors.brightGreen + f"{fileName}".ljust(33) + oColors.standardWhite, end='')
-                elif pluginIsOutdated == False:
                     print(oColors.brightRed + f"{fileName}".ljust(33) + oColors.standardWhite, end='')
+                elif pluginIsOutdated == False:
+                    print(oColors.brightGreen + f"{fileName}".ljust(33) + oColors.standardWhite, end='')
                 else:
                     print(f"{fileName}".ljust(33), end='')
 
@@ -337,71 +337,86 @@ def updateInstalledPackage(inputSelectedObject='all'):
                 i += 1
                 continue
 
-            if inputSelectedObject == 'all' or inputSelectedObject == pluginIdStr or re.search(inputSelectedObject, fileName, re.IGNORECASE):
-                if INSTALLEDPLUGINLIST[i][4] == True:
-                    print(f" [{indexNumberUpdated+1}]".rjust(6), end='')
-                    print("  ", end='')
-                    print(f"{fileName}".ljust(33), end='')
-                    print(f"{fileVersion}".ljust(13), end='')
-                    print(f"{latestVersion}".ljust(13))
-                    if not configValues.localPluginFolder:
-                        if configValues.sftp_seperateDownloadPath is True:
-                            pluginPath = configValues.sftp_pathToSeperateDownloadPath
-                        else:
-                            pluginPath = configValues.sftp_folderPath
-                        pluginPath = f"{pluginPath}/{plugin}"
-                        indexNumberUpdated += 1
-                        pluginsUpdated += 1
-                        if configValues.sftp_useSftp:
-                            sftp = createSFTPConnection()
-                            try:
-                                getSpecificPackage(pluginId, pluginPath)
-                                if configValues.sftp_seperateDownloadPath is False:
-                                    sftp.remove(pluginPath)
-                            except HTTPError as err:
-                                print(oColors.brightRed +  f"HTTPError: {err.code} - {err.reason}" + oColors.standardWhite)
-                                pluginsUpdated -= 1
-                            except FileNotFoundError:
-                                print(oColors.brightRed +  f"FileNotFoundError: Old plugin file coulnd't be deleted" + oColors.standardWhite)
-
-                        else:
-                            ftp = createFTPConnection()
-                            try:
-                                getSpecificPackage(pluginId, pluginPath)
-                                if configValues.sftp_seperateDownloadPath is False:
-                                    ftp.delete(pluginPath)
-                            except HTTPError as err:
-                                print(oColors.brightRed +  f"HTTPError: {err.code} - {err.reason}" + oColors.standardWhite)
-                                pluginsUpdated -= 1
-                            except FileNotFoundError:
-                                print(oColors.brightRed +  f"FileNotFoundError: Old plugin file coulnd't be deleted" + oColors.standardWhite)
-
-                    else:
-                        if configValues.seperateDownloadPath is True:
-                            pluginPath = configValues.pathToSeperateDownloadPath
-                        else:
-                            pluginPath = configValues.pathToPluginFolder
-                        indexNumberUpdated += 1
-                        pluginsUpdated += 1
-                        try:
-                            getSpecificPackage(pluginId, pluginPath)
-                            if configValues.seperateDownloadPath is False:
-                                pluginPath = f"{pluginPath}/{plugin}"
-                                os.remove(pluginPath)
-                        except HTTPError as err:
-                            print(oColors.brightRed +  f"HTTPError: {err.code} - {err.reason}" + oColors.standardWhite)
-                            pluginsUpdated -= 1
-                        except FileNotFoundError:
-                            print(oColors.brightRed +  f"FileNotFoundError: Old plugin file coulnd't be deleted" + oColors.standardWhite)
-                    if inputSelectedObject != 'all':
-                        break
-                elif inputSelectedObject != 'all':
-                    print(oColors.brightGreen + f"{fileName} is already on {latestVersion}" + oColors.standardWhite)
-                    print(oColors.brightRed + "Aborting the update process."+ oColors.standardWhite)
-                    break
-            else:
+            if inputSelectedObject != 'all' and inputSelectedObject != pluginIdStr and not re.search(inputSelectedObject, fileName, re.IGNORECASE):
                 i += 1
                 continue
+            if INSTALLEDPLUGINLIST[i][4] != True:
+                i += 1
+                continue
+            if INSTALLEDPLUGINLIST[i][4] == False and inputSelectedObject != 'all':
+                print(oColors.brightGreen + f"{fileName} is already on {latestVersion}" + oColors.standardWhite)
+                print(oColors.brightRed + "Aborting the update process."+ oColors.standardWhite)
+                break
+
+            print(f" [{indexNumberUpdated+1}]".rjust(6), end='')
+            print("  ", end='')
+            print(f"{fileName}".ljust(33), end='')
+            print(f"{fileVersion}".ljust(13), end='')
+            print(f"{latestVersion}".ljust(13))
+            if not configValues.localPluginFolder:
+                if configValues.sftp_seperateDownloadPath is True:
+                    pluginPath = configValues.sftp_pathToSeperateDownloadPath
+                else:
+                    pluginPath = configValues.sftp_folderPath
+                pluginPath = f"{pluginPath}/{plugin}"
+                indexNumberUpdated += 1
+                pluginsUpdated += 1
+                if configValues.sftp_useSftp:
+                    sftp = createSFTPConnection()
+                    try:
+                        getSpecificPackage(pluginId, pluginPath)
+                        if configValues.sftp_seperateDownloadPath is False:
+                            sftp.remove(pluginPath)
+                    except HTTPError as err:
+                        print(oColors.brightRed +  f"HTTPError: {err.code} - {err.reason}" + oColors.standardWhite)
+                        pluginsUpdated -= 1
+                    except TypeError:
+                        print(oColors.brightRed +  f"TypeError: Couldn't download new version. Is the file available on spigotmc?" + oColors.standardWhite)
+                        pluginsUpdated -= 1
+                    except FileNotFoundError:
+                        print(oColors.brightRed +  f"FileNotFoundError: Old plugin file coulnd't be deleted" + oColors.standardWhite)
+
+                else:
+                    ftp = createFTPConnection()
+                    try:
+                        getSpecificPackage(pluginId, pluginPath)
+                        if configValues.sftp_seperateDownloadPath is False:
+                            ftp.delete(pluginPath)
+                    except HTTPError as err:
+                        print(oColors.brightRed +  f"HTTPError: {err.code} - {err.reason}" + oColors.standardWhite)
+                        pluginsUpdated -= 1
+                    except TypeError:
+                        print(oColors.brightRed +  f"TypeError: Couldn't download new version. Is the file available on spigotmc?" + oColors.standardWhite)
+                        pluginsUpdated -= 1
+                    except FileNotFoundError:
+                        print(oColors.brightRed +  f"FileNotFoundError: Old plugin file coulnd't be deleted" + oColors.standardWhite)
+
+            else:
+                if configValues.seperateDownloadPath is True:
+                    pluginPath = configValues.pathToSeperateDownloadPath
+                else:
+                    pluginPath = configValues.pathToPluginFolder
+                indexNumberUpdated += 1
+                pluginsUpdated += 1
+                try:
+                    getSpecificPackage(pluginId, pluginPath)
+                    if configValues.seperateDownloadPath is False:
+                        pluginPath = f"{pluginPath}/{plugin}"
+                        os.remove(pluginPath)
+                except HTTPError as err:
+                    print(oColors.brightRed +  f"HTTPError: {err.code} - {err.reason}" + oColors.standardWhite)
+                    pluginsUpdated -= 1
+                except TypeError:
+                        print(oColors.brightRed +  f"TypeError: Couldn't download new version. Is the file available on spigotmc?" + oColors.standardWhite)
+                        pluginsUpdated -= 1
+                except FileNotFoundError:
+                    print(oColors.brightRed +  f"FileNotFoundError: Old plugin file coulnd't be deleted" + oColors.standardWhite)
+            if inputSelectedObject != 'all':
+                break
+            elif inputSelectedObject != 'all':
+                print(oColors.brightGreen + f"{fileName} is already on {latestVersion}" + oColors.standardWhite)
+                print(oColors.brightRed + "Aborting the update process."+ oColors.standardWhite)
+                break
 
             i += 1
     except TypeError:
