@@ -100,11 +100,17 @@ def ftp_downloadFile(ftp, downloadPath, fileToDownload):
     ftp.quit()
 
 
-def ftp_validateFileAttributes(ftp, pluginPath):
-    pluginFTPAttribute = ftp.lstat(pluginPath)
-    if stat.S_ISDIR(pluginFTPAttribute.st_mode):
+def ftp_is_file(FTP, pluginPath):
+    if FTP.nlst(pluginPath) == [pluginPath]:
+        return True
+    else:
         return False
-    elif re.search(r'.jar$', pluginPath):
+
+
+def ftp_validateFileAttributes(ftp, pluginPath):
+    if ftp_is_file(ftp, pluginPath) is False:
+        return False
+    if re.search(r'.jar$', pluginPath):
         return True
     else:
         return False
