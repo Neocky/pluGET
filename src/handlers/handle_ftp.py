@@ -100,8 +100,8 @@ def ftp_downloadFile(ftp, downloadPath, fileToDownload):
     ftp.quit()
 
 
-def ftp_is_file(FTP, pluginPath):
-    if FTP.nlst(pluginPath) == [pluginPath]:
+def ftp_is_file(ftp, pluginPath):
+    if ftp.nlst(pluginPath) == [pluginPath]:
         return True
     else:
         return False
