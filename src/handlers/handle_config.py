@@ -72,7 +72,7 @@ def createConfig():
     config['SFTP - Remote Server']['Server'] = '0.0.0.0'
     config['SFTP - Remote Server']['Username'] = 'user'
     config['SFTP - Remote Server']['Password'] = 'password'
-    config['SFTP - Remote Server'][';'] = 'If a different Port for SFTP needs to be used (Works only for SFTP)'
+    config['SFTP - Remote Server'][';'] = 'If a different Port for SFTP needs to be used'
     config['SFTP - Remote Server']['SFTPPort'] = '22'
     config['SFTP - Remote Server'][';_'] = 'Change the path below if the plugin folder path is different on the SFTP/FTP server (Change only if you know what you are doing)'
     config['SFTP - Remote Server']['PluginFolderOnServer'] = '/plugins'
