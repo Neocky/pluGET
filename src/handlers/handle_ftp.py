@@ -12,7 +12,7 @@ def createFTPConnection():
     configValues = configurationValues()
     try:
         ftp = ftplib.FTP()
-        ftp.connect(configValues.sftp_server, configValues.sftp_port)
+        ftp.connect(configValues.sftp_server, configValues.ftp_port)
         ftp.login(configValues.sftp_user, configValues.sftp_password)
         return ftp
     except UnboundLocalError:
