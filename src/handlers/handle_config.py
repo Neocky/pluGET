@@ -20,12 +20,14 @@ class configurationValues:
         self.sftp_user = config['SFTP - Remote Server']['Username']
         self.sftp_password = config['SFTP - Remote Server']['Password']
         sftp_port = config['SFTP - Remote Server']['SFTPPort']
+        ftp_port = config['SFTP - Remote Server']['FTPPort']
         self.sftp_folderPath = config['SFTP - Remote Server']['PluginFolderOnServer']
         sftp_useSftp = config['SFTP - Remote Server']['USE_SFTP']
         sftp_seperateDownloadPath = config['SFTP - Remote Server']['SeperateDownloadPath']
         self.sftp_pathToSeperateDownloadPath = config['SFTP - Remote Server']['PathToSeperateDownloadPath']
 
         self.sftp_port = int(sftp_port)
+        self.ftp_port = int(ftp_port)
         if localPluginFolder == 'True':
             self.localPluginFolder = True
         else:
@@ -76,11 +78,11 @@ def createConfig():
     config['SFTP - Remote Server']['SFTPPort'] = '22'
     config['SFTP - Remote Server'][';_'] = 'If a different Port for FTP needs to be used (Default: 21)'
     config['SFTP - Remote Server']['FTPPort'] = '21'
-    config['SFTP - Remote Server'][';_'] = 'Change the path below if the plugin folder path is different on the SFTP/FTP server (Change only if you know what you are doing)'
+    config['SFTP - Remote Server'][';__'] = 'Change the path below if the plugin folder path is different on the SFTP/FTP server (Change only if you know what you are doing)'
     config['SFTP - Remote Server']['PluginFolderOnServer'] = '/plugins'
-    config['SFTP - Remote Server'][';__'] = 'If you want to use FTP instead of SFTP change to (False) else use (True)'
+    config['SFTP - Remote Server'][';___'] = 'If you want to use FTP instead of SFTP change to (False) else use (True)'
     config['SFTP - Remote Server']['USE_SFTP'] = 'True'
-    config['SFTP - Remote Server'][';___'] = 'For a different folder to store the updated plugins (Only with the update command!) change to (True/False) and the path below'
+    config['SFTP - Remote Server'][';____'] = 'For a different folder to store the updated plugins (Only with the update command!) change to (True/False) and the path below'
     config['SFTP - Remote Server']['SeperateDownloadPath'] = 'False'
     config['SFTP - Remote Server']['PathToSeperateDownloadPath'] = '/plugins'
 
