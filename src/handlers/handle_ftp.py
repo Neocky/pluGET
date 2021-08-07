@@ -10,9 +10,10 @@ from handlers.handle_config import configurationValues
 
 def createFTPConnection():
     configValues = configurationValues()
-    ftp = ftplib.FTP(configValues.sftp_server, user=configValues.sftp_user, \
-           passwd=configValues.sftp_password)
     try:
+        ftp = ftplib.FTP()
+        ftp.connect(configValues.sftp_server, configValues.ftp_port)
+        ftp.login(configValues.sftp_user, configValues.sftp_password)
         return ftp
     except UnboundLocalError:
         print(oColors.brightRed + "[FTP]: Check your config.ini!" + oColors.standardWhite)
