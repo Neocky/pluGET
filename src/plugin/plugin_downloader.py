@@ -21,8 +21,11 @@ def handleRegexPackageName(packageNameFull):
         packageNameFull2 = packageNameFull.replace(unwantedpackageNameString, '')
     # gets the real packagename "word1 & word2" is not supported only gets word 1
     packageName = re.search(r'([a-zA-Z]\d*)+(\s?\-*\_*[a-zA-Z]\d*\+*\-*\'*)+', packageNameFull2)
-    packageNameFullString = packageName.group()
-    packageNameOnly = packageNameFullString.replace(' ', '')
+    try:
+        packageNameFullString = packageName.group()
+        packageNameOnly = packageNameFullString.replace(' ', '')
+    except AttributeError:
+        packageNameOnly = unwantedpackageNameString
     return packageNameOnly
 
 
@@ -133,7 +136,11 @@ def getSpecificPackage(resourceId, downloadPath, inputPackageVersion='latest'):
         downloadPath = createTempPluginFolder()
     url = f"https://api.spiget.org/v2/resources/{resourceId}"
     packageDetails = doAPIRequest(url)
-    packageName = packageDetails["name"]
+    try:
+        packageName = packageDetails["name"]
+    except KeyError:
+        print(oColors.brightRed +  "Error: Plugin ID couldn't be found" + oColors.standardWhite)
+        return None
     packageNameNew = handleRegexPackageName(packageName)
     versionId = getVersionID(resourceId, inputPackageVersion)
     packageVersion = getVersionName(resourceId, versionId)
