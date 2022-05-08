@@ -79,10 +79,11 @@ There are more features in the work. Check [Projects](https://github.com/Neocky/
 [Get the latest release here.](https://github.com/Neocky/pluGET/releases)  
 
 
-## Donations :pizza:
-If you feel like showing your love and/or appreciation for this project then how about buying me a pizza? :pizza::yellow_heart:
+## Donations :coffee:
+If you feel like showing your love and/or appreciation for this project then how about buying me a coffee? :coffe::brown_heart:
 
-<a href="https://www.buymeacoffee.com/Neocky"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pizza&emoji=🍕&slug=Neocky&button_colour=FF5F5F&font_colour=ffffff&font_family=Poppins&outline_colour=000000&coffee_colour=FFDD00" /></a>
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y1CKZ43)
+
 
 
 ## Need help?
