@@ -1,7 +1,17 @@
-# Main function for pluGET
-import argparse
+"""
+	Handles the main function and the argument passing for the whole pluGET program
+"""
 
-from src.handlers.handle_config import check_config, config_value
+import argparse
+import sys
+
+# check if folder 'src' is accessible with all modules needed and if not exit
+try:
+	from src.handlers.handle_config import check_config, validate_config, config_value
+	from src.utils.console_output import rename_console_title, clear_console, print_logo
+except:
+	print("Folder 'src' not found in the directory or missing files detected! Please redownload the files from here: https://www.github.com/Neocky/pluGET")
+	sys.exit()
 
 
 if __name__ == "__main__":
@@ -25,9 +35,13 @@ if __name__ == "__main__":
 		#createInputLists()
 		#printMainMenu()
 		#getInput()
+	rename_console_title()
+	clear_console()
+	print_logo()
 	config = config_value()
+	validate_config()
 	print(config.connection)
 	print(config.path_to_plugin_folder)
 	print(config.sftp_port)
 	print(config.local_seperate_download_path)
-
+	input()

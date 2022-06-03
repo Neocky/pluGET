@@ -6,13 +6,14 @@ import os
 import sys
 import ruamel.yaml
 from pathlib import Path
-
+from rich.console import Console
 
 
 class config_value():
 	"""
 		Class which holds all the available configuration values from the config file and which will be used later in
 		the process of updating plugins
+		If bool in config can't be read it will default to 'False'
 	"""
 	def __init__(self):
 		yaml = ruamel.yaml.YAML()
@@ -21,15 +22,21 @@ class config_value():
 		self.connection = data["Connection"]
 		self.path_to_plugin_folder = Path(data["Local"]["PathToPluginFolder"])
 		self.local_seperate_download_path = True if data["Local"]["SeperateDownloadPath"] == True else False
-		self.path_to_seperate_download_path = Path(data["Local"]["PathToSeperateDownloadPath"])
+		self.local_path_to_seperate_download_path = Path(data["Local"]["PathToSeperateDownloadPath"])
+		self.server = data["Remote"]["Server"]
+		self.username = data["Remote"]["Server"]
+		self.password = data["Remote"]["Password"]
 		self.sftp_port = int(data["Remote"]["SFTP_Port"])
-
+		self.ftp_port = int(data["Remote"]["FTP_Port"])
+		self.remote_seperate_download_path = True if data["Remote"]["SeperateDownloadPath"] == True else False
+		self.remote_path_to_seperate_download_path = data["Remote"]["PathToSeperateDownloadPath"]
+		self.remote_plugin_folder_on_server = data["Remote"]["PluginFolderOnServer"]
 
 
 def check_config() -> None:
 	"""
 		Check if there is a pluget_config.yml file in the same folder as pluget.py and if not create a new config
-		and exit the programm.
+		and exit the programm
 	"""
 	if not os.path.isfile("pluget_config.yaml"):
 		create_config()
@@ -82,11 +89,21 @@ def create_config() -> None:
 	sys.exit()
 
 
-def validate_config() -> bool:
+def validate_config() -> None:
 	"""
-		Validates the config variables after config class is loaded
+		Validates the config variables after config class is loaded and exit if error is detected and print error
 	"""
 	accepted_values = [
-		("local", "sftp", "ftp"),
-		("true", "false")
+		("local", "sftp", "ftp")
 	]
+	# exit afterwards if there is an error in config
+	exit_afterwards = False
+	config = config_value()
+	# rich console for nice colors
+	console = Console()
+	if (config.connection).lower() not in accepted_values[0]:
+		console.print(f"Error in Config! Accepted values for key 'Connection' are {accepted_values[0]}",
+		style="bright_red")
+		exit_afterwards = True
+	if exit_afterwards:
+		sys.exit()
