@@ -16,6 +16,7 @@ except:
 
 if __name__ == "__main__":
 	check_config()
+	rename_console_title()
     #check_requirements()
 	parser = argparse.ArgumentParser(description="Just an example",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -30,14 +31,10 @@ if __name__ == "__main__":
 	
 	else:
 		print("no arguments")
-		#consoleTitle()
-		#clearConsole()
+		clear_console()
 		#createInputLists()
-		#printMainMenu()
 		#getInput()
-	rename_console_title()
-	clear_console()
-	print_logo()
+		print_logo()
 	config = config_value()
 	validate_config()
 	print(config.connection)

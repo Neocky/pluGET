@@ -17,7 +17,7 @@ class config_value():
 	"""
 	def __init__(self):
 		yaml = ruamel.yaml.YAML()
-		with open("pluget_config.yaml", "r") as config_file:
+		with open("pluGET_config.yaml", "r") as config_file:
 			data = yaml.load(config_file)
 		self.connection = data["Connection"]
 		self.path_to_plugin_folder = Path(data["Local"]["PathToPluginFolder"])
@@ -35,16 +35,16 @@ class config_value():
 
 def check_config() -> None:
 	"""
-		Check if there is a pluget_config.yml file in the same folder as pluget.py and if not create a new config
+		Check if there is a pluGET_config.yml file in the same folder as pluget.py and if not create a new config
 		and exit the programm
 	"""
-	if not os.path.isfile("pluget_config.yaml"):
+	if not os.path.isfile("pluGET_config.yaml"):
 		create_config()
 
 
 def create_config() -> None:
 	"""
-		Creates the yaml config in the current directory with the filename pluget_config.yml
+		Creates the yaml config in the current directory with the filename pluGET_config.yml
 	"""
 	# this is the whole yaml code because of weird formating indention is not possible 
 	configuration = """\
@@ -78,11 +78,10 @@ def create_config() -> None:
 	# load ruamel.yaml to get the # commands right in the yaml code
 	yaml = ruamel.yaml.YAML()
 	code = yaml.load(configuration)
-	print(code['Local']['SeperateDownloadPath'])
-	with open("pluget_config.yaml", "w") as config_file:
+	with open("pluGET_config.yaml", "w") as config_file:
 		yaml.dump(code, config_file)
 
-	config_file_path = os.path.abspath("pluget_config.yaml")
+	config_file_path = os.path.abspath("pluGET_config.yaml")
 	print(f"Path of config file: {config_file_path}")
 	print("Config created. Edit config before executing again!")
 	input("Press any key + enter to exit...")
