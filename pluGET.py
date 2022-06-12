@@ -27,21 +27,14 @@ if __name__ == "__main__":
 	#parser.add_argument("-a", "--archive", action="store_true", help="archive mode")
 	#parser.add_argument("--exclude", help="files to exclude")
 	parser.add_argument("mode", help="Mode (install/update)", nargs='?', default=None)
-	parser.add_argument("plugin", help="Plugin Name", nargs='?', default=None)
+	parser.add_argument("object", help="Object/Plugin Name", nargs='?', default=None)
+	parser.add_argument("version", help="Version", nargs='?', default=None)
 	args = vars(parser.parse_args())
-	if args["mode"] is not None and args["plugin"] is not None:
-		print("arguments")
-
+	if args["mode"] is not None and args["object"] is not None:
+		# arguments were give and call the handle_input function to get the right function call
+		handle_input(args["mode"], args["object"], args["version"], arguments_from_console=True)
 	else:
-		print("no arguments")
+		# no arguments were given so start pluGET console
 		clear_console()
 		print_logo()
-		rich_print_error("test")
-		rich_print_error("test2")
 		handle_input()
-	config = config_value()
-	print(config.connection)
-	print(config.path_to_plugin_folder)
-	print(config.sftp_port)
-	print(config.local_seperate_download_path)
-

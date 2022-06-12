@@ -19,7 +19,7 @@ class config_value():
 		yaml = ruamel.yaml.YAML()
 		with open("pluGET_config.yaml", "r") as config_file:
 			data = yaml.load(config_file)
-		self.connection = data["Connection"]
+		self.connection = str(data["Connection"]).lower()
 		self.path_to_plugin_folder = Path(data["Local"]["PathToPluginFolder"])
 		self.local_seperate_download_path = True if data["Local"]["SeperateDownloadPath"] == True else False
 		self.local_path_to_seperate_download_path = Path(data["Local"]["PathToSeperateDownloadPath"])
@@ -100,7 +100,7 @@ def validate_config() -> None:
 	config = config_value()
 	# rich console for nice colors
 	console = Console()
-	if (config.connection).lower() not in accepted_values[0]:
+	if config.connection not in accepted_values[0]:
 		console.print(f"Error in Config! Accepted values for key 'Connection' are {accepted_values[0]}",
 		style="bright_red")
 		exit_afterwards = True

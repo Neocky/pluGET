@@ -1,5 +1,5 @@
 """
-	Holds all the utilitie code for pluGET and the webrequests function
+Holds all the utilitie code for pluGET and the webrequests function
 """
 
 import os
@@ -12,7 +12,7 @@ from rich.console import Console
 
 def api_do_request(url) -> list:
 	"""
-		Handles the webrequest and returns a json list
+	Handles the webrequest and returns a json list
 	"""
 	webrequest_header = {'user-agent': 'pluGET/1.0'}
 	try:
@@ -26,7 +26,7 @@ def api_do_request(url) -> list:
 
 def api_test_spiget() -> None:
 	"""
-		Test if the Spiget api sends a 200 status code back
+	Test if the Spiget api sends a 200 status code back
 	"""
 	try:
 		r = requests.get('https://api.spiget.org/v2/status')
@@ -43,7 +43,7 @@ def api_test_spiget() -> None:
 
 def rich_print_error(error_message) -> None:
 	"""
-		Prints a formatted error message from rich
+	Prints a formatted error message from rich
 	"""
 	console = Console()
 	console.print(error_message, style="bright_red")
@@ -52,8 +52,8 @@ def rich_print_error(error_message) -> None:
 
 def create_temp_plugin_folder() -> Path:
 	"""
-		Creates a temporary folder to store plugins inside
-		Returns full path of temporary folder
+	Creates a temporary folder to store plugins inside
+	Returns full path of temporary folder
 	"""
 	path_temp_plugin_folder = Path("./TempSFTPFolder")
 	if os.path.isdir(path_temp_plugin_folder):
@@ -71,10 +71,19 @@ def create_temp_plugin_folder() -> Path:
 
 def remove_temp_plugin_folder() -> None:
 	"""
-		Removes the temporary plugin folder and all content inside it
+	Removes the temporary plugin folder and all content inside it
 	"""
 	try:
 		shutil.rmtree(Path("./TempSFTPFolder"))
 	except OSError as e:
 		rich_print_error(f"Error: {e.filename} - {e.strerror}")
 	return
+
+
+def convert_file_size_down(file_size) -> float:
+	"""
+	Convert the size of the number one down. E.g. MB -> KB through division with 1024
+	"""
+	converted_file_size = (int(file_size)) / 1024
+	converted_file_size = round(converted_file_size, 2)
+	return converted_file_size

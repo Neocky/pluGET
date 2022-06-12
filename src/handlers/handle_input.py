@@ -1,8 +1,9 @@
 """"
-	Handles the input through the pluGET command line
+Handles the input through the pluGET command line
 """
 
 from src.utils.utilities import rich_print_error
+from src.plugin.plugin_downloader import get_specific_plugin
 
 
 # check
@@ -16,23 +17,24 @@ from src.utils.utilities import rich_print_error
 # search ???
 
 
-def handle_input() -> None:
+def handle_input(input_command=None, input_selected_object=None, input_parameter=None, arguments_from_console=False) -> None:
 	"""
-		Manages the correct function calling from the given input
+	Manages the correct function calling from the given input
 	"""
 	while True:
-		try:
-			input_command, input_selected_object, input_parameter = get_input()
-		except TypeError:
-			# KeyboardInterrupt was triggered and None was returned so exit
-			return
+		# when arguemnts were not passed from console
+		if arguments_from_console is False:
+			try:
+				input_command, input_selected_object, input_parameter = get_input()
+			except TypeError:
+				# KeyboardInterrupt was triggered and None was returned so exit
+				return
 
 		match input_command:
 			case "get":
 				match input_selected_object.isdigit():
 					case True:
-						print("get specific package")
-						#getSpecificPackage(inputSelectedObject, pluginPath,  inputParams)
+						get_specific_plugin(input_selected_object, input_parameter)
 					case _:
 						print("get search specific package")
 						#searchPackage(inputSelectedObject)
@@ -67,9 +69,15 @@ def handle_input() -> None:
 				# download papermc
 				print("download papermc")
 				#papermc_downloader(inputSelectedObject, inputParams)
+			case "exit":
+				return
 			case _:
 				rich_print_error("Error: Command not found. Please try again. :(")
 				rich_print_error("Use: 'help command' to get all available commands")
+
+		# return to break out of while loop
+		if arguments_from_console:
+			return None
 
 
 def get_input() -> None:
@@ -77,6 +85,7 @@ def get_input() -> None:
 		Gets command line input and calls the handle input function
 	"""
 	input_command = None
+	print("'STRG + C' to exit")
 	while True:
 		try:
 			input_command, input_selected_object, *input_parameter = input("pluGET >> ").split()
