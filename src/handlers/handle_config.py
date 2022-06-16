@@ -11,9 +11,9 @@ from rich.console import Console
 
 class config_value():
 	"""
-		Class which holds all the available configuration values from the config file and which will be used later in
-		the process of updating plugins
-		If bool in config can't be read it will default to 'False'
+	Class which holds all the available configuration values from the config file and which will be used later in
+	the process of updating plugins
+	If bool in config can't be read it will default to 'False'
 	"""
 	def __init__(self):
 		yaml = ruamel.yaml.YAML()
@@ -35,8 +35,8 @@ class config_value():
 
 def check_config() -> None:
 	"""
-		Check if there is a pluGET_config.yml file in the same folder as pluget.py and if not create a new config
-		and exit the programm
+	Check if there is a pluGET_config.yml file in the same folder as pluget.py and if not create a new config
+	and exit the programm
 	"""
 	if not os.path.isfile("pluGET_config.yaml"):
 		create_config()
@@ -44,7 +44,7 @@ def check_config() -> None:
 
 def create_config() -> None:
 	"""
-		Creates the yaml config in the current directory with the filename pluGET_config.yml
+	Creates the yaml config in the current directory with the filename pluGET_config.yml
 	"""
 	# this is the whole yaml code because of weird formating indention is not possible 
 	configuration = """\
@@ -90,7 +90,7 @@ def create_config() -> None:
 
 def validate_config() -> None:
 	"""
-		Validates the config variables after config class is loaded and exit if error is detected and print error
+	Validates the config variables after config class is loaded and exit if error is detected and print error
 	"""
 	accepted_values = [
 		("local", "sftp", "ftp")

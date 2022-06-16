@@ -3,7 +3,7 @@ Handles the input through the pluGET command line
 """
 
 from src.utils.console_output import rich_print_error
-from src.plugin.plugin_downloader import get_specific_plugin
+from src.plugin.plugin_downloader import get_specific_plugin, search_specific_plugin
 
 
 # check
@@ -60,8 +60,7 @@ def handle_input(input_command=None, input_selected_object=None, input_parameter
                         #checkInstalledPackage(inputSelectedObject, inputParams)
 
             case "search":
-                print("search package")
-                #searchPackage(inputSelectedObject)
+                search_specific_plugin(input_selected_object)
             case "remove":
                 print("remove package")
                 #removePlugin(inputSelectedObject)
@@ -85,7 +84,7 @@ def get_input() -> None:
         Gets command line input and calls the handle input function
     """
     input_command = None
-    print("'STRG + C' to exit")
+    print("\n'STRG + C' to exit")
     while True:
         try:
             input_command, input_selected_object, *input_parameter = input("pluGET >> ").split()

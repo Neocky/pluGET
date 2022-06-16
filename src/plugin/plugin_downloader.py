@@ -4,10 +4,10 @@ File and functions which handle the download of the specific plugins
 
 import re
 import urllib.request
-from urllib.error import HTTPError
 from pathlib import Path
 
-import rich
+from rich.table import Table
+from rich.console import Console
 
 from src.utils.utilities import convert_file_size_down, remove_temp_plugin_folder, create_temp_plugin_folder
 from src.utils.utilities import api_do_request
@@ -167,3 +167,53 @@ def get_specific_plugin(plugin_id, plugin_version="latest") -> None:
     if config_values.connection != "local":
         remove_temp_plugin_folder()
     return None
+
+
+def search_specific_plugin(plugin_name) -> None:
+    """
+    Search for a name and return the top 10 results sorted for their download count
+    Then ask for input and download that plugin
+    """
+    url= f"https://api.spiget.org/v2/search/resources/{plugin_name}?field=name&sort=-downloads"
+    plugin_search_results = api_do_request(url)
+    if plugin_search_results == None:
+        return None
+
+    print(f"Searching for {plugin_name}...")
+    print(f"Found plugins:")
+    # create table with rich
+    rich_table = Table(box=None)
+    rich_table.add_column("No.", justify="right", style="cyan", no_wrap=True)
+    rich_table.add_column("Name", style="bright_magenta")
+    rich_table.add_column("Downloads", justify="right", style="bright_green")
+    rich_table.add_column("Description", justify="left", style="white")
+    # start counting at 1 for all my non-programming friends :)
+    i = 1
+    for found_plugin in plugin_search_results:
+        plugin_name = handle_regex_package_name(found_plugin["name"])
+        plugin_downloads = found_plugin["downloads"]
+        plugin_description = found_plugin["tag"]
+        rich_table.add_row(str(i), plugin_name, str(plugin_downloads), plugin_description)
+        i += 1
+
+    # print table from rich
+    rich_console = Console()
+    rich_console.print(rich_table)
+
+    try:
+        plugin_selected = input("Select your wanted resource (No.)(0 to exit): ")
+    except KeyboardInterrupt:
+        return None
+    if plugin_selected == "0":
+        return None
+    try:
+        plugin_selected =  int(plugin_selected) - 1
+        plugin_selected_id = plugin_search_results[plugin_selected]["id"]
+    except ValueError:
+        rich_print_error("Error: Input wasn't a number! Please try again!")
+        return None
+    except IndexError:
+        rich_print_error("Error: Number was out of range! Please try again!")
+        return None
+
+    get_specific_plugin(plugin_selected_id)

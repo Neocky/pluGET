@@ -12,7 +12,7 @@ try:
     from src.utils.utilities import check_requirements, api_test_spiget
     from src.handlers.handle_input import handle_input
 except:
-    print("Folder 'src' not found in the directory or missing files detected! \
+    print("Folder 'src' not found in the directory or missing files or broken functions detected! \
         \nPlease redownload the files from here: https://www.github.com/Neocky/pluGET")
     sys.exit()
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     #parser.add_argument("-a", "--archive", action="store_true", help="archive mode")
     #parser.add_argument("--exclude", help="files to exclude")
-    parser.add_argument("mode", help="Mode (install/update)", nargs='?', default=None)
+    parser.add_argument("mode", help="Mode (install/update/etc.)", nargs='?', default=None)
     parser.add_argument("object", help="Object/Plugin Name", nargs='?', default=None)
     parser.add_argument("version", help="Version", nargs='?', default=None)
     args = vars(parser.parse_args())

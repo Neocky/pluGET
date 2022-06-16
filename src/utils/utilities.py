@@ -20,7 +20,7 @@ def api_do_request(url) -> list:
     try:
         response = requests.get(url, headers=webrequest_header)
     except:
-        print("Couldn't create webrequest")
+        rich_print_error("Error: Couldn't create webrequest")
         # return None to make functions quit
         return None
     api_json_data = response.json()
@@ -39,7 +39,7 @@ def api_test_spiget() -> None:
     if r.status_code != 200:
         rich_print_error("Error: Problems with the API detected. Plese try it again later!")
         sys.exit()
-    return
+    return None
 
 
 def create_temp_plugin_folder() -> Path:
@@ -107,3 +107,4 @@ def check_requirements() -> None:
             print("Check sftp folder")
         case "ftp":
             print("check ftp folder")
+    return None
