@@ -5,6 +5,7 @@ from src.utils import utilities
 
 class TestCases(unittest.TestCase):
     def test_handle_regex_package_name(self):
+        # Cropped name -> 'SUPERBPlugin'
         plugin_name = "[1.13-5.49 ❤] >|> SUPERB Plugin <<💥| Now 150% OFF IN WINTER SALE IN SUMMER???"
         plugin_name_cropped = "SUPERBPlugin"
         result = plugin_downloader.handle_regex_package_name(plugin_name)
@@ -12,15 +13,15 @@ class TestCases(unittest.TestCase):
 
 
     def test_get_version_id(self):
-        # 1234 -> "AntiPickup" in Version 1.4.1
-        result = plugin_downloader.get_version_id("1234", "1.4.1")
-        self.assertEqual(result, 43779)
+        # 21840 -> "Luckperms" in Version 5.4.30
+        result = plugin_downloader.get_version_id("28140", "5.4.30")
+        self.assertEqual(result, 455966)
 
 
     def test_get_version_name(self):
-        # 43779 -> "1.4.1" from AntiPickup
-        result = plugin_downloader.get_version_name("1234", 43779)
-        self.assertEqual(result, "1.4.1")
+        # 455966 -> "5.4.30" from Luckperms
+        result = plugin_downloader.get_version_name("28140", 455966)
+        self.assertEqual(result, "5.4.30")
 
 
     def test_get_download_path(self):
@@ -50,6 +51,7 @@ class TestCases(unittest.TestCase):
 
     
     def test_convert_file_size_down(self):
+        # 100000 / 1024 = 97.66
         result= utilities.convert_file_size_down(100000)
         self.assertEqual(result, 97.66)
     
