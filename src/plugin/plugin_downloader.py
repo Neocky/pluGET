@@ -9,8 +9,9 @@ from pathlib import Path
 
 import rich
 
-from src.utils.utilities import rich_print_error, convert_file_size_down, remove_temp_plugin_folder, create_temp_plugin_folder
+from src.utils.utilities import convert_file_size_down, remove_temp_plugin_folder, create_temp_plugin_folder
 from src.utils.utilities import api_do_request
+from src.utils.console_output import rich_print_error
 from src.handlers.handle_config import config_value
 
 
@@ -41,12 +42,15 @@ def get_version_id(plugin_id, plugin_version) -> str:
 	if plugin_version == None or plugin_version == 'latest':
 		url = f"https://api.spiget.org/v2/resources/{plugin_id}/versions/latest"
 		response = api_do_request(url)
+		if response == None:
+			return None
 		version_id = response["id"]
 		return version_id
 
-
 	url = f"https://api.spiget.org/v2/resources/{plugin_id}/versions?size=100&sort=-name"
 	version_list = api_do_request(url)
+	if response == None:
+		return None
 	for plugins in version_list:
 		plugin_update = plugins["name"]
 		version_id = plugins["id"]
@@ -55,33 +59,35 @@ def get_version_id(plugin_id, plugin_version) -> str:
 	return version_list[0]["id"]
 
 
-def getVersionName(plugin_id, plugin_version_id) -> str:
+def get_version_name(plugin_id, plugin_version_id) -> str:
 	"""
 	Returns the name of a specific version
 	"""
 	url = f"https://api.spiget.org/v2/resources/{plugin_id}/versions/{plugin_version_id}"
 	response = api_do_request(url)
+	if response == None:
+		return None
 	version_name = response["name"]
 	return version_name
 
 
-def get_download_path() -> str:
+def get_download_path(config_values) -> str:
 	"""
 	Reads the config and gets the path of the plugin folder
 	"""
-	config_values = config_value()
-
-	if config_values.connection == "local":
-		if config_values.local_seperate_download_path is True:
-			return config_values.local_path_to_seperate_download_path
-		else:
-			return config_values.path_to_plugin_folder
-	
-	else:
-		if config_values.remote_seperate_download_path is True:
-			return config_values.remote_path_to_seperate_download_path
-		else:
-			return config_values.remote_plugin_folder_on_server
+	match (config_values.connection):
+		case "local":
+			match (config_values.local_seperate_download_path):
+				case True:
+					return config_values.local_path_to_seperate_download_path
+				case _:
+					return config_values.path_to_plugin_folder
+		case _:
+			match (config_values.remote_seperate_download_path):
+				case True:
+					return config_values.remote_path_to_seperate_download_path
+				case _:
+					return config_values.remote_plugin_folder_on_server
 
 
 def download_specific_plugin_version(plugin_id, download_path, version_id="latest") -> None:
@@ -136,10 +142,12 @@ def get_specific_plugin(plugin_id, plugin_version="latest") -> None:
 	if config_values.connection != "local":
 		download_path = create_temp_plugin_folder()
 	else:
-		download_path = get_download_path()
+		download_path = get_download_path(config_values)
 
 	url = f"https://api.spiget.org/v2/resources/{plugin_id}"
 	plugin_details = api_do_request(url)
+	if plugin_details == None:
+		return None
 	try:
 		plugin_name = plugin_details["name"]
 	except KeyError:
@@ -148,7 +156,7 @@ def get_specific_plugin(plugin_id, plugin_version="latest") -> None:
 		return None
 	plugin_name = handle_regex_package_name(plugin_name)
 	plugin_version_id = get_version_id(plugin_id, plugin_version)
-	plugin_version_name = getVersionName(plugin_id, plugin_version_id)
+	plugin_version_name = get_version_name(plugin_id, plugin_version_id)
 	plugin_download_name = f"{plugin_name}-{plugin_version_name}.jar"
 	download_plugin_path = Path(f"{download_path}/{plugin_download_name}")
 	# set the plugin_version_id to None if a specific version wasn't given as parameter

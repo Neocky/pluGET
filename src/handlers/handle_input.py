@@ -2,7 +2,7 @@
 Handles the input through the pluGET command line
 """
 
-from src.utils.utilities import rich_print_error
+from src.utils.console_output import rich_print_error
 from src.plugin.plugin_downloader import get_specific_plugin
 
 
@@ -22,7 +22,7 @@ def handle_input(input_command=None, input_selected_object=None, input_parameter
 	Manages the correct function calling from the given input
 	"""
 	while True:
-		# when arguemnts were not passed from console
+		# when arguemnts were not passed from console ask for input
 		if arguments_from_console is False:
 			try:
 				input_command, input_selected_object, input_parameter = get_input()
@@ -75,7 +75,7 @@ def handle_input(input_command=None, input_selected_object=None, input_parameter
 				rich_print_error("Error: Command not found. Please try again. :(")
 				rich_print_error("Use: 'help command' to get all available commands")
 
-		# return to break out of while loop
+		# return to break out of while loop if pluGET was started with arguments from console
 		if arguments_from_console:
 			return None
 

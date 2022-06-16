@@ -6,11 +6,21 @@ import os
 from rich.console import Console
 
 
+def rich_print_error(error_message) -> None:
+	"""
+	Prints a formatted error message from rich
+	"""
+	console = Console()
+	console.print(error_message, style="bright_red")
+	return None
+
+
 def rename_console_title() -> None:
 	"""
 		Renames the console title on first startup
 	"""
 	os.system("title " + "pluGET │ By Neocky")
+	return None
 
 
 def clear_console() -> None:
@@ -18,6 +28,7 @@ def clear_console() -> None:
 		Clears the console on first startup
 	"""
 	os.system('cls' if os.name=='nt' else 'clear')
+	return None
 
 
 def print_logo() -> None:
@@ -124,3 +135,4 @@ def print_logo() -> None:
 	# line 12
 	console.print("          └────────────────────────────────────┘", style="bright_black")
 	console.print("    ───────────────────────────────────────────────────")
+	return None
