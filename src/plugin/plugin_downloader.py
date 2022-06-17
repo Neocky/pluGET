@@ -3,11 +3,12 @@ File and functions which handle the download of the specific plugins
 """
 
 import re
-import urllib.request
 from pathlib import Path
+import requests
 
 from rich.table import Table
 from rich.console import Console
+from rich.progress import Progress
 
 from src.utils.utilities import convert_file_size_down, remove_temp_plugin_folder, create_temp_plugin_folder
 from src.utils.utilities import api_do_request
@@ -15,7 +16,7 @@ from src.utils.console_output import rich_print_error
 from src.handlers.handle_config import config_value
 
 
-def handle_regex_package_name(full_plugin_name) -> str:
+def handle_regex_plugin_name(full_plugin_name) -> str:
     """
     Return the plugin name after trimming clutter from name with regex operations
     """
@@ -90,7 +91,7 @@ def get_download_path(config_values) -> str:
                     return config_values.remote_plugin_folder_on_server
 
 
-def download_specific_plugin_version(plugin_id, download_path, version_id="latest") -> None:
+def download_specific_plugin_version_spiget(plugin_id, download_path, version_id="latest") -> None:
     """
     Download a specific plugin
     """
@@ -103,26 +104,41 @@ def download_specific_plugin_version(plugin_id, download_path, version_id="lates
     #url = f"https://api.spiget.org/v2/resources/{plugin_id}/versions/latest/download" #throws 403 forbidden error...cloudflare :(
     url = f"https://api.spiget.org/v2/resources/{plugin_id}/download"
 
-    urrlib_opener = urllib.request.build_opener()
-    urrlib_opener.addheaders = [('User-agent', 'pluGET/1.0')]
-    urllib.request.install_opener(urrlib_opener)
+    # use rich Progress() to create progress bar
+    with Progress() as progress:
+        header = {'user-agent': 'pluGET/1.0'}
+        r = requests.get(url, headers=header, stream=True)
+        try:
+            file_size = int(r.headers.get('content-length'))
+            # create progress bar
+            download_task = progress.add_task("    [bright_red]Downloading...", total=file_size)
+        except TypeError:
+            # Content-lenght returned nothing
+            file_size = 0
+        with open(download_path, 'wb') as f:
+            # split downloaded data in chunks of 32768
+            for data in r.iter_content(chunk_size=32768):
+                f.write(data)
+                # don't show progress bar if no content-length was returned
+                if file_size == 0:
+                    continue
+                progress.update(download_task, advance=len(data))
+                #f.flush()
 
-    remote_file = urllib.request.urlopen(url)
-    try:
-        file_size = int(remote_file.info()['Content-Length'])
-    except TypeError:
-        # if api won't return file size set it to 0 to avoid throwing an error
-        file_size = 0
-    urllib.request.urlretrieve(url, download_path)
-    print("		", end='')
-    if file_size >= 1000000 and file_size != 0:
+    # use rich console for nice colors
+    console = Console()
+    if file_size == 0:
+        console.print(
+            f"    [not bold][bright_green]Downloaded[bright_magenta]         file [cyan]→ [white]{download_path}"
+        )
+    elif file_size >= 1000000:
         file_size_data = convert_file_size_down(convert_file_size_down(file_size))
-        print("Downloaded " + (str(file_size_data)).rjust(9) + f" MB here {download_path}")
-    elif file_size != 0:
+        console.print("    [not bold][bright_green]Downloaded[bright_magenta] " + (str(file_size_data)).rjust(9) + \
+             f" MB [cyan]→ [white]{download_path}")
+    elif file_size < 1000000:
         file_size_data = convert_file_size_down(file_size)
-        print("Downloaded " + (str(file_size_data)).rjust(9) + f" KB here {download_path}")
-    else:
-        print(f"Downloaded         file here {download_path}")
+        console.print("    [not bold][bright_green]Downloaded[bright_magenta] " + (str(file_size_data)).rjust(9) + \
+             f" KB [cyan]→ [white]{download_path}")
     # TODO add sftp and ftp support
     #if config_values.connection == "sftp":
     #	sftp_session = createSFTPConnection()
@@ -151,10 +167,10 @@ def get_specific_plugin(plugin_id, plugin_version="latest") -> None:
     try:
         plugin_name = plugin_details["name"]
     except KeyError:
-        # exit if plugin id coudn't be found
+        # exit if plugin id couldn't be found
         rich_print_error("Error: Plugin ID couldn't be found")
         return None
-    plugin_name = handle_regex_package_name(plugin_name)
+    plugin_name = handle_regex_plugin_name(plugin_name)
     plugin_version_id = get_version_id(plugin_id, plugin_version)
     plugin_version_name = get_version_name(plugin_id, plugin_version_id)
     plugin_download_name = f"{plugin_name}-{plugin_version_name}.jar"
@@ -162,7 +178,7 @@ def get_specific_plugin(plugin_id, plugin_version="latest") -> None:
     # set the plugin_version_id to None if a specific version wasn't given as parameter
     if plugin_version == "latest" or plugin_version is None:
         plugin_version_id = None
-    download_specific_plugin_version(plugin_id, download_plugin_path, plugin_version_id)
+    download_specific_plugin_version_spiget(plugin_id, download_plugin_path, plugin_version_id)
 
     if config_values.connection != "local":
         remove_temp_plugin_folder()
@@ -190,7 +206,7 @@ def search_specific_plugin(plugin_name) -> None:
     # start counting at 1 for all my non-programming friends :)
     i = 1
     for found_plugin in plugin_search_results:
-        plugin_name = handle_regex_package_name(found_plugin["name"])
+        plugin_name = handle_regex_plugin_name(found_plugin["name"])
         plugin_downloads = found_plugin["downloads"]
         plugin_description = found_plugin["tag"]
         rich_table.add_row(str(i), plugin_name, str(plugin_downloads), plugin_description)
@@ -215,5 +231,7 @@ def search_specific_plugin(plugin_name) -> None:
     except IndexError:
         rich_print_error("Error: Number was out of range! Please try again!")
         return None
-
+    console = Console()
+    selected_plugin_name = handle_regex_plugin_name(plugin_search_results[plugin_selected]["name"])
+    console.print(f"\n [bright_white]● [bright_magenta]{selected_plugin_name} [bright_green]latest")
     get_specific_plugin(plugin_selected_id)

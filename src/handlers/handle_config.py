@@ -40,6 +40,7 @@ def check_config() -> None:
 	"""
 	if not os.path.isfile("pluGET_config.yaml"):
 		create_config()
+	return None
 
 
 def create_config() -> None:

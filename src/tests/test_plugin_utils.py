@@ -49,12 +49,12 @@ class TestCases(unittest.TestCase):
         result=plugin_downloader.get_download_path(config_values_ftp)
         self.assertEqual(result, config_values_ftp.remote_path_to_seperate_download_path)
 
-    
+
     def test_convert_file_size_down(self):
         # 100000 / 1024 = 97.66
         result= utilities.convert_file_size_down(100000)
         self.assertEqual(result, 97.66)
-    
+
 
 if __name__ == "__main__":
     unittest.main()

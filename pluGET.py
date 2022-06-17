@@ -18,11 +18,11 @@ except:
 
 
 if __name__ == "__main__":
-    check_config()
     rename_console_title()
+    check_config()
+    validate_config()
     api_test_spiget()
     check_requirements()
-    validate_config()
     parser = argparse.ArgumentParser(description="Arguments for pluGET",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     #parser.add_argument("-a", "--archive", action="store_true", help="archive mode")
