@@ -111,7 +111,7 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
         try:
             file_size = int(r.headers.get('content-length'))
             # create progress bar
-            download_task = progress.add_task("    [bright_red]Downloading...", total=file_size)
+            download_task = progress.add_task("    [cyan]Downloading...", total=file_size)
         except TypeError:
             # Content-lenght returned nothing
             file_size = 0

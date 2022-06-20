@@ -5,6 +5,8 @@
 import os
 from rich.console import Console
 
+from src.settings import PLUGETVERSION
+
 
 def rich_print_error(error_message) -> None:
     """
@@ -17,7 +19,7 @@ def rich_print_error(error_message) -> None:
 
 def rename_console_title() -> None:
     """
-        Renames the console title on first startup
+    Renames the console title on first startup
     """
     os.system("title " + "pluGET │ By Neocky")
     return None
@@ -25,7 +27,7 @@ def rename_console_title() -> None:
 
 def clear_console() -> None:
     """
-        Clears the console on first startup
+    Clears the console on first startup
     """
     os.system('cls' if os.name=='nt' else 'clear')
     return None
@@ -33,7 +35,7 @@ def clear_console() -> None:
 
 def print_logo() -> None:
     """
-        Prints the logo of pluGET and the link to the github repo
+    Prints the logo of pluGET and the link to the github repo
     """
     # use rich console
     console = Console()
@@ -135,4 +137,15 @@ def print_logo() -> None:
     # line 12
     console.print("          └────────────────────────────────────┘", style="bright_black")
     console.print("    ───────────────────────────────────────────────────")
+    return None
+
+
+def print_console_logo() -> None:
+    """
+    Prints the logo of pluGET if it is called from console
+    """
+    console = Console()
+    console.print(f"[not bold][bright_magenta]pluGET [bright_green]{PLUGETVERSION} ", end='')
+    console.print("created by Neocky → ", end='')
+    console.print("https://github.com/Neocky/pluGET", style="link https://github.com/Neocky/pluGET")
     return None

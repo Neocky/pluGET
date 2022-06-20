@@ -6,10 +6,37 @@ import os
 import sys
 import requests
 import shutil
+import re
 from pathlib import Path
+from rich.console import Console
 
 from src.utils.console_output import rich_print_error
 from src.handlers.handle_config import config_value
+from src.settings import PLUGETVERSION
+
+
+def check_for_pluGET_update() -> None:
+    """
+    Check with the github api if there is a new version for pluGET available and print download message if this is
+    the case
+    """
+    response = api_do_request("https://api.github.com/repos/Neocky/pluGET/releases/latest")
+    # get '.1.6.10' as output
+    full_version_string = re.search(r"[\.?\d]*$", response["name"])
+    # remove '.' to get '1.6.10' as output
+    version = re.sub(r"^\.*", "", full_version_string.group())
+    console = Console()
+    try:
+        pluget_installed_version_tuple = tuple(map(int, (PLUGETVERSION.split("."))))
+        plugin_latest_version_tuple = tuple(map(int, (version.split("."))))
+    except ValueError:
+        console.print("Couldn't check if new version of pluGET is available")
+        return None
+    if pluget_installed_version_tuple < plugin_latest_version_tuple:
+        print(f"A new version for pluGET is available: {version}")
+        console.print("Download it here: ", end='')
+        console.print("https://github.com/Neocky/pluGET", style="link https://github.com/Neocky/pluGET")
+    return None
 
 
 def api_do_request(url) -> list:
