@@ -155,6 +155,11 @@ def compare_plugin_version(plugin_latest_version, plugin_file_version) -> bool:
 def check_installed_plugins(input_selected_object="all", input_parameter=None) -> None:
     """
     Gets installed plugins and checks it against the apis if there are updates for the plugins available
+
+    :param input_selected_object: Which plugin should be checked
+    :param input_parameter: Optional parameters
+
+    :returns: None
     """
     config_values = config_value()
     plugin.create_plugin_list()
@@ -169,9 +174,9 @@ def check_installed_plugins(input_selected_object="all", input_parameter=None) -
         case _:
             plugin_folder_path = config_values.path_to_plugin_folder
             plugin_list = os.listdir(plugin_folder_path)
-    
+
     # create simple progress bar from rich
-    for plugin_file in track(plugin_list, description="Checking...", transient=True, style="bright_yellow"):
+    for plugin_file in track(plugin_list, description="[cyan]Checking...", transient=True, style="bright_yellow"):
         plugin_no_attributes = False
         match config_values.connection:
             case "sftp":
@@ -220,8 +225,8 @@ def search_plugin_spigot(plugin_file, plugin_file_name, plugin_file_version) -> 
             plugin_file_version2 = re.sub(r'(\-\w*)', '', plugin_file_version)
         if i == 2:
             """
-            pluginNameinYML = eggCrackingJar(plugin_file, 'name')
-            url = "https://api.spiget.org/v2/search/resources/" + pluginNameinYML + "?field=name&sort=-downloads"
+            plugin_name_in_yml = eggCrackingJar(plugin_file, 'name')
+            url = f"https://api.spiget.org/v2/search/resources/{plugin_name_in_yml}?field=name&sort=-downloads"
             try:
                 plugin_list = api_do_request(url)
             except ValueError:

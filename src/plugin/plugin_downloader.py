@@ -101,11 +101,13 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
         rich_print_error("Sorry but specific version downloads aren't supported because of cloudflare protection. :(")
         rich_print_error("Reverting to latest version.")
 
-    #url = f"https://api.spiget.org/v2/resources/{plugin_id}/versions/latest/download" #throws 403 forbidden error...cloudflare :(
+    #throws 403 forbidden error...cloudflare :(
+    #url = f"https://api.spiget.org/v2/resources/{plugin_id}/versions/latest/download"
+
     url = f"https://api.spiget.org/v2/resources/{plugin_id}/download"
 
     # use rich Progress() to create progress bar
-    with Progress() as progress:
+    with Progress(transient=True) as progress:
         header = {'user-agent': 'pluGET/1.0'}
         r = requests.get(url, headers=header, stream=True)
         try:
@@ -175,6 +177,10 @@ def get_specific_plugin(plugin_id, plugin_version="latest") -> None:
     plugin_version_name = get_version_name(plugin_id, plugin_version_id)
     plugin_download_name = f"{plugin_name}-{plugin_version_name}.jar"
     download_plugin_path = Path(f"{download_path}/{plugin_download_name}")
+    # if api requests weren't successfull stop function
+    if plugin_version_id == None or plugin_version_name == None:
+        rich_print_error("Error: Webrequest timed out")
+        return None
     # set the plugin_version_id to None if a specific version wasn't given as parameter
     if plugin_version == "latest" or plugin_version is None:
         plugin_version_id = None
@@ -193,6 +199,7 @@ def search_specific_plugin(plugin_name) -> None:
     url= f"https://api.spiget.org/v2/search/resources/{plugin_name}?field=name&sort=-downloads"
     plugin_search_results = api_do_request(url)
     if plugin_search_results == None:
+        rich_print_error("Error: Webrequest wasn't successfull!")
         return None
 
     print(f"Searching for {plugin_name}...")

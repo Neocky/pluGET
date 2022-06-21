@@ -50,7 +50,11 @@ def api_do_request(url) -> list:
         rich_print_error("Error: Couldn't create webrequest")
         # return None to make functions quit
         return None
-    api_json_data = response.json()
+    try:
+        api_json_data = response.json()
+    except:
+        rich_print_error("Error: Couldn't parse json of webrequest")
+        return None
     return api_json_data
 
 

@@ -40,7 +40,7 @@ if __name__ == "__main__":
         handle_input(args["mode"], args["object"], args["version"], arguments_from_console=True)
     else:
         # no arguments were used so start pluGET console
-        #clear_console()
+        clear_console()
         print_logo()
         check_for_pluGET_update()
         handle_input()
