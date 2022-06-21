@@ -14,6 +14,8 @@ from src.utils.utilities import convert_file_size_down, remove_temp_plugin_folde
 from src.utils.utilities import api_do_request
 from src.utils.console_output import rich_print_error
 from src.handlers.handle_config import config_value
+from src.handlers.handle_sftp import sftp_create_connection, sftp_upload_file
+from src.handlers.handle_ftp import ftp_create_connection, ftp_upload_file
 
 
 def handle_regex_plugin_name(full_plugin_name) -> str:
@@ -95,7 +97,7 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
     """
     Download a specific plugin
     """
-    #config_values = config_value()
+    config_values = config_value()
     if version_id != "latest" and version_id != None:
         #url = f"https://spigotmc.org/resources/{plugin_id}/download?version={versionID}"
         rich_print_error("Sorry but specific version downloads aren't supported because of cloudflare protection. :(")
@@ -142,12 +144,12 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
         console.print("    [not bold][bright_green]Downloaded[bright_magenta] " + (str(file_size_data)).rjust(9) + \
              f" KB [cyan]→ [white]{download_path}")
     # TODO add sftp and ftp support
-    #if config_values.connection == "sftp":
-    #	sftp_session = createSFTPConnection()
-    #	sftp_upload_file(sftp_session, download_path)
-    #elif config_values.connection == "ftp":
-    #	ftp_session = createFTPConnection()
-    #	ftp_upload_file(ftp_session, download_path)
+    if config_values.connection == "sftp":
+        sftp_session = sftp_create_connection()
+        sftp_upload_file(sftp_session, download_path)
+    elif config_values.connection == "ftp":
+        ftp_session = ftp_create_connection()
+        ftp_upload_file(ftp_session, download_path)
     return None
 
 
@@ -238,7 +240,6 @@ def search_specific_plugin(plugin_name) -> None:
     except IndexError:
         rich_print_error("Error: Number was out of range! Please try again!")
         return None
-    console = Console()
     selected_plugin_name = handle_regex_plugin_name(plugin_search_results[plugin_selected]["name"])
-    console.print(f"\n [bright_white]● [bright_magenta]{selected_plugin_name} [bright_green]latest")
+    rich_console.print(f"\n [bright_white]● [bright_magenta]{selected_plugin_name} [bright_green]latest")
     get_specific_plugin(plugin_selected_id)

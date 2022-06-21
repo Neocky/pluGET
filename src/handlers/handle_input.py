@@ -18,7 +18,12 @@ from src.plugin.plugin_updatechecker import check_installed_plugins
 # search ???
 
 
-def handle_input(input_command=None, input_selected_object=None, input_parameter=None, arguments_from_console=False) -> None:
+def handle_input(
+    input_command: str=None,
+    input_selected_object: str=None,
+    input_parameter: str=None,
+    arguments_from_console: bool=False
+    ) -> None:
     """
     Manages the correct function calling from the given input
     """
@@ -50,13 +55,11 @@ def handle_input(input_command=None, input_selected_object=None, input_parameter
                         #updateInstalledPackage(inputSelectedObject)
 
             case "check":
-                print("check package")
                 match input_selected_object:
                     case "serverjar":
                         print("check serverjar")
                         #checkInstalledServerjar()
                     case _:
-                        print("check plugins")
                         check_installed_plugins(input_selected_object, input_parameter)
 
             case "search":
@@ -81,7 +84,7 @@ def handle_input(input_command=None, input_selected_object=None, input_parameter
 
 def get_input() -> None:
     """
-        Gets command line input and calls the handle input function
+    Gets command line input and calls the handle input function
     """
     input_command = None
     print("\n'STRG + C' to exit")

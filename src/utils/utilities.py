@@ -9,6 +9,8 @@ import shutil
 import re
 from pathlib import Path
 from rich.console import Console
+from src.handlers.handle_sftp import sftp_create_connection
+from src.handlers.handle_ftp import ftp_create_connection
 
 from src.utils.console_output import rich_print_error
 from src.handlers.handle_config import config_value
@@ -33,7 +35,7 @@ def check_for_pluGET_update() -> None:
         console.print("Couldn't check if new version of pluGET is available")
         return None
     if pluget_installed_version_tuple < plugin_latest_version_tuple:
-        print(f"A new version for pluGET is available: {version}")
+        print(f"A new version of pluGET is available: {version}")
         console.print("Download it here: ", end='')
         console.print("https://github.com/Neocky/pluGET", style="link https://github.com/Neocky/pluGET")
     return None
@@ -135,7 +137,7 @@ def check_requirements() -> None:
         case "local":
             check_local_plugin_folder(config_values)
         case "sftp":
-            print("Check sftp folder")
+            sftp_create_connection()
         case "ftp":
-            print("check ftp folder")
+            ftp_create_connection()
     return None
