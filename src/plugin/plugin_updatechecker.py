@@ -278,6 +278,7 @@ def check_installed_plugins(input_selected_object : str="all", input_parameter :
 
     rich_console = Console()
     rich_console.print(rich_table)
+    rich_console.print()
     if plugins_with_udpates != 0:
         rich_console.print(
         "[not bold][bright_yellow]Plugins with available updates: [bright_green]" +
@@ -325,6 +326,7 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
 
     :returns: None
     """
+    rich_console = Console()
     config_values = config_value()
     match config_values.connection:
         case "sftp":
@@ -348,19 +350,26 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
             return None
 
     # used later for output as stats
-    plugins_updated = 0
+    plugins_updated = plugins_skipped = 0
 
     #for plugin in track(INSTALLEDPLUGINLIST, description="[cyan]Updating...", transient=True, style="bright_yellow"):
     for plugin in INSTALLEDPLUGINLIST:
         # supports command 'update pluginname' and skip the updating of every other plugin to speed things up a bit
         if input_selected_object != "all" and input_selected_object != "*":
             if not re.search(input_selected_object, plugin.plugin_file_name, re.IGNORECASE):
+                plugins_skipped += 1
                 continue
 
         if plugin.plugin_is_outdated == False:
+            plugins_skipped += 1
             continue
-        
 
+        rich_console.print(
+            "\n [not bold][bright_white]● [bright_magenta]" +
+            f"{plugin.plugin_name} [bright_green]{plugin.plugin_latest_version}"
+        )
+
+        plugins_updated += 1
         plugin_path = get_download_path(config_values)
         match config_values.connection:
             # local plugin folder
@@ -368,7 +377,6 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                 match (plugin.plugin_repository):
                     case "spigot":
                         try:
-                            plugins_updated += 1
                             get_specific_plugin(plugin.plugin_repository_data[0])
                         except HTTPError as err:
                             rich_print_error(f"HTTPError: {err.code} - {err.reason}")
@@ -382,11 +390,12 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                     case _:
                         rich_print_error("Error: Plugin repository wasn't found")
                         return None
-
-                try:
-                    os.remove(Path(f"{plugin_path}/{plugin.plugin_file_name}"))
-                except FileNotFoundError:
-                    rich_print_error("Error: Old plugin file couldn't be deleted")
+                # don't delete files if they are downloaded to a seperate download path
+                if config_values.local_seperate_download_path == False:
+                    try:
+                        os.remove(Path(f"{plugin_path}/{plugin.plugin_file_name}"))
+                    except FileNotFoundError:
+                        rich_print_error("Error: Old plugin file couldn't be deleted")
 
 
         
@@ -396,7 +405,6 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                 match (plugin.plugin_repository):
                     case "spigot":
                         try:
-                            plugins_updated += 1
                             get_specific_plugin(plugin.plugin_repository_data[0])
                         except HTTPError as err:
                             rich_print_error(f"HTTPError: {err.code} - {err.reason}")
@@ -410,17 +418,24 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                     case _:
                         rich_print_error("Error: Plugin repository wasn't found")
                         return None
-                match config_values.connection:
-                    case "sftp":
-                        try:
-                            connection.remove(plugin_path)
-                        except FileNotFoundError:
-                            rich_print_error("Error: Old plugin file couldn't be deleted")
-                    case "ftp":
-                        try:
-                            connection.delete(plugin_path)
-                        except FileNotFoundError:
-                            rich_print_error("Error: Old plugin file couldn't be deleted")
+                # don't delete old plugin files if they are downloaded to a seperate download path
+                if config_values.remote_seperate_download_path == False:
+                    match config_values.connection:
+                        case "sftp":
+                            try:
+                                connection.remove(plugin_path)
+                            except FileNotFoundError:
+                                rich_print_error("Error: Old plugin file couldn't be deleted")
+                        case "ftp":
+                            try:
+                                connection.delete(plugin_path)
+                            except FileNotFoundError:
+                                rich_print_error("Error: Old plugin file couldn't be deleted")
+    
+    rich_console.print(
+        f"\n[not bold][bright_green]Plugins updated: {plugins_updated}/{(len(INSTALLEDPLUGINLIST) - plugins_skipped)}"
+    )
+    return None
 
 
 def search_plugin_spigot(plugin_file : str, plugin_file_name : str, plugin_file_version : str) -> int:

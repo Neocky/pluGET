@@ -241,5 +241,5 @@ def search_specific_plugin(plugin_name) -> None:
         rich_print_error("Error: Number was out of range! Please try again!")
         return None
     selected_plugin_name = handle_regex_plugin_name(plugin_search_results[plugin_selected]["name"])
-    rich_console.print(f"\n [bright_white]● [bright_magenta]{selected_plugin_name} [bright_green]latest")
+    rich_console.print(f"\n [not bold][bright_white]● [bright_magenta]{selected_plugin_name} [bright_green]latest")
     get_specific_plugin(plugin_selected_id)
