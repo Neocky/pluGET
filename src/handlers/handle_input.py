@@ -4,25 +4,26 @@ Handles the input through the pluGET command line
 
 from src.utils.console_output import rich_print_error
 from src.plugin.plugin_downloader import get_specific_plugin, search_specific_plugin
-from src.plugin.plugin_updatechecker import check_installed_plugins
+from src.plugin.plugin_updatechecker import check_installed_plugins, update_installed_plugins
 
 
 # check
 # update
 # get
 # get-paper
-# get-purpur
-# get-airplane
+# get-purpur ???
+# get-airplane ???
 # exit
 # remove
-# search ???
+# search
 
 
 def handle_input(
-    input_command: str=None,
-    input_selected_object: str=None,
-    input_parameter: str=None,
-    arguments_from_console: bool=False
+    input_command : str=None,
+    input_selected_object : str=None,
+    input_parameter : str=None,
+    no_confirmation : bool=False,
+    arguments_from_console : bool=False
     ) -> None:
     """
     Manages the correct function calling from the given input
@@ -45,14 +46,12 @@ def handle_input(
                         search_specific_plugin(input_selected_object)
 
             case "update":
-                print("update package")
                 match input_selected_object:
                     case "serverjar":
                         print("update serverjar")
                         #updateServerjar(inputParams)
                     case _:
-                        print("update package")
-                        #updateInstalledPackage(inputSelectedObject)
+                        update_installed_plugins(input_selected_object, no_confirmation)
 
             case "check":
                 match input_selected_object:

@@ -20,11 +20,10 @@ except TypeError:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Arguments for pluGET",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    #parser.add_argument("-a", "--archive", action="store_true", help="archive mode")
-    #parser.add_argument("--exclude", help="files to exclude")
     parser.add_argument("mode", help="Mode (install/update/etc.)", nargs='?', default=None)
     parser.add_argument("object", help="Object/Plugin Name", nargs='?', default=None)
     parser.add_argument("version", help="Version", nargs='?', default=None)
+    parser.add_argument("--no-confirmation", action="store_true", help="Skip confirmation messages")
     args = vars(parser.parse_args())
 
     rename_console_title()
@@ -32,12 +31,13 @@ if __name__ == "__main__":
     validate_config()
     api_test_spiget()
     check_requirements()
+    print(args)
 
     if args["mode"] is not None and args["object"] is not None:
         # arguments were used so call the handle_input function to get the right function call
         print_console_logo()
         check_for_pluGET_update()
-        handle_input(args["mode"], args["object"], args["version"], arguments_from_console=True)
+        handle_input(args["mode"], args["object"], args["version"], args["no_confirmation"], arguments_from_console=True)
     else:
         # no arguments were used so start pluGET console
         clear_console()

@@ -8,12 +8,16 @@ from pathlib import Path
 from rich.progress import track
 from rich.table import Table
 from rich.console import Console
+from urllib.error import HTTPError
 
 
 from src.handlers.handle_config import config_value
 from src.handlers.handle_sftp import sftp_create_connection, sftp_validate_file_attributes, sftp_list_all
 from src.handlers.handle_ftp import ftp_create_connection, ftp_validate_file_attributes, ftp_list_all
+from src.plugin.plugin_downloader import get_specific_plugin, get_download_path
+from src.utils.console_output import rich_print_error
 from src.utils.utilities import api_do_request
+
 
 class Plugin():
     """
@@ -173,16 +177,15 @@ def compare_plugin_version(plugin_latest_version : str, plugin_file_version : st
         return False
 
 
-def check_installed_plugins(input_selected_object : str="all", input_parameter : str=None) -> None:
+def check_update_available_installed_plugins(input_selected_object : str, config_values: config_value) -> str:
     """
     Gets installed plugins and checks it against the apis if there are updates for the plugins available
 
-    :param input_selected_object: Which plugin should be checked
-    :param input_parameter: Optional parameters
+    :param input_selected_object: Command line input (default: all)
+    :param config_values: Config values from config file
 
-    :returns: None
+    :returns: Count of plugins, Count of plugins with available updates
     """
-    config_values = config_value()
     Plugin.create_plugin_list()
     match config_values.connection:
         case "sftp":
@@ -202,18 +205,18 @@ def check_installed_plugins(input_selected_object : str="all", input_parameter :
         match config_values.connection:
             case "sftp":
                 plugin_attributes = sftp_validate_file_attributes(
-                    connection, f"{config_values.remote_plugin_folder_on_server}/{plugin}"
-                    )
+                    connection, f"{config_values.remote_plugin_folder_on_server}/{plugin_file}"
+                )
             case "ftp":
                 plugin_attributes = ftp_validate_file_attributes(
-                    connection, f"{config_values.remote_plugin_folder_on_server}/{plugin}"
-                    )
+                    connection, f"{config_values.remote_plugin_folder_on_server}/{plugin_file}"
+                )
             case _:
                 if not os.path.isfile(Path(f"{plugin_folder_path}/{plugin_file}")):
                     plugin_attributes = False
                 if not re.search(r'.jar$', plugin_file):
                     plugin_attributes = False
-        # skip plugin if no attributes were found
+        # skip plugin if no attributes were found to skip not valid plugin files
         if plugin_attributes == False:
             continue
 
@@ -228,13 +231,29 @@ def check_installed_plugins(input_selected_object : str="all", input_parameter :
         plugin_spigot_id = search_plugin_spigot(plugin_file, plugin_file_name, plugin_file_version) # plugin_spigot_id isn't needed
         # TODO add more plugin repositories here
 
-        # plugin wasn't found and not added to global plugin list so add 
-        if plugin_file not in INSTALLEDPLUGINLIST[-1].plugin_file_name:
-            print(f"skipped {plugin_file}")
+        # plugin wasn't found and not added to global plugin list so add
+        try:
+            if plugin_file not in INSTALLEDPLUGINLIST[-1].plugin_file_name:
+                Plugin.add_to_plugin_list(plugin_file, plugin_file_name, plugin_file_version, 'N/A', False, 'N/A', ())
+        except IndexError:
             Plugin.add_to_plugin_list(plugin_file, plugin_file_name, plugin_file_version, 'N/A', False, 'N/A', ())
         if INSTALLEDPLUGINLIST[-1].plugin_is_outdated == True:
             plugins_with_udpates += 1
         plugin_count += 1
+    return plugin_count, plugins_with_udpates
+
+
+def check_installed_plugins(input_selected_object : str="all", input_parameter : str=None) -> None:
+    """
+    Prints table overview of installed plugins with versions and available updates
+
+    :param input_selected_object: Which plugin should be checked
+    :param input_parameter: Optional parameters
+
+    :returns: None
+    """
+    config_values = config_value()
+    plugin_count, plugins_with_udpates = check_update_available_installed_plugins(input_selected_object, config_values)
 
     # print rich table of found plugins and result
     rich_table = Table(box=None)
@@ -267,6 +286,141 @@ def check_installed_plugins(input_selected_object : str="all", input_parameter :
     else:
         rich_console.print(f"[bright_green]All found plugins are on the newest version!")
     return None
+
+
+def ask_update_confirmation(input_selected_object : str) -> bool:
+    """
+    Prints confirmation message of plugins which get updated and ask for confirmation
+
+    :param input_selected_object: Command line input
+
+    :returns: True or False if plugins should be udpated
+    """
+    rich_console = Console()
+    rich_console.print("Selected plugins with available Updates:")
+    for plugin_file in INSTALLEDPLUGINLIST:
+        if plugin_file.plugin_is_outdated == False:
+            continue
+        if input_selected_object != "all" and input_selected_object != "*":
+            if re.search(input_selected_object, plugin_file.plugin_file_name, re.IGNORECASE):
+                rich_console.print(f"[not bold][bright_magenta]{plugin_file.plugin_name}", end=' ')
+                break
+        rich_console.print(f"[not bold][bright_magenta]{plugin_file.plugin_name}", end=' ')
+
+    rich_console.print()
+    update_confirmation = input("Update these plugins [y/n] ? ")
+    if str.lower(update_confirmation) != "y":
+        rich_print_error("Aborting the update process")
+        return False
+    return True
+
+
+
+def update_installed_plugins(input_selected_object : str="all", no_confirmation : bool=False) -> None:
+    """
+    Checks if a plugin list exists and if so updates the selected plugins if there is an update available
+
+    :param input_selected_object: Plugin name to update (use 'all' or '*' for everything)
+    :param no_confirmation: Don't ask for confirmation if pluGET was called with param: --no-confirmation
+
+    :returns: None
+    """
+    config_values = config_value()
+    match config_values.connection:
+        case "sftp":
+            connection = sftp_create_connection()
+        case "ftp":
+            connection = ftp_create_connection()
+    # if INSTALLEDPLUGINLIST was not previously filled by 'check' command call the command to fill plugin list
+    try:
+        if len(INSTALLEDPLUGINLIST) == 0:
+            check_update_available_installed_plugins(input_selected_object, config_values)
+    except NameError:
+        check_update_available_installed_plugins(input_selected_object, config_values)
+
+    # if argument 'all' was given recheck all plugins to avoid having only a few plugins from previously cached checks
+    if input_selected_object == "all" or input_selected_object == "*":
+        check_update_available_installed_plugins(input_selected_object, config_values)
+
+    # skip confirmation message if pluGET was called with --no-confirmation
+    if no_confirmation == False:
+        if ask_update_confirmation(input_selected_object) == False:
+            return None
+
+    # used later for output as stats
+    plugins_updated = 0
+
+    #for plugin in track(INSTALLEDPLUGINLIST, description="[cyan]Updating...", transient=True, style="bright_yellow"):
+    for plugin in INSTALLEDPLUGINLIST:
+        # supports command 'update pluginname' and skip the updating of every other plugin to speed things up a bit
+        if input_selected_object != "all" and input_selected_object != "*":
+            if not re.search(input_selected_object, plugin.plugin_file_name, re.IGNORECASE):
+                continue
+
+        if plugin.plugin_is_outdated == False:
+            continue
+        
+
+        plugin_path = get_download_path(config_values)
+        match config_values.connection:
+            # local plugin folder
+            case "local":
+                match (plugin.plugin_repository):
+                    case "spigot":
+                        try:
+                            plugins_updated += 1
+                            get_specific_plugin(plugin.plugin_repository_data[0])
+                        except HTTPError as err:
+                            rich_print_error(f"HTTPError: {err.code} - {err.reason}")
+                            plugins_updated -= 1
+                        except TypeError:
+                            rich_print_error(
+                                f"Error: TypeError > Couldn't download new version. Is the file available on spigotmc?"
+                            )
+                            plugins_updated -= 1
+
+                    case _:
+                        rich_print_error("Error: Plugin repository wasn't found")
+                        return None
+
+                try:
+                    os.remove(Path(f"{plugin_path}/{plugin.plugin_file_name}"))
+                except FileNotFoundError:
+                    rich_print_error("Error: Old plugin file couldn't be deleted")
+
+
+        
+            # plugin folder is on sftp or ftp server
+            case _:
+                plugin_path = f"{plugin_path}/{plugin.plugin_file_name}"
+                match (plugin.plugin_repository):
+                    case "spigot":
+                        try:
+                            plugins_updated += 1
+                            get_specific_plugin(plugin.plugin_repository_data[0])
+                        except HTTPError as err:
+                            rich_print_error(f"HTTPError: {err.code} - {err.reason}")
+                            plugins_updated -= 1
+                        except TypeError:
+                            rich_print_error(
+                                f"Error: TypeError > Couldn't download new version. Is the file available on spigotmc?"
+                            )
+                            plugins_updated -= 1
+
+                    case _:
+                        rich_print_error("Error: Plugin repository wasn't found")
+                        return None
+                match config_values.connection:
+                    case "sftp":
+                        try:
+                            connection.remove(plugin_path)
+                        except FileNotFoundError:
+                            rich_print_error("Error: Old plugin file couldn't be deleted")
+                    case "ftp":
+                        try:
+                            connection.delete(plugin_path)
+                        except FileNotFoundError:
+                            rich_print_error("Error: Old plugin file couldn't be deleted")
 
 
 def search_plugin_spigot(plugin_file : str, plugin_file_name : str, plugin_file_version : str) -> int:
@@ -317,7 +471,7 @@ def search_plugin_spigot(plugin_file : str, plugin_file_name : str, plugin_file_
                         plugin_latest_version,
                         plugin_is_outdated,
                         "spigot",
-                        (plugin_id)
+                        [plugin_id]
                     )
                     return plugin_id
     return None
