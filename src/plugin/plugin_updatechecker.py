@@ -177,6 +177,33 @@ def compare_plugin_version(plugin_latest_version : str, plugin_file_version : st
         return False
 
 
+def ask_update_confirmation(input_selected_object : str) -> bool:
+    """
+    Prints confirmation message of plugins which get updated and ask for confirmation
+
+    :param input_selected_object: Command line input
+
+    :returns: True or False if plugins should be udpated
+    """
+    rich_console = Console()
+    rich_console.print("Selected plugins with available Updates:")
+    for plugin_file in INSTALLEDPLUGINLIST:
+        if plugin_file.plugin_is_outdated == False:
+            continue
+        if input_selected_object != "all" and input_selected_object != "*":
+            if re.search(input_selected_object, plugin_file.plugin_file_name, re.IGNORECASE):
+                rich_console.print(f"[not bold][bright_magenta]{plugin_file.plugin_name}", end=' ')
+                break
+        rich_console.print(f"[not bold][bright_magenta]{plugin_file.plugin_name}", end=' ')
+
+    rich_console.print()
+    update_confirmation = input("Update these plugins [y/n] ? ")
+    if str.lower(update_confirmation) != "y":
+        rich_print_error("Aborting the update process")
+        return False
+    return True
+
+
 def check_update_available_installed_plugins(input_selected_object : str, config_values: config_value) -> str:
     """
     Gets installed plugins and checks it against the apis if there are updates for the plugins available
@@ -259,8 +286,8 @@ def check_installed_plugins(input_selected_object : str="all", input_parameter :
     rich_table = Table(box=None)
     rich_table.add_column("No.", justify="right", style="cyan", no_wrap=True)
     rich_table.add_column("Name", style="bright_magenta")
-    rich_table.add_column("Installed V.", justify="right", style="bright_green")
-    rich_table.add_column("Latest V.", justify="right", style="green")
+    rich_table.add_column("Installed V.", justify="right", style="green")
+    rich_table.add_column("Latest V.", justify="right", style="bright_green")
     rich_table.add_column("Update available", justify="left", style="white")
     rich_table.add_column("Repository", justify="left", style="white")
     # start counting at 1 for all my non-programming friends :)
@@ -287,34 +314,6 @@ def check_installed_plugins(input_selected_object : str="all", input_parameter :
     else:
         rich_console.print(f"[bright_green]All found plugins are on the newest version!")
     return None
-
-
-def ask_update_confirmation(input_selected_object : str) -> bool:
-    """
-    Prints confirmation message of plugins which get updated and ask for confirmation
-
-    :param input_selected_object: Command line input
-
-    :returns: True or False if plugins should be udpated
-    """
-    rich_console = Console()
-    rich_console.print("Selected plugins with available Updates:")
-    for plugin_file in INSTALLEDPLUGINLIST:
-        if plugin_file.plugin_is_outdated == False:
-            continue
-        if input_selected_object != "all" and input_selected_object != "*":
-            if re.search(input_selected_object, plugin_file.plugin_file_name, re.IGNORECASE):
-                rich_console.print(f"[not bold][bright_magenta]{plugin_file.plugin_name}", end=' ')
-                break
-        rich_console.print(f"[not bold][bright_magenta]{plugin_file.plugin_name}", end=' ')
-
-    rich_console.print()
-    update_confirmation = input("Update these plugins [y/n] ? ")
-    if str.lower(update_confirmation) != "y":
-        rich_print_error("Aborting the update process")
-        return False
-    return True
-
 
 
 def update_installed_plugins(input_selected_object : str="all", no_confirmation : bool=False) -> None:
@@ -366,7 +365,7 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
 
         rich_console.print(
             "\n [not bold][bright_white]● [bright_magenta]" +
-            f"{plugin.plugin_name} [bright_green]{plugin.plugin_latest_version}"
+            f"{plugin.plugin_name} [green]{plugin.plugin_file_version} [cyan]→ [bright_green]{plugin.plugin_latest_version}"
         )
 
         plugins_updated += 1
@@ -394,11 +393,15 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                 if config_values.local_seperate_download_path == False:
                     try:
                         os.remove(Path(f"{plugin_path}/{plugin.plugin_file_name}"))
+                        rich_console.print(
+                            "    [not bold][bright_green]Deleted old plugin file [cyan]→ [white]" + 
+                            f"{plugin.plugin_file_name}"
+                        )
                     except FileNotFoundError:
                         rich_print_error("Error: Old plugin file couldn't be deleted")
 
 
-        
+
             # plugin folder is on sftp or ftp server
             case _:
                 plugin_path = f"{plugin_path}/{plugin.plugin_file_name}"
@@ -424,11 +427,19 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                         case "sftp":
                             try:
                                 connection.remove(plugin_path)
+                                rich_console.print(
+                                    "    [not bold][bright_green]Deleted old plugin file [cyan]→ [white]" + 
+                                    f"{plugin.plugin_file_name}"
+                                )
                             except FileNotFoundError:
                                 rich_print_error("Error: Old plugin file couldn't be deleted")
                         case "ftp":
                             try:
                                 connection.delete(plugin_path)
+                                rich_console.print(
+                                    "    [not bold][bright_green]Deleted old plugin file [cyan]→ [white]" + 
+                                    f"{plugin.plugin_file_name}"
+                                )
                             except FileNotFoundError:
                                 rich_print_error("Error: Old plugin file couldn't be deleted")
     
