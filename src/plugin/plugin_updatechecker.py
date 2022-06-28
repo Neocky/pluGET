@@ -4,19 +4,21 @@ Handles the plugin checking and updating
 
 import os
 import re
+import io
 from pathlib import Path
+import zipfile
 from rich.progress import track
 from rich.table import Table
 from rich.console import Console
 from urllib.error import HTTPError
-
+from zipfile import ZipFile
 
 from src.handlers.handle_config import config_value
-from src.handlers.handle_sftp import sftp_create_connection, sftp_validate_file_attributes, sftp_list_all
-from src.handlers.handle_ftp import ftp_create_connection, ftp_validate_file_attributes, ftp_list_all
-from src.plugin.plugin_downloader import get_specific_plugin, get_download_path
+from src.handlers.handle_sftp import sftp_create_connection, sftp_download_file, sftp_validate_file_attributes, sftp_list_all
+from src.handlers.handle_ftp import ftp_create_connection, ftp_download_file, ftp_validate_file_attributes, ftp_list_all
+from src.plugin.plugin_downloader import get_specific_plugin_spiget, get_download_path
 from src.utils.console_output import rich_print_error
-from src.utils.utilities import api_do_request
+from src.utils.utilities import api_do_request, create_temp_plugin_folder, remove_temp_plugin_folder
 
 
 class Plugin():
@@ -78,7 +80,7 @@ class Plugin():
         return None
 
 
-def get_plugin_file_name(plugin_full_name : str) -> str:
+def get_plugin_file_name(plugin_full_name: str) -> str:
     """
     Finds the full plugin name of the given string
     Example LuckPerms-5.4.30.jar -> Luckperms
@@ -103,7 +105,7 @@ def get_plugin_file_name(plugin_full_name : str) -> str:
     return plugin_name_only
 
 
-def get_plugin_file_version(plugin_full_name : str) -> str:
+def get_plugin_file_version(plugin_full_name: str) -> str:
     """
     Gets the version of the plugin
 
@@ -116,11 +118,11 @@ def get_plugin_file_version(plugin_full_name : str) -> str:
     plugin_file_version = plugin_file_version.replace('.jar', '')
     if plugin_file_version.endswith('.'):
         print("get_plugin_file_version endswith .")
-        #plugin_file_version = eggCrackingJar(plugin_full_name, 'version')
+        plugin_file_name, plugin_file_version = egg_cracking_jar(plugin_full_name)
     return plugin_file_version
 
 
-def get_latest_spigot_plugin_version(plugin_id : str) -> str:
+def get_latest_plugin_version_spiget(plugin_id : str) -> str:
     """
     Gets the latest spigot plugin version
     
@@ -204,7 +206,66 @@ def ask_update_confirmation(input_selected_object : str) -> bool:
     return True
 
 
-def check_update_available_installed_plugins(input_selected_object : str, config_values: config_value) -> str:
+def egg_cracking_jar(plugin_file_name: str) -> str:
+    """
+    Opens the plugin file as an archive and searches the plugin.yml file for the name and version entry
+
+    :param plugin_file_name: Filename of the plugin which should be openend
+
+    :returns: Plugin name in plugin.yml file
+    :returns: Plugin version in plugin.yml file
+    """
+    config_values = config_value()
+    match config_values.connection:
+        case "sftp":
+            path_temp_plugin_folder = create_temp_plugin_folder()
+            connection = sftp_create_connection()
+            sftp_download_file(connection, plugin_file_name)
+            path_plugin_jar = Path(f"{path_temp_plugin_folder}/{plugin_file_name}")
+        case "ftp":
+            path_temp_plugin_folder = create_temp_plugin_folder()
+            connection = ftp_create_connection()
+            ftp_download_file(connection, plugin_file_name)
+            path_plugin_jar = Path(f"{path_temp_plugin_folder}/{plugin_file_name}")
+        case _:
+            path_plugin_folder = config_values.path_to_plugin_folder
+            path_plugin_jar = Path(f"{path_plugin_folder}/{plugin_file_name}")
+    
+    # later used to escape for-loop
+    plugin_name = plugin_version = ""
+    # open plugin if it is an archive and read plugin.yml line for line to find name & version
+    try:
+        with ZipFile(path_plugin_jar, "r") as plugin_jar:
+            with io.TextIOWrapper(plugin_jar.open("plugin.yml", "r"), encoding="utf-8") as plugin_yml:
+                for line in plugin_yml:
+                    if plugin_name != "" and plugin_version != "":
+                        break
+                    if re.match(r"^\s*?name: ", line):
+                        plugin_name = re.sub(r'^\s*?name: ', '', line)
+                        plugin_name = plugin_name.replace("\n", "").replace("'", "").replace('"', "")
+                        #plugin_name = plugin_name.replace("'", '')
+                        #plugin_name = plugin_name.replace('"', '')
+
+                    if re.match(r"^\s*?version: ", line):
+                        plugin_verson = re.sub(r'^\s*?version: ', '', line)
+                        plugin_verson = plugin_verson.replace('\n', '').replace("'", "").replace('"', "")
+                        #pluginVersion = pluginVersion.replace("'", '')
+                        #pluginVersion = pluginVersion.replace('"', '')
+    except FileNotFoundError:
+        plugin_name = plugin_version = ""
+    except KeyError:
+        plugin_name = plugin_version = ""        
+    except zipfile.BadZipFile:
+        plugin_name = plugin_version = ""
+
+    # remove temp plugin folder if plugin was downloaded from sftp/ftp server
+    if config_values.connection != "local":
+        remove_temp_plugin_folder()
+
+    return plugin_name, plugin_version
+
+
+def check_update_available_installed_plugins(input_selected_object: str, config_values: config_value) -> str:
     """
     Gets installed plugins and checks it against the apis if there are updates for the plugins available
 
@@ -255,7 +316,7 @@ def check_update_available_installed_plugins(input_selected_object : str, config
 
         plugin_file_version = get_plugin_file_version(plugin_file)
         # check repository of plugin
-        plugin_spigot_id = search_plugin_spigot(plugin_file, plugin_file_name, plugin_file_version) # plugin_spigot_id isn't needed
+        plugin_spigot_id = search_plugin_spiget(plugin_file, plugin_file_name, plugin_file_version) # plugin_spigot_id isn't needed
         # TODO add more plugin repositories here
 
         # plugin wasn't found and not added to global plugin list so add
@@ -376,7 +437,7 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                 match (plugin.plugin_repository):
                     case "spigot":
                         try:
-                            get_specific_plugin(plugin.plugin_repository_data[0])
+                            get_specific_plugin_spiget(plugin.plugin_repository_data[0])
                         except HTTPError as err:
                             rich_print_error(f"HTTPError: {err.code} - {err.reason}")
                             plugins_updated -= 1
@@ -408,7 +469,7 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                 match (plugin.plugin_repository):
                     case "spigot":
                         try:
-                            get_specific_plugin(plugin.plugin_repository_data[0])
+                            get_specific_plugin_spiget(plugin.plugin_repository_data[0])
                         except HTTPError as err:
                             rich_print_error(f"HTTPError: {err.code} - {err.reason}")
                             plugins_updated -= 1
@@ -442,16 +503,16 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                                 )
                             except FileNotFoundError:
                                 rich_print_error("Error: Old plugin file couldn't be deleted")
-    
+
     rich_console.print(
         f"\n[not bold][bright_green]Plugins updated: {plugins_updated}/{(len(INSTALLEDPLUGINLIST) - plugins_skipped)}"
     )
     return None
 
 
-def search_plugin_spigot(plugin_file : str, plugin_file_name : str, plugin_file_version : str) -> int:
+def search_plugin_spiget(plugin_file: str, plugin_file_name: str, plugin_file_version: str) -> int:
     """
-    Search the spigot api for the installed plugin and add it to the installed plugin list
+    Search the spiget api for the installed plugin and add it to the installed plugin list
 
     :param plugin_file: Full file name of plugin
     :param plugin_file_name: Name of plugin file
@@ -466,16 +527,15 @@ def search_plugin_spigot(plugin_file : str, plugin_file_name : str, plugin_file_
         if i == 1:
             plugin_file_version2 = re.sub(r'(\-\w*)', '', plugin_file_version)
         if i == 2:
-            """
-            plugin_name_in_yml = eggCrackingJar(plugin_file, 'name')
+            plugin_name_in_yml, plugin_version_in_yml = egg_cracking_jar(plugin_file)
             url = f"https://api.spiget.org/v2/search/resources/{plugin_name_in_yml}?field=name&sort=-downloads"
             try:
                 plugin_list = api_do_request(url)
             except ValueError:
                 continue
-            """
-
-            #plugin_file_version = plugin_file_version2 # ?
+            # if no plugin name was found with egg_cracking_jar() skip this round
+            if plugin_list is None:
+                continue
 
         for plugin in plugin_list:
             plugin_id = plugin["id"]
@@ -488,7 +548,7 @@ def search_plugin_spigot(plugin_file : str, plugin_file_name : str, plugin_file_
                 update_version_name = updates["name"]
                 if plugin_file_version2 in update_version_name:
                     #spigot_update_id = updates["id"]
-                    plugin_latest_version = get_latest_spigot_plugin_version(plugin_id)
+                    plugin_latest_version = get_latest_plugin_version_spiget(plugin_id)
                     plugin_is_outdated = compare_plugin_version(plugin_latest_version, update_version_name)
                     Plugin.add_to_plugin_list(
                         plugin_file,

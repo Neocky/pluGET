@@ -116,7 +116,7 @@ def ftp_list_all(ftp):
         rich_print_error("Error: [FTP]: No plugins were found.")
 
 
-def ftp_listFilesInServerRoot(ftp):
+def ftp_list_files_in_server_root(ftp):
     """
     Returns a list with all files in the root folder of the ftp host
 
@@ -136,7 +136,7 @@ def ftp_listFilesInServerRoot(ftp):
         rich_print_error("Error: [FTP]: No Serverjar was found.")
 
 
-def ftp_downloadFile(ftp, path_download, file) -> None:
+def ftp_download_file(ftp, path_download, file) -> None:
     """
     Download a file of the ftp server
 

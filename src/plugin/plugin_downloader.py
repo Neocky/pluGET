@@ -38,7 +38,7 @@ def handle_regex_plugin_name(full_plugin_name) -> str:
     return found_plugin_name
 
 
-def get_version_id(plugin_id, plugin_version) -> str:
+def get_version_id_spiget(plugin_id, plugin_version) -> str:
     """
     Returns the version id of the plugin
     """
@@ -62,7 +62,7 @@ def get_version_id(plugin_id, plugin_version) -> str:
     return version_list[0]["id"]
 
 
-def get_version_name(plugin_id, plugin_version_id) -> str:
+def get_version_name_spiget(plugin_id, plugin_version_id) -> str:
     """
     Returns the name of a specific version
     """
@@ -153,7 +153,7 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
     return None
 
 
-def get_specific_plugin(plugin_id, plugin_version="latest") -> None:
+def get_specific_plugin_spiget(plugin_id, plugin_version="latest") -> None:
     """
     Gets the specific plugin and calls the download function
     """
@@ -175,8 +175,8 @@ def get_specific_plugin(plugin_id, plugin_version="latest") -> None:
         rich_print_error("Error: Plugin ID couldn't be found")
         return None
     plugin_name = handle_regex_plugin_name(plugin_name)
-    plugin_version_id = get_version_id(plugin_id, plugin_version)
-    plugin_version_name = get_version_name(plugin_id, plugin_version_id)
+    plugin_version_id = get_version_id_spiget(plugin_id, plugin_version)
+    plugin_version_name = get_version_name_spiget(plugin_id, plugin_version_id)
     plugin_download_name = f"{plugin_name}-{plugin_version_name}.jar"
     download_plugin_path = Path(f"{download_path}/{plugin_download_name}")
     # if api requests weren't successfull stop function
@@ -193,7 +193,7 @@ def get_specific_plugin(plugin_id, plugin_version="latest") -> None:
     return None
 
 
-def search_specific_plugin(plugin_name) -> None:
+def search_specific_plugin_spiget(plugin_name) -> None:
     """
     Search for a name and return the top 10 results sorted for their download count
     Then ask for input and download that plugin
@@ -242,4 +242,4 @@ def search_specific_plugin(plugin_name) -> None:
         return None
     selected_plugin_name = handle_regex_plugin_name(plugin_search_results[plugin_selected]["name"])
     rich_console.print(f"\n [not bold][bright_white]● [bright_magenta]{selected_plugin_name} [bright_green]latest")
-    get_specific_plugin(plugin_selected_id)
+    get_specific_plugin_spiget(plugin_selected_id)

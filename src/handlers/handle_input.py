@@ -3,7 +3,7 @@ Handles the input through the pluGET command line
 """
 
 from src.utils.console_output import rich_print_error
-from src.plugin.plugin_downloader import get_specific_plugin, search_specific_plugin
+from src.plugin.plugin_downloader import get_specific_plugin_spiget, search_specific_plugin_spiget
 from src.plugin.plugin_updatechecker import check_installed_plugins, update_installed_plugins
 
 
@@ -41,9 +41,9 @@ def handle_input(
             case "get":
                 match input_selected_object.isdigit():
                     case True:
-                        get_specific_plugin(input_selected_object, input_parameter)
+                        get_specific_plugin_spiget(input_selected_object, input_parameter)
                     case _:
-                        search_specific_plugin(input_selected_object)
+                        search_specific_plugin_spiget(input_selected_object)
 
             case "update":
                 match input_selected_object:
@@ -62,7 +62,7 @@ def handle_input(
                         check_installed_plugins(input_selected_object, input_parameter)
 
             case "search":
-                search_specific_plugin(input_selected_object)
+                search_specific_plugin_spiget(input_selected_object)
             case "remove":
                 print("remove package")
                 #removePlugin(inputSelectedObject)
