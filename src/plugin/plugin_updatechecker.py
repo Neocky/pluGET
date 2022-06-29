@@ -243,14 +243,11 @@ def egg_cracking_jar(plugin_file_name: str) -> str:
                     if re.match(r"^\s*?name: ", line):
                         plugin_name = re.sub(r'^\s*?name: ', '', line)
                         plugin_name = plugin_name.replace("\n", "").replace("'", "").replace('"', "")
-                        #plugin_name = plugin_name.replace("'", '')
-                        #plugin_name = plugin_name.replace('"', '')
 
                     if re.match(r"^\s*?version: ", line):
-                        plugin_verson = re.sub(r'^\s*?version: ', '', line)
-                        plugin_verson = plugin_verson.replace('\n', '').replace("'", "").replace('"', "")
-                        #pluginVersion = pluginVersion.replace("'", '')
-                        #pluginVersion = pluginVersion.replace('"', '')
+                        plugin_version = re.sub(r'^\s*?version: ', "", line)
+                        plugin_version = plugin_version.replace("\n", "").replace("'", "").replace('"', "")
+
     except FileNotFoundError:
         plugin_name = plugin_version = ""
     except KeyError:
@@ -523,7 +520,7 @@ def search_plugin_spiget(plugin_file: str, plugin_file_name: str, plugin_file_ve
     url = f"https://api.spiget.org/v2/search/resources/{plugin_file_name}?field=name&sort=-downloads"
     plugin_list = api_do_request(url)
     plugin_file_version2 = plugin_file_version
-    for i in range(3):
+    for i in range(4):
         if i == 1:
             plugin_file_version2 = re.sub(r'(\-\w*)', '', plugin_file_version)
         if i == 2:
@@ -537,12 +534,19 @@ def search_plugin_spiget(plugin_file: str, plugin_file_name: str, plugin_file_ve
             if plugin_list is None:
                 continue
 
+        # search with version which is in plugin.yml for the plugin
+        if i == 3:
+            plugin_file_version2 = plugin_version_in_yml
+
+
         for plugin in plugin_list:
             plugin_id = plugin["id"]
             url2 = f"https://api.spiget.org/v2/resources/{plugin_id}/versions?size=100&sort=-name"
             try:
                 plugin_versions = api_do_request(url2)
             except ValueError:
+                continue
+            if plugin_versions is None:
                 continue
             for updates in plugin_versions:
                 update_version_name = updates["name"]

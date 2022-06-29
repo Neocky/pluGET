@@ -143,7 +143,7 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
         file_size_data = convert_file_size_down(file_size)
         console.print("    [not bold][bright_green]Downloaded[bright_magenta] " + (str(file_size_data)).rjust(9) + \
              f" KB [cyan]→ [white]{download_path}")
-    # TODO add sftp and ftp support
+
     if config_values.connection == "sftp":
         sftp_session = sftp_create_connection()
         sftp_upload_file(sftp_session, download_path)
