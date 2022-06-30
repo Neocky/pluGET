@@ -31,7 +31,6 @@ if __name__ == "__main__":
     validate_config()
     api_test_spiget()
     check_requirements()
-    print(args)
 
     if args["mode"] is not None and args["object"] is not None:
         # arguments were used so call the handle_input function to get the right function call

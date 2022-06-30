@@ -1,5 +1,5 @@
 """
-    Handles the console on first startup of pluGET and prints logo and sets title
+Handles the console on first startup of pluGET and prints logo and sets title
 """
 
 import os

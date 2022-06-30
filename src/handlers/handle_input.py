@@ -5,6 +5,7 @@ Handles the input through the pluGET command line
 from src.utils.console_output import rich_print_error
 from src.plugin.plugin_downloader import get_specific_plugin_spiget, search_specific_plugin_spiget
 from src.plugin.plugin_updatechecker import check_installed_plugins, update_installed_plugins
+from src.serverjar.serverjar_updatechecker import check_update_available_installed_server_jar
 
 
 # check
@@ -27,6 +28,14 @@ def handle_input(
     ) -> None:
     """
     Manages the correct function calling from the given input
+
+    :param input_command: Command of main function
+    :param input_selected_object: Name of plugin/serverjar
+    :param: input_parameter: Optional parameters
+    :param no_confirmation: If plugins should be updated without no confirmation message
+    :param arguments_from_console: If arguments were given on script call
+
+    :returns None:
     """
     while True:
         # when arguemnts were not passed from console ask for input
@@ -56,8 +65,7 @@ def handle_input(
             case "check":
                 match input_selected_object:
                     case "serverjar":
-                        print("check serverjar")
-                        #checkInstalledServerjar()
+                        check_update_available_installed_server_jar()
                     case _:
                         check_installed_plugins(input_selected_object, input_parameter)
 
@@ -81,9 +89,13 @@ def handle_input(
             return None
 
 
-def get_input() -> None:
+def get_input() -> str:
     """
     Gets command line input and calls the handle input function
+
+    :returns: Main command to execute
+    :returns: Selected Object to work with
+    :returns: Optional parameter
     """
     input_command = None
     print("\n'STRG + C' to exit")
