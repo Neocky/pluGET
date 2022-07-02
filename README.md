@@ -19,10 +19,10 @@
 # pluGET  
 #### A powerful package manager which updates [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
 
-<img src="https://www.bildhost.com/images/2021/06/27/ezgif-1-28e102202188.gif" alt="pluGET.gif" border="0" />
+<img src="https://user-images.githubusercontent.com/13088544/177011216-1360d444-278a-475e-9863-966c48c60ba7.gif" alt="pluGET.gif" border="0" />
 
 <details>
-  <summary>Screenshots</summary>  
+  <summary>Old Screenshots</summary>  
   
   `check all` to check installed plugins for updates:  
   ![screenshot1](https://i.ibb.co/QM7xh7w/pluget-checkall-small.png)
