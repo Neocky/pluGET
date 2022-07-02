@@ -5,15 +5,18 @@ Handles the input through the pluGET command line
 from src.utils.console_output import rich_print_error
 from src.plugin.plugin_downloader import get_specific_plugin_spiget, search_specific_plugin_spiget
 from src.plugin.plugin_updatechecker import check_installed_plugins, update_installed_plugins
-from src.serverjar.serverjar_updatechecker import check_update_available_installed_server_jar
+from src.serverjar.serverjar_updatechecker import \
+    check_update_available_installed_server_jar, update_installed_server_jar
+from src.serverjar.serverjar_paper_velocity_waterfall import serverjar_papermc_update
 
 
 # check
 # update
 # get
 # get-paper
+# get-waterfall
+# get-velocity
 # get-purpur ???
-# get-airplane ???
 # exit
 # remove
 # search
@@ -57,8 +60,7 @@ def handle_input(
             case "update":
                 match input_selected_object:
                     case "serverjar":
-                        print("update serverjar")
-                        #updateServerjar(inputParams)
+                        update_installed_server_jar(input_parameter)
                     case _:
                         update_installed_plugins(input_selected_object, no_confirmation)
 
@@ -71,13 +73,16 @@ def handle_input(
 
             case "search":
                 search_specific_plugin_spiget(input_selected_object)
-            case "remove":
-                print("remove package")
-                #removePlugin(inputSelectedObject)
+            # TODO add remover
+            #case "remove":
+            #    print("remove package")
+            #    #removePlugin(inputSelectedObject)
             case "get-paper":
-                # download papermc
-                print("download papermc")
-                #papermc_downloader(inputSelectedObject, inputParams)
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "paper")
+            case "get-velocity":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "velocity")
+            case "get-waterfall":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "waterfall")
             case "exit":
                 return
             case _:

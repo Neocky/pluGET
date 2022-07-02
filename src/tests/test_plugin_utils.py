@@ -5,23 +5,23 @@ from src.utils import utilities
 
 
 class TestCases(unittest.TestCase):
-    def test_handle_regex_package_name(self):
+    def test_handle_regex_plugin_name(self):
         # Cropped name -> 'SUPERBPlugin'
         plugin_name = "[1.13-5.49 ❤] >|> SUPERB Plugin <<💥| Now 150% OFF IN WINTER SALE IN SUMMER???"
         plugin_name_cropped = "SUPERBPlugin"
-        result = plugin_downloader.handle_regex_package_name(plugin_name)
+        result = plugin_downloader.handle_regex_plugin_name(plugin_name)
         self.assertEqual(result, plugin_name_cropped)
 
 
-    def test_get_version_id(self):
+    def test_get_version_id_spiget(self):
         # 21840 -> "Luckperms" in Version 5.4.30
-        result = plugin_downloader.get_version_id("28140", "5.4.30")
+        result = plugin_downloader.get_version_id_spiget("28140", "5.4.30")
         self.assertEqual(result, 455966)
 
 
-    def test_get_version_name(self):
+    def test_get_version_name_spiget(self):
         # 455966 -> "5.4.30" from Luckperms
-        result = plugin_downloader.get_version_name("28140", 455966)
+        result = plugin_downloader.get_version_name_spiget("28140", 455966)
         self.assertEqual(result, "5.4.30")
 
 
