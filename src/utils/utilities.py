@@ -1,175 +1,143 @@
-# misc functions
+"""
+Holds all the utilitie code for pluGET and the webrequests function
+"""
+
 import os
 import sys
-import shutil
 import requests
+import shutil
+import re
 from pathlib import Path
+from rich.console import Console
+from src.handlers.handle_sftp import sftp_create_connection
+from src.handlers.handle_ftp import ftp_create_connection
 
-from utils.consoleoutput import oColors
-from handlers.handle_config import configurationValues
-from handlers.handle_sftp import createSFTPConnection
-from handlers.handle_ftp import createFTPConnection
-
-
-def getHelp():
-    print(oColors.brightYellow+ "Need help?" + oColors.standardWhite)
-    print("For a list of all commands: 'help command'")
-    print("Or check the docs here:")
-    print("https://github.com/Neocky/pluGET")
-    print("Or go to the official discord.")
-    print("The link for discord can also be found on Github!")
+from src.utils.console_output import rich_print_error
+from src.handlers.handle_config import config_value
+from src.settings import PLUGETVERSION
 
 
-def getCommandHelp(optionalParams):
-    if optionalParams == None:
-        optionalParams = 'all'
-    print(oColors.brightBlack + f"Help for command: {optionalParams}" +oColors.standardWhite)
-    print("┌────────────────┬─────────────────┬─────────────────┬────────────────────────────────────────────────────────┐")
-    print("│ Command        │ Selected Object │ Optional Params │ Function                                               │")
-    print("└────────────────┴─────────────────┴─────────────────┴────────────────────────────────────────────────────────┘")
-    while True:
-        if optionalParams == 'all':
-            print(oColors.brightBlack + " GENERAL:" + oColors.standardWhite)
-            print("  exit             ./anything                          Exit pluGET")
-            print("  help             ./anything                          Get general help")
-            print("  help             command           all/command       Get specific help to the commands of pluGET")
-            print(oColors.brightBlack + " PLUGIN MANAGEMENT:" + oColors.standardWhite)
-            print("  get              Name/ID           Version           Downloads the latest version of a plugin")
-            print("  check            Name/ID/all       changelog         Check for an update of an installed plugin")
-            print("  update           Name/ID/all                         Update installed plugins to the latest version")
-            print("  search           Name                                Search for a plugin and download the latest version")
-            print("  remove           Name/ID                             Delete an installed plugin")
-            print(oColors.brightBlack + " SERVER SOFTWARE MANAGEMENT:" + oColors.standardWhite)
-            print("  check            serverjar                           Check installed server software for an update")
-            print("  update           serverjar         Version/Latest    Update installed server software to a specific version")
-            print("  get-paper        PaperVersion      McVersion         Downloads a specific PaperMc version")
-            break
-
-        if optionalParams == 'exit':
-            print(oColors.brightBlack + " GENERAL:" + oColors.standardWhite)
-            print("  exit             ./anything                          Exit pluGET")
-            break
-
-        if optionalParams == 'help':
-            print(oColors.brightBlack + " GENERAL:" + oColors.standardWhite)
-            print("  help             ./anything                          Get general help")
-            print("  help             command           all/command       Get specific help to the commands of pluGET")
-            break
-
-        if optionalParams == 'get':
-            print(oColors.brightBlack + " PLUGIN MANAGEMENT:" + oColors.standardWhite)
-            print(print("  get              Name/ID           Version           Downloads the latest version of a plugin"))
-            break
-
-        if optionalParams == 'check':
-            print(oColors.brightBlack + " PLUGIN MANAGEMENT:" + oColors.standardWhite)
-            print("  check            Name/ID/all                         Check for an update of an installed plugin")
-            print(oColors.brightBlack + " SERVER SOFTWARE MANAGEMENT:" + oColors.standardWhite)
-            print("  check            serverjar                           Check installed server software for an update")
-            break
-
-        if optionalParams == 'update':
-            print(oColors.brightBlack + " PLUGIN MANAGEMENT:" + oColors.standardWhite)
-            print("  update           Name/ID/all                         Update installed plugins to the latest version")
-            print(oColors.brightBlack + " SERVER SOFTWARE MANAGEMENT:" + oColors.standardWhite)
-            print("  update           serverjar         Version/Latest    Update installed server software to a specific version")
-            break
-
-        if optionalParams == 'search':
-            print(oColors.brightBlack + " PLUGIN MANAGEMENT:" + oColors.standardWhite)
-            print("  search           Name                                Search for a plugin and download the latest version")
-            break
-
-        if optionalParams == 'remove':
-            print(oColors.brightBlack + " PLUGIN MANAGEMENT:" + oColors.standardWhite)
-            print("  remove           Name/ID                             Delete an installed plugin")
-            break
-
-        if optionalParams == 'get-paper':
-            print(oColors.brightBlack + " SERVER SOFTWARE MANAGEMENT:" + oColors.standardWhite)
-            print("  get-paper        PaperVersion      McVersion         Downloads a specific PaperMc version")
-            break
-
-        else:
-            print(oColors.brightRed + "Error: Help for Command not found. Please try again. :(" + oColors.standardWhite)
-            break
-
-
-def check_local_plugin_folder():
-    configValues = configurationValues()
-    if configValues.localPluginFolder:
-        if configValues.seperateDownloadPath:
-            pluginFolderPath = configValues.pathToSeperateDownloadPath
-        else:
-            pluginFolderPath = configValues.pathToPluginFolder
-
-        if not os.path.isdir(pluginFolderPath):
-            print(oColors.brightRed + "Plugin folder coulnd*t be found. Creating one..." + oColors.standardWhite)
-            try:
-                os.mkdir(pluginFolderPath)
-            except OSError:
-                print(oColors.brightRed + "Creation of directory %s failed" % pluginFolderPath)
-                print(oColors.brightRed + "Please check the config file!" + oColors.standardWhite)
-                input("Press any key + enter to exit...")
-                sys.exit()
-            else:
-                print("Created directory %s" % pluginFolderPath)
-
-
-def apiTest():
-    apiStatusUrl = 'https://api.spiget.org/v2/status'
+def check_for_pluGET_update() -> None:
+    """
+    Check with the github api if there is a new version for pluGET available and print download message if this is
+    the case
+    """
+    response = api_do_request("https://api.github.com/repos/Neocky/pluGET/releases/latest")
+    # get '.1.6.10' as output
+    full_version_string = re.search(r"[\.?\d]*$", response["name"])
+    # remove '.' to get '1.6.10' as output
+    version = re.sub(r"^\.*", "", full_version_string.group())
+    console = Console()
     try:
-        r = requests.get(apiStatusUrl)
+        pluget_installed_version_tuple = tuple(map(int, (PLUGETVERSION.split("."))))
+        plugin_latest_version_tuple = tuple(map(int, (version.split("."))))
+    except ValueError:
+        console.print("Couldn't check if new version of pluGET is available")
+        return None
+    if pluget_installed_version_tuple < plugin_latest_version_tuple:
+        print(f"A new version of pluGET is available: {version}")
+        console.print("Download it here: ", end='')
+        console.print("https://github.com/Neocky/pluGET", style="link https://github.com/Neocky/pluGET")
+    return None
+
+
+def api_do_request(url) -> list:
+    """
+    Handles the webrequest and returns a json list
+    """
+    webrequest_header = {'user-agent': 'pluGET/1.0'}
+    try:
+        response = requests.get(url, headers=webrequest_header)
+    except:
+        rich_print_error("Error: Couldn't create webrequest")
+        # return None to make functions quit
+        return None
+    try:
+        api_json_data = response.json()
+    except:
+        rich_print_error("Error: Couldn't parse json of webrequest")
+        return None
+    return api_json_data
+
+
+def api_test_spiget() -> None:
+    """
+    Test if the Spiget api sends a 200 status code back
+    """
+    try:
+        r = requests.get('https://api.spiget.org/v2/status')
     except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
-        print(oColors.brightRed + "Couldn't make a connection to the API. Check you connection to the internet!" + oColors.standardWhite)
-        input("Press any key + enter to exit...")
+        rich_print_error("Error: Couldn't make a connection to the API. Check you connection to the internet!")
         sys.exit()
     if r.status_code != 200:
-        print(oColors.brightRed + "Problems with the API detected. Plese try it again later!" + oColors.standardWhite)
-        input("Press any key + enter to exit...")
+        rich_print_error("Error: Problems with the API detected. Plese try it again later!")
         sys.exit()
+    return None
 
 
-def check_requirements():
-    configValues = configurationValues()
-    apiTest()
-    check_local_plugin_folder()
-    if not configValues.localPluginFolder:
-        if configValues.sftp_useSftp:
-            createSFTPConnection()
-        else:
-            createFTPConnection()
+def create_temp_plugin_folder() -> Path:
+    """
+    Creates a temporary folder to store plugins inside
+    Returns full path of temporary folder
+    """
+    path_temp_plugin_folder = Path("./TempSFTPFolder")
+    if os.path.isdir(path_temp_plugin_folder):
+        return path_temp_plugin_folder
 
-
-def createTempPluginFolder():
-    configValues = configurationValues()
-    tempPluginFolder = Path("./TempSFTPFolder")
-    if not os.path.isdir(tempPluginFolder):
-        try:
-            os.mkdir(tempPluginFolder)
-        except OSError:
-            print(oColors.brightRed + "Creation of directory %s failed" % configValues.pathToPluginFolder)
-            print(oColors.brightRed + "Please check the config file!" + oColors.standardWhite)
-            input("Press any key + enter to exit...")
-            sys.exit()
-    return tempPluginFolder
-
-
-def deleteTempPluginFolder(tempPluginFolder):
     try:
-        shutil.rmtree(tempPluginFolder)
+        os.mkdir(path_temp_plugin_folder)
+    except OSError:
+        rich_print_error(f"Error: Creation of directory {path_temp_plugin_folder} failed")
+        rich_print_error("       Please check for missing permissions in folder tree!")
+        sys.exit()
+    return path_temp_plugin_folder
+
+
+def remove_temp_plugin_folder() -> None:
+    """
+    Removes the temporary plugin folder and all content inside it
+    """
+    try:
+        shutil.rmtree(Path("./TempSFTPFolder"))
     except OSError as e:
-        print ("Error: %s - %s." % (e.filename, e.strerror))
+        rich_print_error(f"Error: {e.filename} - {e.strerror}")
+    return
 
 
-def calculateFileSizeMb(downloadFileSize):
-    fileSizeDownload = int(downloadFileSize)
-    fileSizeMb = fileSizeDownload / 1024 / 1024
-    roundedFileSize = round(fileSizeMb, 2)
-    return roundedFileSize
+def convert_file_size_down(file_size) -> float:
+    """
+    Convert the size of the number one down. E.g. MB -> KB through division with 1024
+    """
+    converted_file_size = (int(file_size)) / 1024
+    converted_file_size = round(converted_file_size, 2)
+    return converted_file_size
 
-def calculateFileSizeKb(downloadFileSize):
-    fileSizeDownload = int(downloadFileSize)
-    fileSizeKb = fileSizeDownload / 1024
-    roundedFileSize = round(fileSizeKb, 2)
-    return roundedFileSize
+
+def check_local_plugin_folder(config_values) -> None:
+    """
+    Check if a local plugin folder exists and if not exit the programm
+    """
+    if config_values.local_seperate_download_path:
+        plugin_folder_path = config_values.local_path_to_seperate_download_path
+    else:
+        plugin_folder_path = config_values.path_to_plugin_folder
+    if not os.path.isdir(plugin_folder_path):
+        rich_print_error(f"Error: Local plugin folder '{plugin_folder_path}' couldn't be found! \
+        \n       Check the config and try again!")
+        sys.exit()
+    return None
+
+
+def check_requirements() -> None:
+    """
+    Check if the plugin folders are available
+    """
+    config_values = config_value()
+    match config_values.connection:
+        case "local":
+            check_local_plugin_folder(config_values)
+        case "sftp":
+            sftp_create_connection()
+        case "ftp":
+            ftp_create_connection()
+    return None

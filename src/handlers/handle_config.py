@@ -1,91 +1,109 @@
+""""
+	Handles the logic for the config validation, reading and creating
+"""
+
 import os
 import sys
-import configparser
+import ruamel.yaml
 from pathlib import Path
-
-from utils.consoleoutput import oColors
-
-
-class configurationValues:
-    def __init__(self):
-        config = configparser.ConfigParser()
-        config.sections()
-        config.read("config.ini")
-        localPluginFolder = config['General']['UseLocalPluginFolder']
-        self.pathToPluginFolder = Path(config['Local - This Machine']['PathToPluginFolder'])
-        seperateDownloadPath = config['Local - This Machine']['SeperateDownloadPath']
-        self.pathToSeperateDownloadPath = Path(config['Local - This Machine']['PathToSeperateDownloadPath'])
-
-        self.sftp_server = config['SFTP - Remote Server']['Server']
-        self.sftp_user = config['SFTP - Remote Server']['Username']
-        self.sftp_password = config['SFTP - Remote Server']['Password']
-        sftp_port = config['SFTP - Remote Server']['SFTPPort']
-        ftp_port = config['SFTP - Remote Server']['FTPPort']
-        self.sftp_folderPath = config['SFTP - Remote Server']['PluginFolderOnServer']
-        sftp_useSftp = config['SFTP - Remote Server']['USE_SFTP']
-        sftp_seperateDownloadPath = config['SFTP - Remote Server']['SeperateDownloadPath']
-        self.sftp_pathToSeperateDownloadPath = config['SFTP - Remote Server']['PathToSeperateDownloadPath']
-
-        self.sftp_port = int(sftp_port)
-        self.ftp_port = int(ftp_port)
-        if localPluginFolder == 'True':
-            self.localPluginFolder = True
-        else:
-            self.localPluginFolder = False
-
-        if seperateDownloadPath == 'True':
-            self.seperateDownloadPath = True
-        else:
-            self.seperateDownloadPath = False
-
-        if sftp_seperateDownloadPath == 'True':
-            self.sftp_seperateDownloadPath = True
-        else:
-            self.sftp_seperateDownloadPath = False
-
-        if sftp_useSftp == 'True':
-            self.sftp_useSftp = True
-        else:
-            self.sftp_useSftp = False
+from rich.console import Console
 
 
-def checkConfig():
-    configAvailable = os.path.isfile("config.ini")
-    if not configAvailable:
-        createConfig()
-        print(oColors.brightRed + "Config created. Edit config before executing again!" + oColors.standardWhite)
-        input("Press any key + enter to exit...")
-        sys.exit()
+class config_value():
+	"""
+	Class which holds all the available configuration values from the config file and which will be used later in
+	the process of updating plugins
+	If bool in config can't be read it will default to 'False'
+	"""
+	def __init__(self):
+		yaml = ruamel.yaml.YAML()
+		with open("pluGET_config.yaml", "r") as config_file:
+			data = yaml.load(config_file)
+		self.connection = str(data["Connection"]).lower()
+		self.path_to_plugin_folder = Path(data["Local"]["PathToPluginFolder"])
+		self.local_seperate_download_path = True if data["Local"]["SeperateDownloadPath"] == True else False
+		self.local_path_to_seperate_download_path = Path(data["Local"]["PathToSeperateDownloadPath"])
+		self.server = data["Remote"]["Server"]
+		self.username = data["Remote"]["Username"]
+		self.password = data["Remote"]["Password"]
+		self.sftp_port = int(data["Remote"]["SFTP_Port"])
+		self.ftp_port = int(data["Remote"]["FTP_Port"])
+		self.remote_seperate_download_path = True if data["Remote"]["SeperateDownloadPath"] == True else False
+		self.remote_path_to_seperate_download_path = data["Remote"]["PathToSeperateDownloadPath"]
+		self.remote_plugin_folder_on_server = data["Remote"]["PluginFolderOnServer"]
 
 
-def createConfig():
-    config = configparser.ConfigParser(allow_no_value=True)
-    config['General'] = {}
-    config['General'][';'] = 'If a local plugin folder exists (True/False) (If False SFTP/FTP will be used):'
-    config['General']['UseLocalPluginFolder'] = 'True'
-
-    config['Local - This Machine'] = {}
-    config['Local - This Machine']['PathToPluginFolder'] = 'C:/Users/USER/Desktop/plugins'
-    config['Local - This Machine'][';'] = 'For a different folder to store the updated plugins change to (True/False) and the path below'
-    config['Local - This Machine']['SeperateDownloadPath'] = 'False'
-    config['Local - This Machine']['PathToSeperateDownloadPath'] = 'C:/Users/USER/Desktop/plugins'
-
-    config['SFTP - Remote Server'] = {}
-    config['SFTP - Remote Server']['Server'] = '0.0.0.0'
-    config['SFTP - Remote Server']['Username'] = 'user'
-    config['SFTP - Remote Server']['Password'] = 'password'
-    config['SFTP - Remote Server'][';'] = 'If a different Port for SFTP needs to be used (Default: 22)'
-    config['SFTP - Remote Server']['SFTPPort'] = '22'
-    config['SFTP - Remote Server'][';_'] = 'If a different Port for FTP needs to be used (Default: 21)'
-    config['SFTP - Remote Server']['FTPPort'] = '21'
-    config['SFTP - Remote Server'][';__'] = 'Change the path below if the plugin folder path is different on the SFTP/FTP server (Change only if you know what you are doing)'
-    config['SFTP - Remote Server']['PluginFolderOnServer'] = '/plugins'
-    config['SFTP - Remote Server'][';___'] = 'If you want to use FTP instead of SFTP change to (False) else use (True)'
-    config['SFTP - Remote Server']['USE_SFTP'] = 'True'
-    config['SFTP - Remote Server'][';____'] = 'For a different folder to store the updated plugins (Only with the update command!) change to (True/False) and the path below'
-    config['SFTP - Remote Server']['SeperateDownloadPath'] = 'False'
-    config['SFTP - Remote Server']['PathToSeperateDownloadPath'] = '/plugins'
+def check_config() -> None:
+	"""
+	Check if there is a pluGET_config.yml file in the same folder as pluget.py and if not create a new config
+	and exit the programm
+	"""
+	if not os.path.isfile("pluGET_config.yaml"):
+		create_config()
+	return None
 
 
-    with open('config.ini', 'w') as configfile:
-        config.write(configfile)
+def create_config() -> None:
+	"""
+	Creates the yaml config in the current directory with the filename pluGET_config.yml
+	"""
+	# this is the whole yaml code because of weird formating indention is not possible 
+	configuration = """\
+#
+# Configuration File for pluGET
+# https://www.github.com/Neocky/pluGET 
+#
+
+# What should be used for the connection (local, sftp, ftp)
+    Connection: local
+
+    Local:
+        PathToPluginFolder: C:/Users/USER/Desktop/plugins
+  # If a different folder should be used to store the updated plugins change to (True/False) and the path below
+        SeperateDownloadPath : False
+        PathToSeperateDownloadPath: C:/Users/USER/Desktop/plugins
+
+    Remote:
+        Server: 0.0.0.0
+        Username: user
+        Password: password
+  # If a different Port for SFTP/FTP will be used
+        SFTP_Port: 22
+        FTP_Port: 21
+  # If a different folder should be used to store the updated plugins change to (True/False) and the path below
+        SeperateDownloadPath : False
+        PathToSeperateDownloadPath: /plugins/updated
+  # Change the path below if the plugin folder path is different on the SFTP/FTP server (Change only if you know what you are doing)
+        PluginFolderOnServer: /plugins
+    """
+	# load ruamel.yaml to get the # commands right in the yaml code
+	yaml = ruamel.yaml.YAML()
+	code = yaml.load(configuration)
+	with open("pluGET_config.yaml", "w") as config_file:
+		yaml.dump(code, config_file)
+
+	config_file_path = os.path.abspath("pluGET_config.yaml")
+	print(f"Path of config file: {config_file_path}")
+	print("Config created. Edit config before executing again!")
+	input("Press any key + enter to exit...")
+	sys.exit()
+
+
+def validate_config() -> None:
+	"""
+	Validates the config variables after config class is loaded and exit if error is detected and print error
+	"""
+	accepted_values = [
+		("local", "sftp", "ftp")
+	]
+	# exit afterwards if there is an error in config
+	exit_afterwards = False
+	config = config_value()
+	# rich console for nice colors
+	console = Console()
+	if config.connection not in accepted_values[0]:
+		console.print(f"Error in Config! Accepted values for key 'Connection' are {accepted_values[0]}",
+		style="bright_red")
+		exit_afterwards = True
+	if exit_afterwards:
+		sys.exit()

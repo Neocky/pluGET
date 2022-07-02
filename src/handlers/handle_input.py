@@ -1,105 +1,121 @@
-import sys
+""""
+Handles the input through the pluGET command line
+"""
 
-from utils.consoleoutput import oColors
-from utils.utilities import getHelp, getCommandHelp
-from handlers.handle_config import configurationValues
-from plugin.plugin_downloader import searchPackage, getSpecificPackage
-from plugin.plugin_updatechecker import updateInstalledPackage, checkInstalledPackage
-from plugin.plugin_remover import removePlugin
-from serverjar.serverjar_checker import checkInstalledServerjar, updateServerjar
-from serverjar.serverjar_paper import papermc_downloader
-
-
-def createInputLists():
-    global COMMANDLIST
-    COMMANDLIST = [
-        'get',
-        'update',
-        'check',
-        'search',
-        'exit',
-        'help',
-        'remove',
-        'get-paper'
-    ]
-    global INPUTSELECTEDOBJECT
-    INPUTSELECTEDOBJECT = [
-        'all',
-        '*'
-    ]
+from src.utils.console_output import rich_print_error
+from src.plugin.plugin_downloader import get_specific_plugin_spiget, search_specific_plugin_spiget
+from src.plugin.plugin_updatechecker import check_installed_plugins, update_installed_plugins
+from src.serverjar.serverjar_updatechecker import \
+    check_update_available_installed_server_jar, update_installed_server_jar
+from src.serverjar.serverjar_paper_velocity_waterfall import serverjar_papermc_update
 
 
-def handleInput(inputCommand, inputSelectedObject, inputParams):
-    configValues = configurationValues()
+# check
+# update
+# get
+# get-paper
+# get-waterfall
+# get-velocity
+# get-purpur ???
+# exit
+# remove
+# search
+
+
+def handle_input(
+    input_command : str=None,
+    input_selected_object : str=None,
+    input_parameter : str=None,
+    no_confirmation : bool=False,
+    arguments_from_console : bool=False
+    ) -> None:
+    """
+    Manages the correct function calling from the given input
+
+    :param input_command: Command of main function
+    :param input_selected_object: Name of plugin/serverjar
+    :param: input_parameter: Optional parameters
+    :param no_confirmation: If plugins should be updated without no confirmation message
+    :param arguments_from_console: If arguments were given on script call
+
+    :returns None:
+    """
     while True:
-        if inputCommand == 'get':
-            if inputSelectedObject.isdigit():
-                if not configValues.localPluginFolder:
-                    if configValues.sftp_seperateDownloadPath is True:
-                        pluginPath = configValues.sftp_pathToSeperateDownloadPath
-                    else:
-                        pluginPath = configValues.sftp_folderPath
-                    getSpecificPackage(inputSelectedObject, pluginPath,  inputParams)
-                    break
-                else:
-                    if configValues.seperateDownloadPath is True:
-                        pluginPath = configValues.pathToSeperateDownloadPath
-                    else:
-                        pluginPath = configValues.pathToPluginFolder
-                    getSpecificPackage(inputSelectedObject, pluginPath,  inputParams)
-                    break
-            else:
-                searchPackage(inputSelectedObject)
-                break
-        if inputCommand == 'update':
-            if inputSelectedObject == 'serverjar':
-                updateServerjar(inputParams)
-            else:
-                updateInstalledPackage(inputSelectedObject)
-            break
-        if inputCommand == 'check':
-            if inputSelectedObject == 'serverjar':
-                checkInstalledServerjar()
-            else:
-                checkInstalledPackage(inputSelectedObject, inputParams)
-            break
-        if inputCommand == 'search':
-            searchPackage(inputSelectedObject)
-            break
-        if inputCommand == 'exit':
-            sys.exit()
-        if inputCommand == 'help':
-            if inputSelectedObject == 'command' or inputSelectedObject == 'commands':
-                getCommandHelp(inputParams)
-            else:
-                getHelp()
-            break
-        if inputCommand == 'remove':
-            removePlugin(inputSelectedObject)
-            break
-        if inputCommand == 'get-paper':
-            papermc_downloader(inputSelectedObject, inputParams)
-            break
-        else:
-            print(oColors.brightRed + "Error: Command not found. Please try again. :(" + oColors.standardWhite)
-            print(oColors.brightRed + "Use: '" + oColors.standardWhite +"help command" + oColors.brightRed +"' to get all available commands" + oColors.standardWhite)
-            getInput()
-    getInput()
+        # when arguemnts were not passed from console ask for input
+        if arguments_from_console is False:
+            try:
+                input_command, input_selected_object, input_parameter = get_input()
+            except TypeError:
+                # KeyboardInterrupt was triggered and None was returned so exit
+                return
+
+        match input_command:
+            case "get":
+                match input_selected_object.isdigit():
+                    case True:
+                        get_specific_plugin_spiget(input_selected_object, input_parameter)
+                    case _:
+                        search_specific_plugin_spiget(input_selected_object)
+
+            case "update":
+                match input_selected_object:
+                    case "serverjar":
+                        update_installed_server_jar(input_parameter)
+                    case _:
+                        update_installed_plugins(input_selected_object, no_confirmation)
+
+            case "check":
+                match input_selected_object:
+                    case "serverjar":
+                        check_update_available_installed_server_jar()
+                    case _:
+                        check_installed_plugins(input_selected_object, input_parameter)
+
+            case "search":
+                search_specific_plugin_spiget(input_selected_object)
+            # TODO add remover
+            #case "remove":
+            #    print("remove package")
+            #    #removePlugin(inputSelectedObject)
+            case "get-paper":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "paper")
+            case "get-velocity":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "velocity")
+            case "get-waterfall":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "waterfall")
+            case "exit":
+                return
+            case _:
+                rich_print_error("Error: Command not found. Please try again. :(")
+                rich_print_error("Use: 'help command' to get all available commands")
+
+        # return to break out of while loop if pluGET was started with arguments from console
+        if arguments_from_console:
+            return None
 
 
-def getInput():
-    inputCommand = None
+def get_input() -> str:
+    """
+    Gets command line input and calls the handle input function
+
+    :returns: Main command to execute
+    :returns: Selected Object to work with
+    :returns: Optional parameter
+    """
+    input_command = None
+    print("\n'STRG + C' to exit")
     while True:
         try:
-            inputCommand, inputSelectedObject, *inputParams = input("pluGET >> ").split()
+            input_command, input_selected_object, *input_parameter = input("pluGET >> ").split()
             break
         except ValueError:
-            if inputCommand == None:
+            if input_command == None:
+                # request input again if no input was given or not enough
                 continue
             else:
-                print(oColors.brightRed + "Wrong input! Use: > 'command' 'selectedObject' [optionalParams]" + oColors.standardWhite)
-                print(oColors.brightRed + "Use: '" + oColors.standardWhite +"help command" + oColors.brightRed +"' to get all available commands" + oColors.standardWhite)
+                rich_print_error("Wrong input! Use: > 'command' 'selectedObject' [optionalParams]")
+                rich_print_error("Use: 'help command' to get all available commands")
         except KeyboardInterrupt:
-            sys.exit()
-    inputParams = inputParams[0] if inputParams else None
-    handleInput(inputCommand, inputSelectedObject, inputParams)
+            return
+    input_parameter = input_parameter[0] if input_parameter else None
+    return input_command, input_selected_object, input_parameter

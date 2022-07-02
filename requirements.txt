@@ -12,3 +12,4 @@ rich >= 9.13.0
 commonmark >= 0.9.1
 Pygments >= 2.8.1
 typing_extensions >= 3.7.4.3
+ruamel.yaml >= 0.17.21

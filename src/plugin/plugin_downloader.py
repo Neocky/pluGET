@@ -1,155 +1,245 @@
+"""
+File and functions which handle the download of the specific plugins
+"""
+
 import re
-import urllib.request
-from urllib.error import HTTPError
 from pathlib import Path
+import requests
 
-from utils.consoleoutput import oColors
-from utils.web_request import doAPIRequest
-from utils.utilities import createTempPluginFolder, deleteTempPluginFolder, calculateFileSizeKb, calculateFileSizeMb
-from handlers.handle_config import configurationValues
-from handlers.handle_sftp import sftp_upload_file, createSFTPConnection
-from handlers.handle_ftp import ftp_upload_file, createFTPConnection
+from rich.table import Table
+from rich.console import Console
+from rich.progress import Progress
+
+from src.utils.utilities import convert_file_size_down, remove_temp_plugin_folder, create_temp_plugin_folder
+from src.utils.utilities import api_do_request
+from src.utils.console_output import rich_print_error
+from src.handlers.handle_config import config_value
+from src.handlers.handle_sftp import sftp_create_connection, sftp_upload_file
+from src.handlers.handle_ftp import ftp_create_connection, ftp_upload_file
 
 
-def handleRegexPackageName(packageNameFull):
-    packageNameFull2 = packageNameFull
+def handle_regex_plugin_name(full_plugin_name) -> str:
+    """
+    Return the plugin name after trimming clutter from name with regex operations
+    """
     # trims the part of the package that has for example "[1.1 Off]" in it
-    unwantedpackageName = re.search(r'(^\[+[a-zA-Z0-9\s\W*\.*\-*\+*\%*\,]*\]+)', packageNameFull)
-    unwantedpackageNamematch = bool(unwantedpackageName)
-    if unwantedpackageNamematch:
-        unwantedpackageNameString = unwantedpackageName.group()
-        packageNameFull2 = packageNameFull.replace(unwantedpackageNameString, '')
-    # gets the real packagename "word1 & word2" is not supported only gets word 1
-    packageName = re.search(r'([a-zA-Z]\d*)+(\s?\-*\_*[a-zA-Z]\d*\+*\-*\'*)+', packageNameFull2)
+    unwanted_plugin_name = re.search(r'(^\[+[a-zA-Z0-9\s\W*\.*\-*\+*\%*\,]*\]+)', full_plugin_name)
+    if bool(unwanted_plugin_name):
+        unwanted_plugin_name_string = unwanted_plugin_name.group()
+        full_plugin_name = full_plugin_name.replace(unwanted_plugin_name_string, '')
+
+    # gets the real plugin_name "word1 & word2" is not supported only gets word1
+    plugin_name = re.search(r'([a-zA-Z]\d*)+(\s?\-*\_*[a-zA-Z]\d*\+*\-*\'*)+', full_plugin_name)
     try:
-        packageNameFullString = packageName.group()
-        packageNameOnly = packageNameFullString.replace(' ', '')
+        plugin_name_full_string = plugin_name.group()
+        found_plugin_name = plugin_name_full_string.replace(' ', '')
     except AttributeError:
-        packageNameOnly = unwantedpackageNameString
-    return packageNameOnly
+        found_plugin_name = unwanted_plugin_name_string
+    return found_plugin_name
 
 
-def getVersionID(packageId, packageVersion):
-    if packageVersion == None or packageVersion == 'latest':
-        url = f"https://api.spiget.org/v2/resources/{packageId}/versions/latest"
-        response = doAPIRequest(url)
-        versionId = response["id"]
-        return versionId
+def get_version_id_spiget(plugin_id, plugin_version) -> str:
+    """
+    Returns the version id of the plugin
+    """
+    if plugin_version == None or plugin_version == 'latest':
+        url = f"https://api.spiget.org/v2/resources/{plugin_id}/versions/latest"
+        response = api_do_request(url)
+        if response == None:
+            return None
+        version_id = response["id"]
+        return version_id
 
-    url = f"https://api.spiget.org/v2/resources/{packageId}/versions?size=100&sort=-name"
-    versionList = doAPIRequest(url)
-
-    for packages in versionList:
-        packageUpdate = packages["name"]
-        versionId = packages["id"]
-        if packageUpdate == packageVersion:
-            return versionId
-    return versionList[0]["id"]
-
-
-def getVersionName(packageId, versionId):
-    url = f"https://api.spiget.org/v2/resources/{packageId}/versions/{versionId}"
-    response = doAPIRequest(url)
-    versionName = response["name"]
-    return versionName
-
-
-def searchPackage(resourceName):
-    configValues = configurationValues()
-    url = f"https://api.spiget.org/v2/search/resources/{resourceName}?field=name&sort=-downloads"
-    packageName = doAPIRequest(url)
-    i = 1
-    print(oColors.brightBlack + f"Searching: {resourceName}" + oColors.standardWhite)
-    print("┌─────┬─────────────────────────────┬───────────┬──────────────────────────────────────────────────────────────────────┐")
-    print("│ No. │ Name                        │ Downloads │ Description                                                          │")
-    print("└─────┴─────────────────────────────┴───────────┴──────────────────────────────────────────────────────────────────────┘")
-    for resource in packageName:
-        pName = resource["name"]
-        newName = handleRegexPackageName(pName)
-        pTag = resource["tag"]
-        pDownloads = resource["downloads"]
-        print(f" [{i}]".rjust(6), end='')
-        print("  ", end='')
-        print(f"{newName}".ljust(30), end='')
-        print(f"{pDownloads}".rjust(9), end='')
-        print("   ", end='')
-        print(f"{pTag}".ljust(120))
-        i = i + 1
-
-    resourceSelected = int(input("Select your wanted resource (No.)(0 to exit): "))
-    if resourceSelected != 0:
-        resourceSelected = resourceSelected - 1
-        resourceId = packageName[resourceSelected]["id"]
-        if not configValues.localPluginFolder:
-            if configValues.sftp_seperateDownloadPath is True:
-                pluginDownloadPath = configValues.sftp_pathToSeperateDownloadPath
-            else:
-                pluginDownloadPath = configValues.sftp_folderPath
-        else:
-            if configValues.seperateDownloadPath is True:
-                pluginDownloadPath = configValues.pathToSeperateDownloadPath
-            else:
-                pluginDownloadPath = configValues.pathToPluginFolder
-        try:
-            getSpecificPackage(resourceId, pluginDownloadPath)
-        except HTTPError as err:
-            print(oColors.brightRed +  f"Error: {err.code} - {err.reason}" + oColors.standardWhite)
-
-
-def downloadSpecificVersion(resourceId, downloadPath, versionID='latest'):
-    configValues = configurationValues()
-    if versionID != 'latest':
-        #url = f"https://spigotmc.org/resources/{resourceId}/download?version={versionID}"
-        print(oColors.brightRed + "Sorry but specific version downloads aren't supported because of cloudflare protection. :(" + oColors.standardWhite)
-        print(oColors.brightRed + "Reverting to latest version." + oColors.standardWhite)
-
-    url = f"https://api.spiget.org/v2/resources/{resourceId}/download"
-    #url = f"https://api.spiget.org/v2/resources/{resourceId}/versions/latest/download" #throws 403 forbidden error...cloudflare :(
-
-    urrlib_opener = urllib.request.build_opener()
-    urrlib_opener.addheaders = [('User-agent', 'pluGET/1.0')]
-    urllib.request.install_opener(urrlib_opener)
-
-    remotefile = urllib.request.urlopen(url)
-    filesize = remotefile.info()['Content-Length']
-    urllib.request.urlretrieve(url, downloadPath)
-    filesize = int(filesize)
-    print("        ", end='')
-    if filesize >= 1000000:
-        filesizeData = calculateFileSizeMb(filesize)
-        print("Downloaded " + (str(filesizeData)).rjust(9) + f" MB here {downloadPath}")
-    else:
-        filesizeData = calculateFileSizeKb(filesize)
-        print("Downloaded " + (str(filesizeData)).rjust(9) + f" KB here {downloadPath}")
-    if not configValues.localPluginFolder:
-        if configValues.sftp_useSftp:
-            sftpSession = createSFTPConnection()
-            sftp_upload_file(sftpSession, downloadPath)
-        else:
-            ftpSession = createFTPConnection()
-            ftp_upload_file(ftpSession, downloadPath)
-
-
-def getSpecificPackage(resourceId, downloadPath, inputPackageVersion='latest'):
-    configValues = configurationValues()
-    if configValues.localPluginFolder == False:
-        downloadPath = createTempPluginFolder()
-    url = f"https://api.spiget.org/v2/resources/{resourceId}"
-    packageDetails = doAPIRequest(url)
-    try:
-        packageName = packageDetails["name"]
-    except KeyError:
-        print(oColors.brightRed +  "Error: Plugin ID couldn't be found" + oColors.standardWhite)
+    url = f"https://api.spiget.org/v2/resources/{plugin_id}/versions?size=100&sort=-name"
+    version_list = api_do_request(url)
+    if version_list == None:
         return None
-    packageNameNew = handleRegexPackageName(packageName)
-    versionId = getVersionID(resourceId, inputPackageVersion)
-    packageVersion = getVersionName(resourceId, versionId)
-    packageDownloadName = f"{packageNameNew}-{packageVersion}.jar"
-    downloadPackagePath = Path(f"{downloadPath}/{packageDownloadName}")
-    if inputPackageVersion is None or inputPackageVersion == 'latest':
-        downloadSpecificVersion(resourceId=resourceId, downloadPath=downloadPackagePath)
-    else:
-        downloadSpecificVersion(resourceId, downloadPackagePath, versionId)
+    for plugins in version_list:
+        plugin_update = plugins["name"]
+        version_id = plugins["id"]
+        if plugin_update == plugin_version:
+            return version_id
+    return version_list[0]["id"]
 
-    if not configValues.localPluginFolder:
-        deleteTempPluginFolder(downloadPath)
+
+def get_version_name_spiget(plugin_id, plugin_version_id) -> str:
+    """
+    Returns the name of a specific version
+    """
+    url = f"https://api.spiget.org/v2/resources/{plugin_id}/versions/{plugin_version_id}"
+    response = api_do_request(url)
+    if response == None:
+        return None
+    version_name = response["name"]
+    return version_name
+
+
+def get_download_path(config_values) -> str:
+    """
+    Reads the config and gets the path of the plugin folder
+    """
+    match (config_values.connection):
+        case "local":
+            match (config_values.local_seperate_download_path):
+                case True:
+                    return config_values.local_path_to_seperate_download_path
+                case _:
+                    return config_values.path_to_plugin_folder
+        case _:
+            match (config_values.remote_seperate_download_path):
+                case True:
+                    return config_values.remote_path_to_seperate_download_path
+                case _:
+                    return config_values.remote_plugin_folder_on_server
+
+
+def download_specific_plugin_version_spiget(plugin_id, download_path, version_id="latest") -> None:
+    """
+    Download a specific plugin
+    """
+    config_values = config_value()
+    if version_id != "latest" and version_id != None:
+        #url = f"https://spigotmc.org/resources/{plugin_id}/download?version={versionID}"
+        rich_print_error("Sorry but specific version downloads aren't supported because of cloudflare protection. :(")
+        rich_print_error("Reverting to latest version.")
+
+    #throws 403 forbidden error...cloudflare :(
+    #url = f"https://api.spiget.org/v2/resources/{plugin_id}/versions/latest/download"
+
+    url = f"https://api.spiget.org/v2/resources/{plugin_id}/download"
+
+    # use rich Progress() to create progress bar
+    with Progress(transient=True) as progress:
+        header = {'user-agent': 'pluGET/1.0'}
+        r = requests.get(url, headers=header, stream=True)
+        try:
+            file_size = int(r.headers.get('content-length'))
+            # create progress bar
+            download_task = progress.add_task("    [cyan]Downloading...", total=file_size)
+        except TypeError:
+            # Content-lenght returned nothing
+            file_size = 0
+        with open(download_path, 'wb') as f:
+            # split downloaded data in chunks of 32768
+            for data in r.iter_content(chunk_size=32768):
+                f.write(data)
+                # don't show progress bar if no content-length was returned
+                if file_size == 0:
+                    continue
+                progress.update(download_task, advance=len(data))
+                #f.flush()
+
+    # use rich console for nice colors
+    console = Console()
+    if file_size == 0:
+        console.print(
+            f"    [not bold][bright_green]Downloaded[bright_magenta]         file [cyan]→ [white]{download_path}"
+        )
+    elif file_size >= 1000000:
+        file_size_data = convert_file_size_down(convert_file_size_down(file_size))
+        console.print("    [not bold][bright_green]Downloaded[bright_magenta] " + (str(file_size_data)).rjust(9) + \
+             f" MB [cyan]→ [white]{download_path}")
+    else:
+        file_size_data = convert_file_size_down(file_size)
+        console.print("    [not bold][bright_green]Downloaded[bright_magenta] " + (str(file_size_data)).rjust(9) + \
+             f" KB [cyan]→ [white]{download_path}")
+
+    if config_values.connection == "sftp":
+        sftp_session = sftp_create_connection()
+        sftp_upload_file(sftp_session, download_path)
+    elif config_values.connection == "ftp":
+        ftp_session = ftp_create_connection()
+        ftp_upload_file(ftp_session, download_path)
+    return None
+
+
+def get_specific_plugin_spiget(plugin_id, plugin_version="latest") -> None:
+    """
+    Gets the specific plugin and calls the download function
+    """
+    config_values = config_value()
+    # use a temporary folder to store plugins until they are uploaded
+    if config_values.connection != "local":
+        download_path = create_temp_plugin_folder()
+    else:
+        download_path = get_download_path(config_values)
+
+    url = f"https://api.spiget.org/v2/resources/{plugin_id}"
+    plugin_details = api_do_request(url)
+    if plugin_details == None:
+        return None
+    try:
+        plugin_name = plugin_details["name"]
+    except KeyError:
+        # exit if plugin id couldn't be found
+        rich_print_error("Error: Plugin ID couldn't be found")
+        return None
+    plugin_name = handle_regex_plugin_name(plugin_name)
+    plugin_version_id = get_version_id_spiget(plugin_id, plugin_version)
+    plugin_version_name = get_version_name_spiget(plugin_id, plugin_version_id)
+    plugin_download_name = f"{plugin_name}-{plugin_version_name}.jar"
+    download_plugin_path = Path(f"{download_path}/{plugin_download_name}")
+    # if api requests weren't successfull stop function
+    if plugin_version_id == None or plugin_version_name == None:
+        rich_print_error("Error: Webrequest timed out")
+        return None
+    # set the plugin_version_id to None if a specific version wasn't given as parameter
+    if plugin_version == "latest" or plugin_version is None:
+        plugin_version_id = None
+    download_specific_plugin_version_spiget(plugin_id, download_plugin_path, plugin_version_id)
+
+    if config_values.connection != "local":
+        remove_temp_plugin_folder()
+    return None
+
+
+def search_specific_plugin_spiget(plugin_name) -> None:
+    """
+    Search for a name and return the top 10 results sorted for their download count
+    Then ask for input and download that plugin
+    """
+    url= f"https://api.spiget.org/v2/search/resources/{plugin_name}?field=name&sort=-downloads"
+    plugin_search_results = api_do_request(url)
+    if plugin_search_results == None:
+        rich_print_error("Error: Webrequest wasn't successfull!")
+        return None
+
+    print(f"Searching for {plugin_name}...")
+    print(f"Found plugins:")
+    # create table with rich
+    rich_table = Table(box=None)
+    rich_table.add_column("No.", justify="right", style="cyan", no_wrap=True)
+    rich_table.add_column("Name", style="bright_magenta")
+    rich_table.add_column("Downloads", justify="right", style="bright_green")
+    rich_table.add_column("Description", justify="left", style="white")
+    # start counting at 1 for all my non-programming friends :)
+    i = 1
+    for found_plugin in plugin_search_results:
+        plugin_name = handle_regex_plugin_name(found_plugin["name"])
+        plugin_downloads = found_plugin["downloads"]
+        plugin_description = found_plugin["tag"]
+        rich_table.add_row(str(i), plugin_name, str(plugin_downloads), plugin_description)
+        i += 1
+
+    # print table from rich
+    rich_console = Console()
+    rich_console.print(rich_table)
+
+    try:
+        plugin_selected = input("Select your wanted resource (No.)(0 to exit): ")
+    except KeyboardInterrupt:
+        return None
+    if plugin_selected == "0":
+        return None
+    try:
+        plugin_selected =  int(plugin_selected) - 1
+        plugin_selected_id = plugin_search_results[plugin_selected]["id"]
+    except ValueError:
+        rich_print_error("Error: Input wasn't a number! Please try again!")
+        return None
+    except IndexError:
+        rich_print_error("Error: Number was out of range! Please try again!")
+        return None
+    selected_plugin_name = handle_regex_plugin_name(plugin_search_results[plugin_selected]["name"])
+    rich_console.print(f"\n [not bold][bright_white]● [bright_magenta]{selected_plugin_name} [bright_green]latest")
+    get_specific_plugin_spiget(plugin_selected_id)

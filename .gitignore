@@ -133,3 +133,6 @@ dmypy.json
 
 # PyCharm Settings
 .idea
+
+# pluGET Files
+pluGET_config.yaml
