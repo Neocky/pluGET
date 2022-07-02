@@ -66,12 +66,14 @@ pluGET can:
   - download the latest version of a plugin
   - update every installed/one specific plugin
   - check for an update of every installed/one specific plugin
-  - remove a plugin from the plugin folder
 - manage server software:
   - download a specific server software version
   - check installed server software for update
   - update installed server software to a specific version
-  - supported server software: [PaperMc](https://papermc.io/)
+  - supported server software: 
+    - [PaperMc](https://papermc.io/)
+    - [Waterfall](https://papermc.io/downloads#Waterfall)
+    - [Velocity](https://papermc.io/downloads#Velocity)
 
 There are more features in the work. Check [Projects](https://github.com/Neocky/pluGET/projects) for a complete list.  
 
@@ -91,48 +93,46 @@ If you feel like showing your love and/or appreciation for this project then how
 
 
 ## Installation
-### 1. Python
+### 1. Python 3.10.4
 Python needs to be installed on your machine.  
 Get it [here](https://www.python.org/downloads/).  
 ### 2. Dependencies
 Install the needed packages for this project.  
 #### Automatically (Windows only)
-Execute the `installer.bat` file to automaticcally install the needed packages for this project.  
-> Sometimes the security warning `Windows protected your PC` comes when launching the `installer.bat` file.  
-> This is a normal behaviour from the windows defender because this is a unknown `.bat` file.  
-> To run the `installer.bat` anyway, click `More Info` and then `Run anyway` when the message pops up.  
+Execute the `install_requirements.py` file to automaticcally install the needed packages for this project.  
 
 #### Manually
 Execute this command in the `\plugGET` folder:  
 ```python
+# Windows:
 py -m pip install -r requirements.txt
+# Linux
+pip install -r requirements.txt
 ```
 
 
 ### 3. Edit the Config
-When run the first time, the `config.ini` file will be created in the `\src` folder and the program will close.  
+When run the first time, the `pluGET_config.yaml` file will be created in the main folder and the program will close.  
 Edit the config to your needs and relaunch pluGET.  
 **Now you are good to go!**  
 
 ## Start pluGET
-### Windows:  
-Execute the `launcher.bat` in the `\pluGET` folder.  
+Execute the `pluget.py` file with python in the `\pluGET` folder.  
 This will launch pluGET correctly.  
-> Sometimes the security warning `Windows protected your PC` comes when launching the `launcher.bat` file.  
-> This is a normal behaviour from the windows defender because this is a unknown `.bat` file.  
-> To run the `launcher.bat` anyway, click `More Info` and then `Run anyway` when the message pops up.  
-
-### Linux:  
-Use `cd` to change into the `/pluGET` directory and change the permission of the `launcher.sh` to make it executeable:  
-```
-$ chmod +x launcher.sh
-```
-Execute the `launcher.sh` file:
-```
-$ ./launcher.sh
+```python
+# Windows:
+py pluget.py
+# Linux
+python3 pluget.py
 ```
 
-> On both OS you can also launch the `src/__main__.py` file.
+### Command line arguments
+pluGET supports all commands directly through direct calling from the command line.
+Get all available command line arguments with the `-h` argument.
+Example direct command line call:
+```shell
+py pluget.py check all # runs the update checking for all plugins from pluget
+```
 
 ## Usage  
 > As always, if you update plugins, shut down your server!  
@@ -230,9 +230,15 @@ update serverjar 'PaperMCVersion'
 ```
 get-paper 550 1.16.5
 ```
-or:
+### Download specific waterfall version:
+`get-waterfall [waterfallBuild] [minecraftVersion]`
 ```
-get-paper 321
+get-waterfall 496 1.19
+```
+### Download specific waterfall version:
+`get-velocity [velocityBuild] [minecraftVersion]`
+```
+get-velocity 158 3.1.2-SNAPSHOT
 ```
 
 ## Known problems
