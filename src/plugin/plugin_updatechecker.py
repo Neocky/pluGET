@@ -367,7 +367,7 @@ def check_installed_plugins(input_selected_object : str="all", input_parameter :
     if plugins_with_udpates != 0:
         rich_console.print(
         "[not bold][bright_yellow]Plugins with available updates: [bright_green]" +
-        f"{plugins_with_udpates}[bright_yellow]/[bright_magenta]{plugin_count}"
+        f"{plugins_with_udpates}[bright_yellow]/[green]{plugin_count}"
             )
     else:
         rich_console.print(f"[bright_green]All found plugins are on the newest version!")
@@ -423,7 +423,8 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
 
         rich_console.print(
             "\n [not bold][bright_white]● [bright_magenta]" +
-            f"{plugin.plugin_name} [green]{plugin.plugin_file_version} [cyan]→ [bright_green]{plugin.plugin_latest_version}"
+            f"{plugin.plugin_name} [green]{plugin.plugin_file_version}" + \
+            f" [cyan]→ [bright_green]{plugin.plugin_latest_version}"
         )
 
         plugins_updated += 1
