@@ -62,6 +62,7 @@ If you still have questions [here](https://github.com/Neocky/pluGET#need-help) i
 So what can it do exactly?  
 pluGET can:
 - work locally or through SFTP/FTP
+- run directly from the console with command line arguments
 - manage plugins:
   - download the latest version of a plugin
   - update every installed/one specific plugin
