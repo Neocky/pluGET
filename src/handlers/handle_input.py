@@ -3,6 +3,7 @@ Handles the input through the pluGET command line
 """
 
 from src.utils.console_output import rich_print_error
+from src.plugin.plugin_remover import delete_plugin
 from src.plugin.plugin_downloader import get_specific_plugin_spiget, search_specific_plugin_spiget
 from src.plugin.plugin_updatechecker import check_installed_plugins, update_installed_plugins
 from src.serverjar.serverjar_updatechecker import \
@@ -17,7 +18,7 @@ from src.serverjar.serverjar_purpur import serverjar_purpur_update
 # get-paper
 # get-waterfall
 # get-velocity
-# get-purpur ???
+# get-purpur
 # exit
 # remove
 # search
@@ -58,6 +59,15 @@ def handle_input(
                     case _:
                         search_specific_plugin_spiget(input_selected_object)
 
+            case "get-paper":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "paper")
+            case "get-velocity":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "velocity")
+            case "get-waterfall":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "waterfall")
+            case "get-purpur":
+                serverjar_purpur_update(input_selected_object, input_parameter, None)
+
             case "update":
                 match input_selected_object:
                     case "serverjar":
@@ -74,18 +84,8 @@ def handle_input(
 
             case "search":
                 search_specific_plugin_spiget(input_selected_object)
-            # TODO add remover
-            #case "remove":
-            #    print("remove package")
-            #    #removePlugin(inputSelectedObject)
-            case "get-paper":
-                serverjar_papermc_update(input_selected_object, input_parameter, None, "paper")
-            case "get-velocity":
-                serverjar_papermc_update(input_selected_object, input_parameter, None, "velocity")
-            case "get-waterfall":
-                serverjar_papermc_update(input_selected_object, input_parameter, None, "waterfall")
-            case "get-purpur":
-                serverjar_purpur_update(input_selected_object, input_parameter, None)
+            case "remove":
+                delete_plugin(input_selected_object)
             case "exit":
                 return
             case _:
