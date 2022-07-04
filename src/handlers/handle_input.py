@@ -3,11 +3,14 @@ Handles the input through the pluGET command line
 """
 
 from src.utils.console_output import rich_print_error
+from src.utils.utilities import get_command_help
+from src.plugin.plugin_remover import delete_plugin
 from src.plugin.plugin_downloader import get_specific_plugin_spiget, search_specific_plugin_spiget
 from src.plugin.plugin_updatechecker import check_installed_plugins, update_installed_plugins
 from src.serverjar.serverjar_updatechecker import \
     check_update_available_installed_server_jar, update_installed_server_jar
 from src.serverjar.serverjar_paper_velocity_waterfall import serverjar_papermc_update
+from src.serverjar.serverjar_purpur import serverjar_purpur_update
 
 
 # check
@@ -16,10 +19,11 @@ from src.serverjar.serverjar_paper_velocity_waterfall import serverjar_papermc_u
 # get-paper
 # get-waterfall
 # get-velocity
-# get-purpur ???
+# get-purpur
 # exit
 # remove
 # search
+# help
 
 
 def handle_input(
@@ -57,6 +61,15 @@ def handle_input(
                     case _:
                         search_specific_plugin_spiget(input_selected_object)
 
+            case "get-paper":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "paper")
+            case "get-velocity":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "velocity")
+            case "get-waterfall":
+                serverjar_papermc_update(input_selected_object, input_parameter, None, "waterfall")
+            case "get-purpur":
+                serverjar_purpur_update(input_selected_object, input_parameter, None)
+
             case "update":
                 match input_selected_object:
                     case "serverjar":
@@ -73,21 +86,15 @@ def handle_input(
 
             case "search":
                 search_specific_plugin_spiget(input_selected_object)
-            # TODO add remover
-            #case "remove":
-            #    print("remove package")
-            #    #removePlugin(inputSelectedObject)
-            case "get-paper":
-                serverjar_papermc_update(input_selected_object, input_parameter, None, "paper")
-            case "get-velocity":
-                serverjar_papermc_update(input_selected_object, input_parameter, None, "velocity")
-            case "get-waterfall":
-                serverjar_papermc_update(input_selected_object, input_parameter, None, "waterfall")
+            case "remove":
+                delete_plugin(input_selected_object)
+            case "help":
+                get_command_help(input_selected_object)
             case "exit":
                 return
             case _:
                 rich_print_error("Error: Command not found. Please try again. :(")
-                rich_print_error("Use: 'help command' to get all available commands")
+                rich_print_error("Use [bright_blue]'help all' [bright_red]to get a list of all available commands.")
 
         # return to break out of while loop if pluGET was started with arguments from console
         if arguments_from_console:
@@ -114,7 +121,7 @@ def get_input() -> str:
                 continue
             else:
                 rich_print_error("Wrong input! Use: > 'command' 'selectedObject' [optionalParams]")
-                rich_print_error("Use: 'help command' to get all available commands")
+                rich_print_error("Use: [bright_blue]'help all' [bright_red]to get a list of all available commands.")
         except KeyboardInterrupt:
             return
     input_parameter = input_parameter[0] if input_parameter else None

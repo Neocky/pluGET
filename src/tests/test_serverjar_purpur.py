@@ -1,11 +1,12 @@
 import unittest
 
+from src.serverjar import serverjar_purpur
 from src.serverjar import serverjar_paper_velocity_waterfall
 
 class TestCases(unittest.TestCase):
     def test_get_installed_serverjar_version(self):
-        # paper-1.19-40.jar -> 40
-        serverjar_file_name = "paper-1.19-40.jar"
+        # purpur-1.19-40.jar -> 40
+        serverjar_file_name = "purpur-1.19-40.jar"
         serverjar_version = "40"
         result = serverjar_paper_velocity_waterfall.get_installed_serverjar_version(serverjar_file_name)
         self.assertEqual(result, serverjar_version)
@@ -20,14 +21,11 @@ class TestCases(unittest.TestCase):
 
 
     def test_find_latest_available_version(self):
-        # Get latest available paper version for 1.15.2 which should be 393
-        file_server_jar_full_name = "paper-1.15.2-40.jar"
+        # Get latest available purpur version for 1.15.2 which should be '606'
+        file_server_jar_full_name = "purpur-1.15.2-40.jar"
         version_group = "1.15.2"
-        result = serverjar_paper_velocity_waterfall.find_latest_available_version(
-            file_server_jar_full_name,
-            version_group
-        )
-        self.assertEqual(result, 393)
+        result = serverjar_purpur.find_latest_available_version(version_group)
+        self.assertEqual(result, str(606))
 
 
     def test_get_versions_behind(self):
