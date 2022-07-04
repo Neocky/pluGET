@@ -50,6 +50,7 @@ This program is suited for minecraft server owners who want to save time and sta
 - Checks for updates and downloads the latest version of all/specific plugins
 - Checks for updates and downloads the latest version of your server software
   - [PaperMc](https://papermc.io/)
+  - [Purpur](https://purpurmc.org/)
   - [Waterfall](https://papermc.io/downloads#Waterfall)
   - [Velocity](https://papermc.io/downloads#Velocity)
 
@@ -177,6 +178,11 @@ get-waterfall [waterfallBuild] [minecraftVersion]
 ### • Download specific waterfall version:
 ```
 get-velocity [velocityBuild] [minecraftVersion]
+```
+
+### • Download specific purpur version:
+```
+get-purpur [purpurBuild] [minecraftVersion]
 ```
 
 # Command line arguments
