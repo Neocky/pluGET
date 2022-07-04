@@ -8,6 +8,7 @@ from src.plugin.plugin_updatechecker import check_installed_plugins, update_inst
 from src.serverjar.serverjar_updatechecker import \
     check_update_available_installed_server_jar, update_installed_server_jar
 from src.serverjar.serverjar_paper_velocity_waterfall import serverjar_papermc_update
+from src.serverjar.serverjar_purpur import serverjar_purpur_update
 
 
 # check
@@ -83,6 +84,8 @@ def handle_input(
                 serverjar_papermc_update(input_selected_object, input_parameter, None, "velocity")
             case "get-waterfall":
                 serverjar_papermc_update(input_selected_object, input_parameter, None, "waterfall")
+            case "get-purpur":
+                serverjar_purpur_update(input_selected_object, input_parameter, None)
             case "exit":
                 return
             case _:
