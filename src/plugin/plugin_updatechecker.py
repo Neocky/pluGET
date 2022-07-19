@@ -520,11 +520,16 @@ def search_plugin_spiget(plugin_file: str, plugin_file_name: str, plugin_file_ve
     """
     url = f"https://api.spiget.org/v2/search/resources/{plugin_file_name}?field=name&sort=-downloads"
     plugin_list = api_do_request(url)
-    
+
     # Handle failed api request
-    """{'error': 'Unexpected Exception', 'msg': 'Unexpected Exception. Please report this to https://github.com/SpiGetOrg/api.spiget.org/issues'}"""
+    """
+    {'error': 'Unexpected Exception', 'msg': 'Unexpected Exception. Please report this to 
+    https://github.com/SpiGetOrg/api.spiget.org/issues'}
+    """
     if "error" in plugin_list:
-        print(f"Spiget error occurred whilst searching for plugin '{plugin_file}': {plugin_list['msg']}")
+        rich_print_error(
+            f"[not bold]Error: Spiget error occurred whilst searching for plugin '{plugin_file}': {plugin_list['msg']}"
+        )
         return plugin_list['msg']
     else:
         plugin_file_version2 = plugin_file_version
