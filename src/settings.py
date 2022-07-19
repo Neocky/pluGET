@@ -5,4 +5,4 @@ PLUGETVERSION = current version of pluGET
 """
 
 # constant values
-PLUGETVERSION = "1.7.1"
+PLUGETVERSION = "1.7.2"
