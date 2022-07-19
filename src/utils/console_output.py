@@ -21,7 +21,8 @@ def rename_console_title() -> None:
     """
     Renames the console title on first startup
     """
-    os.system("title " + "pluGET │ By Neocky")
+    if os.name == "nt":
+        os.system("title " + "pluGET │ By Neocky")
     return None
 
 
