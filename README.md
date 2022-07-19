@@ -175,7 +175,7 @@ get-paper [paperBuild] [minecraftVersion]
 get-waterfall [waterfallBuild] [minecraftVersion]
 ```
 
-### • Download specific waterfall version:
+### • Download specific velocity version:
 ```
 get-velocity [velocityBuild] [minecraftVersion]
 ```
