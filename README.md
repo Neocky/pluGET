@@ -1,7 +1,11 @@
 
 
 <p align="center">
-<img src="https://i.ibb.co/JyCxnQn/logoreal.png" alt="pluGET" border="0"></a>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/branding/pluget-logo-white.png">
+  <source media="(prefers-color-scheme: light)" srcset="./assets/branding/pluget-logo-black.png">
+  <img src="./assets/branding/pluget-logo-black.png" alt="pluGET" border="0">
+</picture>
 </p>
 
 <p align="center">  
