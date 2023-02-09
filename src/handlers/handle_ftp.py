@@ -136,7 +136,7 @@ def ftp_list_files_in_server_root(ftp):
         rich_print_error("Error: [FTP]: No Serverjar was found.")
 
 
-def ftp_download_file(ftp, file) -> None:
+def ftp_download_file(ftp, path_download, file) -> None:
     """
     Download a file of the ftp server
 
@@ -147,13 +147,10 @@ def ftp_download_file(ftp, file) -> None:
     """
     config_values = config_value()
     ftp.cwd(config_values.remote_plugin_folder_on_server)
-    current_directory = os.getcwd()
-    os.chdir('TempSFTPFolder')
     filedata = open(path_download,'wb')
     ftp.retrbinary('RETR '+file, filedata.write)
     filedata.close()
     ftp.quit()
-    os.chdir(current_directory)
     return None
 
 
