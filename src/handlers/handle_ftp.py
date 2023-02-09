@@ -141,6 +141,7 @@ def ftp_download_file(ftp, path_download, file) -> None:
     Download a file of the ftp server
 
     :param ftp: ftp connection
+    :param path_download: Path to save downloaded file to
     :param file: File to download
 
     :returns None
