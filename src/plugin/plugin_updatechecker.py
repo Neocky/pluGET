@@ -225,8 +225,8 @@ def egg_cracking_jar(plugin_file_name: str) -> str:
         case "ftp":
             path_temp_plugin_folder = create_temp_plugin_folder()
             connection = ftp_create_connection()
-            ftp_download_file(connection, plugin_file_name)
             path_plugin_jar = Path(f"{path_temp_plugin_folder}/{plugin_file_name}")
+            ftp_download_file(connection, path_plugin_jar, plugin_file_name)
         case _:
             path_plugin_folder = config_values.path_to_plugin_folder
             path_plugin_jar = Path(f"{path_plugin_folder}/{plugin_file_name}")
