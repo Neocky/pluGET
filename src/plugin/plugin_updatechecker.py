@@ -13,13 +13,10 @@ from rich.console import Console
 from urllib.error import HTTPError
 from zipfile import ZipFile
 
-from src.handlers.handle_config import config_value
-from src.handlers.handle_sftp import sftp_create_connection, sftp_download_file, sftp_validate_file_attributes, sftp_list_all
-from src.handlers.handle_ftp import ftp_create_connection, ftp_download_file, ftp_validate_file_attributes, ftp_list_all
-from src.plugin.plugin_downloader import get_specific_plugin_spiget, get_download_path
+from src.plugin.plugin_downloader import get_specific_plugin_spiget
 from src.utils.console_output import rich_print_error
 from src.utils.utilities import api_do_request, create_temp_plugin_folder, remove_temp_plugin_folder
-
+from src.handlers import handle_server
 
 class Plugin():
     """
@@ -215,21 +212,11 @@ def egg_cracking_jar(plugin_file_name: str) -> str:
     :returns: Plugin name in plugin.yml file
     :returns: Plugin version in plugin.yml file
     """
-    config_values = config_value()
-    match config_values.connection:
-        case "sftp":
-            path_temp_plugin_folder = create_temp_plugin_folder()
-            connection = sftp_create_connection()
-            sftp_download_file(connection, plugin_file_name)
-            path_plugin_jar = Path(f"{path_temp_plugin_folder}/{plugin_file_name}")
-        case "ftp":
-            path_temp_plugin_folder = create_temp_plugin_folder()
-            connection = ftp_create_connection()
-            path_plugin_jar = Path(f"{path_temp_plugin_folder}/{plugin_file_name}")
-            ftp_download_file(connection, path_plugin_jar, plugin_file_name)
-        case _:
-            path_plugin_folder = config_values.path_to_plugin_folder
-            path_plugin_jar = Path(f"{path_plugin_folder}/{plugin_file_name}")
+    path_temp_plugin_folder = create_temp_plugin_folder()
+    handle_server.active_server.create_connection()
+    handle_server.active_server.download_plugin(plugin_file_name,path_temp_plugin_folder)
+    path_plugin_jar = Path(f"{path_temp_plugin_folder}/{plugin_file_name}")
+    
     
     # later used to escape for-loop
     plugin_name = plugin_version = ""
@@ -255,52 +242,30 @@ def egg_cracking_jar(plugin_file_name: str) -> str:
     except zipfile.BadZipFile:
         plugin_name = plugin_version = ""
 
-    # remove temp plugin folder if plugin was downloaded from sftp/ftp server
-    if config_values.connection != "local":
-        remove_temp_plugin_folder()
+    # remove temp plugin folder
+    remove_temp_plugin_folder()
 
     return plugin_name, plugin_version
 
 
-def check_update_available_installed_plugins(input_selected_object: str, config_values: config_value) -> str:
+def check_update_available_installed_plugins(input_selected_object: str) -> str:
     """
     Gets installed plugins and checks it against the apis if there are updates for the plugins available
 
     :param input_selected_object: Command line input (default: all)
-    :param config_values: Config values from config file
 
     :returns: Count of plugins, Count of plugins with available updates
     """
     Plugin.create_plugin_list()
-    match config_values.connection:
-        case "sftp":
-            connection = sftp_create_connection()
-            plugin_list = sftp_list_all(connection)
-        case "ftp":
-            connection = ftp_create_connection()
-            plugin_list = ftp_list_all(connection)
-        case _:
-            plugin_folder_path = config_values.path_to_plugin_folder
-            plugin_list = os.listdir(plugin_folder_path)
+    handle_server.active_server.create_connection()
+    plugin_list = handle_server.active_server.list_plugins()
 
     plugin_count = plugins_with_udpates = 0
     # create simple progress bar from rich
     for plugin_file in track(plugin_list, description="[cyan]Checking...", transient=True, style="bright_yellow"):
-        plugin_attributes = True
-        match config_values.connection:
-            case "sftp":
-                plugin_attributes = sftp_validate_file_attributes(
-                    connection, f"{config_values.remote_plugin_folder_on_server}/{plugin_file}"
-                )
-            case "ftp":
-                plugin_attributes = ftp_validate_file_attributes(
-                    connection, f"{config_values.remote_plugin_folder_on_server}/{plugin_file}"
-                )
-            case _:
-                if not os.path.isfile(Path(f"{plugin_folder_path}/{plugin_file}")):
-                    plugin_attributes = False
-                if not re.search(r'.jar$', plugin_file):
-                    plugin_attributes = False
+
+        plugin_attributes = handle_server.active_server.validate_plugin(plugin_file)
+
         # skip plugin if no attributes were found to skip not valid plugin files
         if plugin_attributes == False:
             continue
@@ -337,8 +302,7 @@ def check_installed_plugins(input_selected_object : str="all", input_parameter :
 
     :returns: None
     """
-    config_values = config_value()
-    plugin_count, plugins_with_udpates = check_update_available_installed_plugins(input_selected_object, config_values)
+    plugin_count, plugins_with_udpates = check_update_available_installed_plugins(input_selected_object)
 
     # print rich table of found plugins and result
     rich_table = Table(box=None)
@@ -384,22 +348,19 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
     :returns: None
     """
     rich_console = Console()
-    config_values = config_value()
-    match config_values.connection:
-        case "sftp":
-            connection = sftp_create_connection()
-        case "ftp":
-            connection = ftp_create_connection()
+
+    handle_server.active_server.create_connection()
+
     # if INSTALLEDPLUGINLIST was not previously filled by 'check' command call the command to fill plugin list
     try:
         if len(INSTALLEDPLUGINLIST) == 0:
-            check_update_available_installed_plugins(input_selected_object, config_values)
+            check_update_available_installed_plugins(input_selected_object)
     except NameError:
-        check_update_available_installed_plugins(input_selected_object, config_values)
+        check_update_available_installed_plugins(input_selected_object)
 
     # if argument 'all' was given recheck all plugins to avoid having only a few plugins from previously cached checks
     if input_selected_object == "all" or input_selected_object == "*":
-        check_update_available_installed_plugins(input_selected_object, config_values)
+        check_update_available_installed_plugins(input_selected_object)
 
     # skip confirmation message if pluGET was called with --no-confirmation
     if no_confirmation == False:
@@ -428,79 +389,32 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
         )
 
         plugins_updated += 1
-        plugin_path = get_download_path(config_values)
-        match config_values.connection:
-            # local plugin folder
-            case "local":
-                match (plugin.plugin_repository):
-                    case "spigot":
-                        try:
-                            get_specific_plugin_spiget(plugin.plugin_repository_data[0])
-                        except HTTPError as err:
-                            rich_print_error(f"HTTPError: {err.code} - {err.reason}")
-                            plugins_updated -= 1
-                        except TypeError:
-                            rich_print_error(
-                                f"Error: TypeError > Couldn't download new version. Is the file available on spigotmc?"
-                            )
-                            plugins_updated -= 1
+        match (plugin.plugin_repository):
+            case "spigot":
+                try:
+                    get_specific_plugin_spiget(plugin.plugin_repository_data[0])
+                except HTTPError as err:
+                    rich_print_error(f"HTTPError: {err.code} - {err.reason}")
+                    plugins_updated -= 1
+                except TypeError:
+                    rich_print_error(
+                        f"Error: TypeError > Couldn't download new version. Is the file available on spigotmc?"
+                    )
+                    plugins_updated -= 1
 
-                    case _:
-                        rich_print_error("Error: Plugin repository wasn't found")
-                        return None
-                # don't delete files if they are downloaded to a seperate download path
-                if config_values.local_seperate_download_path == False:
-                    try:
-                        os.remove(Path(f"{plugin_path}/{plugin.plugin_file_name}"))
-                        rich_console.print(
-                            "    [not bold][bright_green]Deleted old plugin file [cyan]→ [white]" + 
-                            f"{plugin.plugin_file_name}"
-                        )
-                    except FileNotFoundError:
-                        rich_print_error("Error: Old plugin file couldn't be deleted")
-
-
-
-            # plugin folder is on sftp or ftp server
             case _:
-                plugin_path = f"{plugin_path}/{plugin.plugin_file_name}"
-                match (plugin.plugin_repository):
-                    case "spigot":
-                        try:
-                            get_specific_plugin_spiget(plugin.plugin_repository_data[0])
-                        except HTTPError as err:
-                            rich_print_error(f"HTTPError: {err.code} - {err.reason}")
-                            plugins_updated -= 1
-                        except TypeError:
-                            rich_print_error(
-                                f"Error: TypeError > Couldn't download new version. Is the file available on spigotmc?"
-                            )
-                            plugins_updated -= 1
-
-                    case _:
-                        rich_print_error("Error: Plugin repository wasn't found")
-                        return None
-                # don't delete old plugin files if they are downloaded to a seperate download path
-                if config_values.remote_seperate_download_path == False:
-                    match config_values.connection:
-                        case "sftp":
-                            try:
-                                connection.remove(plugin_path)
-                                rich_console.print(
-                                    "    [not bold][bright_green]Deleted old plugin file [cyan]→ [white]" + 
-                                    f"{plugin.plugin_file_name}"
-                                )
-                            except FileNotFoundError:
-                                rich_print_error("Error: Old plugin file couldn't be deleted")
-                        case "ftp":
-                            try:
-                                connection.delete(plugin_path)
-                                rich_console.print(
-                                    "    [not bold][bright_green]Deleted old plugin file [cyan]→ [white]" + 
-                                    f"{plugin.plugin_file_name}"
-                                )
-                            except FileNotFoundError:
-                                rich_print_error("Error: Old plugin file couldn't be deleted")
+                rich_print_error("Error: Plugin repository wasn't found")
+                return None
+        # don't delete old plugin files if they are downloaded to a seperate download path
+        if handle_server.active_server.connection == False:
+            try:
+                handle_server.active_server.remove(plugin.plugin_file_name)
+                rich_console.print(
+                    "    [not bold][bright_green]Deleted old plugin file [cyan]→ [white]" + 
+                    f"{plugin.plugin_file_name}"
+                )
+            except FileNotFoundError:
+                rich_print_error("Error: Old plugin file couldn't be deleted")
 
     rich_console.print(
         f"\n[not bold][bright_green]Plugins updated: {plugins_updated}/{(len(INSTALLEDPLUGINLIST) - plugins_skipped)}"

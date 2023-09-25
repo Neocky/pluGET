@@ -1,0 +1,37 @@
+Servers:
+  Srv1:
+    Connection: local
+    ServerRootPath: C:/Users/USER/Desktop/server
+    PluginFolderPath: C:/Users/USER/Desktop/server/plugins
+    SeperateDownloadPath: false
+    
+  Srv2:
+    Connection: sftp
+    ServerRootPath: /
+    PluginFolderPath: /plugins
+    SeperateDownloadPath: /plugins/updated
+
+    Server: mc.example.com
+    Username: joe
+    Password: pass
+    Port: 22
+
+  Srv3:
+    Connection: ftp
+    ServerRootPath: /
+    PluginFolderPath: /plugins
+    SeperateDownloadPath: false
+
+    Server: mc.example.com
+    Username: joe
+    Password: pass
+    Port: 21
+
+  Srv4:
+    Connection: local
+    ServerRootPath: /srv/mc
+    PluginFolderPath: /srv/mc/plugins
+    SeperateDownloadPath: /srv/mc/plugins/downloaded
+
+  # more can be added
+
