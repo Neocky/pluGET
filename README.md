@@ -1,5 +1,61 @@
 
 
+# About this Fork
+This fork adds support for multiple servers with a server switching system
+```
+server [servername]
+```
+As well as a new config file `config.yaml`
+```yaml
+Servers:
+  Srv1:
+    Connection: local
+    ServerRootPath: C:/Users/USER/Desktop/server
+    PluginFolderPath: C:/Users/USER/Desktop/server/plugins
+    SeperateDownloadPath: false
+    
+  Srv2:
+    Connection: sftp
+    ServerRootPath: /
+    PluginFolderPath: /plugins
+    SeperateDownloadPath: /plugins/updated
+
+    Server: mc.example.com
+    Username: joe
+    Password: pass
+    Port: 22
+
+  Srv3:
+    Connection: ftp
+    ServerRootPath: /
+    PluginFolderPath: /plugins
+    SeperateDownloadPath: false
+
+    Server: mc.example.com
+    Username: joe
+    Password: pass
+    Port: 21
+
+  AnotherServerName:
+    Connection: local
+    ServerRootPath: /srv/mc
+    PluginFolderPath: /srv/mc/plugins
+    SeperateDownloadPath: /srv/mc/plugins/downloaded
+
+  # more can be added
+```
+### Features I plan to add in the future
+- Improved CLI with support for one word commands
+- Modular plugin and serverjar system / more repos
+- Batch actions across multiple servers 
+
+<br />
+
+---
+
+<br />
+<br />
+
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./assets/branding/pluget-logo-white.png">

@@ -10,11 +10,8 @@ import re
 from pathlib import Path
 from rich.console import Console
 from rich.table import Table
-from src.handlers.handle_sftp import sftp_create_connection
-from src.handlers.handle_ftp import ftp_create_connection
 
 from src.utils.console_output import rich_print_error
-from src.handlers.handle_config import config_value
 from src.settings import PLUGETVERSION
 
 
@@ -195,16 +192,15 @@ def check_local_plugin_folder(config_values) -> None:
     return None
 
 
-def check_requirements() -> None:
-    """
-    Check if the plugin folders are available
-    """
-    config_values = config_value()
-    match config_values.connection:
-        case "local":
-            check_local_plugin_folder(config_values)
-        case "sftp":
-            sftp_create_connection()
-        case "ftp":
-            ftp_create_connection()
-    return None
+# def check_requirements() -> None:
+#     """
+#     Check if the plugin folders are available
+#     """
+#     match config_values.connection:
+#         case "local":
+#             check_local_plugin_folder(config_values)
+#         case "sftp":
+#             sftp_create_connection()
+#         case "ftp":
+#             ftp_create_connection()
+#     return None

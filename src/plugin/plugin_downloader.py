@@ -13,9 +13,7 @@ from rich.progress import Progress
 from src.utils.utilities import convert_file_size_down, remove_temp_plugin_folder, create_temp_plugin_folder
 from src.utils.utilities import api_do_request
 from src.utils.console_output import rich_print_error
-from src.handlers.handle_config import config_value
-from src.handlers.handle_sftp import sftp_create_connection, sftp_upload_file
-from src.handlers.handle_ftp import ftp_create_connection, ftp_upload_file
+from src.handlers import handle_server
 
 
 def handle_regex_plugin_name(full_plugin_name) -> str:
@@ -73,31 +71,10 @@ def get_version_name_spiget(plugin_id, plugin_version_id) -> str:
     version_name = response["name"]
     return version_name
 
-
-def get_download_path(config_values) -> str:
-    """
-    Reads the config and gets the path of the plugin folder
-    """
-    match (config_values.connection):
-        case "local":
-            match (config_values.local_seperate_download_path):
-                case True:
-                    return config_values.local_path_to_seperate_download_path
-                case _:
-                    return config_values.path_to_plugin_folder
-        case _:
-            match (config_values.remote_seperate_download_path):
-                case True:
-                    return config_values.remote_path_to_seperate_download_path
-                case _:
-                    return config_values.remote_plugin_folder_on_server
-
-
 def download_specific_plugin_version_spiget(plugin_id, download_path, version_id="latest") -> None:
     """
     Download a specific plugin
     """
-    config_values = config_value()
     if version_id != "latest" and version_id != None:
         #url = f"https://spigotmc.org/resources/{plugin_id}/download?version={versionID}"
         rich_print_error("Sorry but specific version downloads aren't supported because of cloudflare protection. :(")
@@ -144,12 +121,9 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
         console.print("    [not bold][bright_green]Downloaded[bright_magenta] " + (str(file_size_data)).rjust(9) + \
              f" KB [cyan]→ [white]{download_path}")
 
-    if config_values.connection == "sftp":
-        sftp_session = sftp_create_connection()
-        sftp_upload_file(sftp_session, download_path)
-    elif config_values.connection == "ftp":
-        ftp_session = ftp_create_connection()
-        ftp_upload_file(ftp_session, download_path)
+    handle_server.active_server.create_connection()
+    handle_server.active_server.upload_plugin(download_path)
+
     return None
 
 
@@ -157,12 +131,8 @@ def get_specific_plugin_spiget(plugin_id, plugin_version="latest") -> None:
     """
     Gets the specific plugin and calls the download function
     """
-    config_values = config_value()
     # use a temporary folder to store plugins until they are uploaded
-    if config_values.connection != "local":
-        download_path = create_temp_plugin_folder()
-    else:
-        download_path = get_download_path(config_values)
+    download_path = create_temp_plugin_folder()
 
     url = f"https://api.spiget.org/v2/resources/{plugin_id}"
     plugin_details = api_do_request(url)
@@ -188,8 +158,7 @@ def get_specific_plugin_spiget(plugin_id, plugin_version="latest") -> None:
         plugin_version_id = None
     download_specific_plugin_version_spiget(plugin_id, download_plugin_path, plugin_version_id)
 
-    if config_values.connection != "local":
-        remove_temp_plugin_folder()
+    remove_temp_plugin_folder()
     return None
 
 

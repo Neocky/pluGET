@@ -5,105 +5,109 @@
 import os
 import sys
 import ruamel.yaml
+import shutil
 from pathlib import Path
 from rich.console import Console
+from src.servers.local import local_server
+from src.servers.ftp import ftp_server
+from src.servers.sftp import sftp_server
+from src.handlers.handle_server import server_list
+from src.handlers import handle_server
 
-
-class config_value():
+def read_config():
 	"""
-	Class which holds all the available configuration values from the config file and which will be used later in
-	the process of updating plugins
-	If bool in config can't be read it will default to 'False'
+	Reads the config file and populates the server handler
 	"""
-	def __init__(self):
-		yaml = ruamel.yaml.YAML()
-		with open("pluGET_config.yaml", "r") as config_file:
-			data = yaml.load(config_file)
-		self.connection = str(data["Connection"]).lower()
-		self.path_to_plugin_folder = Path(data["Local"]["PathToPluginFolder"])
-		self.local_seperate_download_path = True if data["Local"]["SeperateDownloadPath"] == True else False
-		self.local_path_to_seperate_download_path = Path(data["Local"]["PathToSeperateDownloadPath"])
-		self.server = data["Remote"]["Server"]
-		self.username = data["Remote"]["Username"]
-		self.password = data["Remote"]["Password"]
-		self.sftp_port = int(data["Remote"]["SFTP_Port"])
-		self.ftp_port = int(data["Remote"]["FTP_Port"])
-		self.remote_seperate_download_path = True if data["Remote"]["SeperateDownloadPath"] == True else False
-		self.remote_path_to_seperate_download_path = data["Remote"]["PathToSeperateDownloadPath"]
-		self.remote_plugin_folder_on_server = data["Remote"]["PluginFolderOnServer"]
+	yaml = ruamel.yaml.YAML()
+	with open("config.yaml", "r") as config_file:
+		data = yaml.load(config_file)
+	for server in data["Servers"]:
+		data2 = data["Servers"][server]
+		
+		match data2["Connection"]:
+			case "local":
+				temp = local_server()
+			case "ftp":
+				temp = ftp_server()
+			case "sftp":
+				temp = sftp_server()
 
+		temp.name = str(server)
+		temp.connection = data2["Connection"]
+		temp.root_path = Path(data2["ServerRootPath"])
+		temp.plugin_path = Path(data2["PluginFolderPath"])
+		temp.seperate_download_path = data2["SeperateDownloadPath"]
+		if temp.connection == "sftp" or temp.connection == "ftp":
+			temp.server = data2["Server"]
+			temp.username = data2["Username"]
+			temp.password = data2["Password"]
+			temp.port = int(data2["Port"])
+
+		server_list[str(server)] = temp
+	handle_server.active_server = server_list[next(iter(server_list))]
+	
 
 def check_config() -> None:
 	"""
 	Check if there is a pluGET_config.yml file in the same folder as pluget.py and if not create a new config
 	and exit the programm
 	"""
-	if not os.path.isfile("pluGET_config.yaml"):
+	if not os.path.isfile("config.yaml"):
 		create_config()
 	return None
 
 
 def create_config() -> None:
 	"""
-	Creates the yaml config in the current directory with the filename pluGET_config.yml
+	copies the sample config file into the root folder
 	"""
-	# this is the whole yaml code because of weird formating indention is not possible 
-	configuration = """\
-#
-# Configuration File for pluGET
-# https://www.github.com/Neocky/pluGET 
-#
-
-# What should be used for the connection (local, sftp, ftp)
-    Connection: local
-
-    Local:
-        PathToPluginFolder: C:/Users/USER/Desktop/plugins
-  # If a different folder should be used to store the updated plugins change to (True/False) and the path below
-        SeperateDownloadPath : False
-        PathToSeperateDownloadPath: C:/Users/USER/Desktop/plugins
-
-    Remote:
-        Server: 0.0.0.0
-        Username: user
-        Password: password
-  # If a different Port for SFTP/FTP will be used
-        SFTP_Port: 22
-        FTP_Port: 21
-  # If a different folder should be used to store the updated plugins change to (True/False) and the path below
-        SeperateDownloadPath : False
-        PathToSeperateDownloadPath: /plugins/updated
-  # Change the path below if the plugin folder path is different on the SFTP/FTP server (Change only if you know what you are doing)
-        PluginFolderOnServer: /plugins
-    """
-	# load ruamel.yaml to get the # commands right in the yaml code
-	yaml = ruamel.yaml.YAML()
-	code = yaml.load(configuration)
-	with open("pluGET_config.yaml", "w") as config_file:
-		yaml.dump(code, config_file)
-
-	config_file_path = os.path.abspath("pluGET_config.yaml")
+	shutil.copyfile('src/config-sample.yaml', 'config.yaml')
+	config_file_path = os.path.abspath("config.yaml")
 	print(f"Path of config file: {config_file_path}")
 	print("Config created. Edit config before executing again!")
 	input("Press any key + enter to exit...")
 	sys.exit()
 
-
 def validate_config() -> None:
 	"""
-	Validates the config variables after config class is loaded and exit if error is detected and print error
+	Check for missing entries in the config
 	"""
-	accepted_values = [
-		("local", "sftp", "ftp")
-	]
-	# exit afterwards if there is an error in config
-	exit_afterwards = False
-	config = config_value()
-	# rich console for nice colors
+	yaml = ruamel.yaml.YAML()
+	with open("config.yaml", "r") as config_file:
+		data = yaml.load(config_file)
 	console = Console()
-	if config.connection not in accepted_values[0]:
-		console.print(f"Error in Config! Accepted values for key 'Connection' are {accepted_values[0]}",
-		style="bright_red")
+	exit_afterwards = False
+
+	if "Servers" not in data:
+		console.print(f"Config file is malformed",style="bright_red",highlight=False)
 		exit_afterwards = True
-	if exit_afterwards:
+	else:
+		for server in data["Servers"]:
+			temp = data["Servers"][server]
+			keys = ["Connection","ServerRootPath","PluginFolderPath","SeperateDownloadPath"]
+			remote_keys = ["Server","Username","Password","port"]
+			
+			if temp == None:
+				console.print(f"'{str(server)}' is malformed",style="bright_red",highlight=False)
+				exit_afterwards = True
+			else:
+				for cur in keys:
+					if cur not in temp:
+						console.print(f"'{str(server)}' is missing key '{cur}'",style="bright_red",highlight=False)
+						exit_afterwards = True
+
+				if "Connection" in temp:
+					accepted_values = ("local", "sftp", "ftp")
+					if temp["Connection"] not in accepted_values:
+						console.print(f"'{server}' has invalid key 'Connection' Valid options: {accepted_values}",style="bright_red",highlight=False)
+						exit_afterwards = True
+
+					if temp["Connection"] == "sftp" or temp["Connection"] == "ftp":
+						for cur in remote_keys:
+							if cur not in temp:
+								console.print(f"'{str(server)}' is missing key '{cur}'",style="bright_red",highlight=False)
+								exit_afterwards = True
+	if exit_afterwards: 
 		sys.exit()
+		
+

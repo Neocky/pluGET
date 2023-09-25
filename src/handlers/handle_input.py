@@ -8,11 +8,14 @@ from src.plugin.plugin_remover import delete_plugin
 from src.plugin.plugin_downloader import get_specific_plugin_spiget, search_specific_plugin_spiget
 from src.plugin.plugin_updatechecker import check_installed_plugins, update_installed_plugins
 from src.serverjar.serverjar_updatechecker import \
-    check_update_available_installed_server_jar, update_installed_server_jar
+   check_update_available_installed_server_jar, update_installed_server_jar
 from src.serverjar.serverjar_paper_velocity_waterfall import serverjar_papermc_update
 from src.serverjar.serverjar_purpur import serverjar_purpur_update
+from src.handlers.handle_server import server_list
+from src.handlers import handle_server
 
 
+# server
 # check
 # update
 # get
@@ -53,7 +56,18 @@ def handle_input(
                 # KeyboardInterrupt was triggered and None was returned so exit
                 return
 
-        match input_command:
+        match input_command:            
+            case "server":
+                match input_selected_object:
+                    case "is":
+                        print(handle_server.active_server.name)
+                    case _:
+                        try:
+                            handle_server.active_server = server_list[input_selected_object]
+                            print("Set to "+handle_server.active_server.name)
+                        except KeyError:
+                            print("Invalid server name")
+                
             case "get":
                 match input_selected_object.isdigit():
                     case True:
@@ -110,7 +124,7 @@ def get_input() -> str:
     :returns: Optional parameter
     """
     input_command = None
-    print("\n'STRG + C' to exit")
+    # print("\n'STRG + C' to exit")
     while True:
         try:
             input_command, input_selected_object, *input_parameter = input("pluGET >> ").split()
