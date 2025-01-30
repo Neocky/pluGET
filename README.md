@@ -18,14 +18,15 @@
 <a href="https://discord.gg/475Uf4NBPF"><img src="https://discordapp.com/api/guilds/801903246284685312/widget.png?style=shield"/></a>
 </p>
 
-
 # 🚚💨 pluGET  
 A powerful package manager which updates [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
 
-<img src="https://user-images.githubusercontent.com/13088544/177011216-1360d444-278a-475e-9863-966c48c60ba7.gif" alt="pluGET.gif" border="0" />
+![pluget-27090b452c1e9](https://github.com/user-attachments/assets/9bfdafd8-2f89-4c00-96b3-05b78b0fdf71)
 
 <details>
   <summary>Old Screenshots</summary>  
+  <img src="https://user-images.githubusercontent.com/13088544/177011216-1360d444-278a-475e-9863-966c48c60ba7.gif" alt="pluGET.gif" border="0" />
+
   
   `check all` to check installed plugins for updates:  
   ![screenshot1](https://i.ibb.co/QM7xh7w/pluget-checkall-small.png)
@@ -97,6 +98,7 @@ python3 pluget.py
 ```
 
 ## 🚀 Usage and Commands
+> [!Caution]
 > As always, if you update plugins, shut down your server!  
 
 ### • Show the information about all commands.
