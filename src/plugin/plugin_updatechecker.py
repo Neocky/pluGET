@@ -117,9 +117,36 @@ def get_plugin_file_version(plugin_full_name: str) -> str:
     plugin_file_version = plugin_file_version.group()
     plugin_file_version = plugin_file_version.replace('.jar', '')
     if plugin_file_version.endswith('.'):
-        print("get_plugin_file_version endswith .")
         plugin_file_name, plugin_file_version = egg_cracking_jar(plugin_full_name)
     return plugin_file_version
+
+
+def get_plugin_name_version_from_strict_regex(plugin_full_name: str) -> str:
+    """
+    Finds the full plugin name of the given string with regex from the start as alternative to get_plugin_file_name()
+    Example Dynmap-v3.7.3-beta-8.jar -> Dynmap
+
+    Finds the full version of the plugin file
+    Example Dynmap-v3.7.3-beta-8.jar -> v3.7.3-beta-8
+
+    :param plugin_full_name: Full filename of plugin
+
+    :returns: Full plugin name
+    :returns: Full plugin version
+    """
+    plugin_full_name2 = plugin_full_name
+    # find Plugin name as first word
+    plugin_name_only = re.search(r'(^[\w]+)', plugin_full_name2)
+    try:
+        plugin_name_only = plugin_name_only.group()
+    except AttributeError:
+        plugin_name_only = plugin_name_only
+
+    # get everything behind first word without '.jar' and first '-'
+    plugin_version = plugin_full_name2.replace(plugin_name_only, '')
+    plugin_version = re.sub(r'^[\-]*', '', plugin_version)
+    plugin_version = plugin_version.replace('.jar', '')
+    return plugin_name_only, plugin_version
 
 
 def get_latest_plugin_version_spiget(plugin_id : str) -> str:
@@ -172,7 +199,8 @@ def compare_plugin_version(plugin_latest_version : str, plugin_file_version : st
         plugin_latest_version_tuple = create_plugin_version_tuple(
             get_plugin_version_without_letters(plugin_latest_version))
     except ValueError:
-        return False
+        # raise an exception to use a different method to check if the installed plugin version is outdated
+        raise Exception("Versions can't be matched!")
     if plugin_version_tuple < plugin_latest_version_tuple:
         return True
     else:
@@ -253,6 +281,8 @@ def egg_cracking_jar(plugin_file_name: str) -> str:
     except KeyError:
         plugin_name = plugin_version = ""        
     except zipfile.BadZipFile:
+        plugin_name = plugin_version = ""
+    except:
         plugin_name = plugin_version = ""
 
     # remove temp plugin folder if plugin was downloaded from sftp/ftp server
@@ -369,6 +399,9 @@ def check_installed_plugins(input_selected_object : str="all", input_parameter :
         "[not bold][bright_yellow]Plugins with available updates: [bright_green]" +
         f"{plugins_with_udpates}[bright_yellow]/[green]{plugin_count}"
             )
+        rich_console.print(
+        f"[not bold][white]Use '[cyan]update all[white]' to update [green]{plugins_with_udpates} [white]plugins!"
+        )
     else:
         rich_console.print(f"[bright_green]All found plugins are on the newest version!")
     return None
@@ -531,50 +564,83 @@ def search_plugin_spiget(plugin_file: str, plugin_file_name: str, plugin_file_ve
             f"[not bold]Error: Spiget error occurred whilst searching for plugin '{plugin_file}': {plugin_list['msg']}"
         )
         return plugin_list['msg']
-    else:
-        plugin_file_version2 = plugin_file_version
-        for i in range(4):
-            if i == 1:
-                plugin_file_version2 = re.sub(r'(\-\w*)', '', plugin_file_version)
-            if i == 2:
-                plugin_name_in_yml, plugin_version_in_yml = egg_cracking_jar(plugin_file)
-                url = f"https://api.spiget.org/v2/search/resources/{plugin_name_in_yml}?field=name&sort=-downloads"
-                try:
-                    plugin_list = api_do_request(url)
-                except ValueError:
-                    continue
-                # if no plugin name was found with egg_cracking_jar() skip this round
-                if plugin_list is None:
-                    continue
-
-            # search with version which is in plugin.yml for the plugin
-            if i == 3:
-                plugin_file_version2 = plugin_version_in_yml
 
 
-            for plugin in plugin_list:
-                plugin_id = plugin["id"]
-                url2 = f"https://api.spiget.org/v2/resources/{plugin_id}/versions?size=100&sort=-name"
-                try:
-                    plugin_versions = api_do_request(url2)
-                except ValueError:
-                    continue
-                if plugin_versions is None:
-                    continue
-                for updates in plugin_versions:
-                    update_version_name = updates["name"]
-                    if plugin_file_version2 in update_version_name:
-                        #spigot_update_id = updates["id"]
-                        plugin_latest_version = get_latest_plugin_version_spiget(plugin_id)
+    plugin_file_version2 = plugin_file_version
+    for i in range(5):
+        if i == 1:
+            plugin_file_version2 = re.sub(r'(\-\w*)', '', plugin_file_version)
+
+        # looks into the plugin.yml of the jar-file for the plugin name and version
+        if i == 2:
+            plugin_name_in_yml, plugin_version_in_yml = egg_cracking_jar(plugin_file)
+            url = f"https://api.spiget.org/v2/search/resources/{plugin_name_in_yml}?field=name&sort=-downloads"
+            try:
+                plugin_list = api_do_request(url)
+            except ValueError:
+                continue
+
+        # search with version which is in plugin.yml for the plugin
+        if i == 3:
+            plugin_file_version2 = plugin_version_in_yml
+
+        # hard regex cut where first word is used as name and after first '-' until '.jar' is used as version
+        # can be false this is not bulletproof!!!
+        # example Dynmap-v3.7-beta-8.jar
+        # -> Name:      Dynmap
+        # -> Version:   v3.7-beta-8
+        if i == 4:
+            plugin_name_from_regex, plugin_file_version2 = get_plugin_name_version_from_strict_regex(plugin_file)
+            url = f"https://api.spiget.org/v2/search/resources/{plugin_name_from_regex}?field=name&sort=-downloads"
+            plugin_file_version = plugin_file_version2
+            plugin_file_name = plugin_name_from_regex
+            try:
+                plugin_list = api_do_request(url)
+            except ValueError:
+                continue
+
+        # if no plugin was found skip this round
+        if plugin_list is None:
+            continue
+
+        for plugin in plugin_list:
+            plugin_id = plugin["id"]
+            url2 = f"https://api.spiget.org/v2/resources/{plugin_id}/versions?size=100&sort=+name"
+            try:
+                plugin_versions = api_do_request(url2)
+            except ValueError:
+                continue
+            if plugin_versions is None:
+                continue
+            # check how many versions we are behind by adding 1 each version compare
+            k = 0
+            for updates in plugin_versions:
+                k += 1
+                update_version_name = updates["name"]
+                if plugin_file_version2 in update_version_name:
+                    plugin_latest_version = get_latest_plugin_version_spiget(plugin_id)
+                    plugin_is_outdated = False
+                    try:
                         plugin_is_outdated = compare_plugin_version(plugin_latest_version, update_version_name)
-                        Plugin.add_to_plugin_list(
-                            plugin_file,
-                            plugin_file_name,
-                            plugin_file_version,
-                            plugin_latest_version,
-                            plugin_is_outdated,
-                            "spigot",
-                            [plugin_id]
-                        )
-                        return plugin_id
-        return None
+                    except:
+                    # if we haven't found the correct version and we have thrown an error
+                    # then the plugin_is_outdated is titled as false
+                    # and if the difference is more than 1 version apart then the plugin is titled as outdated
+                    # this can be wrong because the api can return wrong sorting of versions espacially with different
+                    # naming conventions for versions
+                        if plugin_is_outdated is False:
+                            if k > 1 and k < 100:
+                                plugin_is_outdated = True
+
+                    Plugin.add_to_plugin_list(
+                        plugin_file,
+                        plugin_file_name,
+                        plugin_file_version,
+                        plugin_latest_version,
+                        plugin_is_outdated,
+                        "spigot",
+                        [plugin_id]
+                    )
+                    return plugin_id
+
+    return None

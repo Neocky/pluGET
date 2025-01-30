@@ -9,18 +9,28 @@ class TestCases(unittest.TestCase):
         plugin_file_name_cropped = "LuckPerms"
         result = plugin_updatechecker.get_plugin_file_name(plugin_file_name)
         self.assertEqual(result, plugin_file_name_cropped)
-    
+
     def test_get_plugin_file_version(self):
         plugin_file_name = "LuckPerms-5.4.30.jar"
         plugin_version_cropped = "5.4.30"
         result = plugin_updatechecker.get_plugin_file_version(plugin_file_name)
         self.assertEqual(result, plugin_version_cropped)
 
+    def test_get_plugin_name_version_from_strict_regex(self):
+        plugin_file_name = "Dynmap-v3.7-beta-8.jar"
+        plugin_file_name_cropped = "Dynmap"
+        plugin_file_version_cropped = "v3.7-beta-8"
+        result_name, result_version = plugin_updatechecker.get_plugin_name_version_from_strict_regex(plugin_file_name)
+        self.assertEqual(result_name, plugin_file_name_cropped)
+        self.assertEqual(result_version, plugin_file_version_cropped)
+
+
     def test_get_plugin_version_without_letters(self):
         plugin_version = "VERSIONv5.4.30"
         plugin_version_cropped = "5.4.30"
         result = plugin_updatechecker.get_plugin_version_without_letters(plugin_version)
         self.assertEqual(result, plugin_version_cropped)
+
 
     def test_compare_plugin_version(self):
         result = plugin_updatechecker.compare_plugin_version("5.4.30", "5.4.0")

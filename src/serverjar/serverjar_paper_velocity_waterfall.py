@@ -60,11 +60,11 @@ def find_latest_available_version(file_server_jar_full_name, version_group) -> i
     :returns: Latest available version as int
     """
     if "paper" in file_server_jar_full_name:
-        url = f"https://papermc.io/api/v2/projects/paper/versions/{version_group}/builds"
+        url = f"https://api.papermc.io/v2/projects/paper/versions/{version_group}/builds"
     elif "waterfall" in file_server_jar_full_name:
-        url = f"https://papermc.io/api/v2/projects/waterfall/versions/{version_group}/builds"
+        url = f"https://api.papermc.io/v2/projects/waterfall/versions/{version_group}/builds"
     elif "velocity" in file_server_jar_full_name:
-        url = f"https://papermc.io/api/v2/projects/velocity/versions/{version_group}/builds"
+        url = f"https://api.papermc.io/v2/projects/velocity/versions/{version_group}/builds"
 
     versions = api_do_request(url)
     if "status" in versions: # Checks if the API returns a status. This means that there was an error.
@@ -97,11 +97,11 @@ def get_papermc_download_file_name(mc_version, serverjar_version, file_server_ja
     :returns: Download name of the file
     """
     if "paper" in file_server_jar_full_name:
-        url = f"https://papermc.io/api/v2/projects/paper/versions/{mc_version}/builds/{serverjar_version}"
+        url = f"https://api.papermc.io/v2/projects/paper/versions/{mc_version}/builds/{serverjar_version}"
     elif "waterfall" in file_server_jar_full_name:
-        url = f"https://papermc.io/api/v2/projects/waterfall/versions/{mc_version}/builds/{serverjar_version}"
+        url = f"https://api.papermc.io/v2/projects/waterfall/versions/{mc_version}/builds/{serverjar_version}"
     elif "velocity" in file_server_jar_full_name:
-        url = f"https://papermc.io/api/v2/projects/velocity/versions/{mc_version}/builds/{serverjar_version}"
+        url = f"https://api.papermc.io/v2/projects/velocity/versions/{mc_version}/builds/{serverjar_version}"
     build_details = api_do_request(url)
     download_name = build_details["downloads"]["application"]["name"]
     return download_name
@@ -229,13 +229,13 @@ def serverjar_papermc_update(
             return False
 
     if "paper" in papermc_serverjar:
-        url = f"https://papermc.io/api/v2/projects/paper/versions/{mc_version}" + \
+        url = f"https://api.papermc.io/v2/projects/paper/versions/{mc_version}" + \
             f"/builds/{server_jar_version}/downloads/{download_file_name}"
     elif "waterfall" in papermc_serverjar:
-        url = f"https://papermc.io/api/v2/projects/waterfall/versions/{mc_version}" + \
+        url = f"https://api.papermc.io/v2/projects/waterfall/versions/{mc_version}" + \
             f"/builds/{server_jar_version}/downloads/{download_file_name}"
     elif "velocity" in papermc_serverjar:
-        url = f"https://papermc.io/api/v2/projects/velocity/versions/{mc_version}" + \
+        url = f"https://api.papermc.io/v2/projects/velocity/versions/{mc_version}" + \
             f"/builds/{server_jar_version}/downloads/{download_file_name}"
     
     download_path = Path(f"{path_server_root}/{download_file_name}")
@@ -258,7 +258,6 @@ def serverjar_papermc_update(
                 if file_size == 0:
                     continue
                 progress.update(download_task, advance=len(data))
-                #f.flush()
 
     
     file_size_data = convert_file_size_down(convert_file_size_down(file_size))

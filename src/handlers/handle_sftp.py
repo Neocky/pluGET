@@ -5,7 +5,7 @@ import paramiko
 import stat
 import re
 
-from src.utils.console_output import rich_print_error
+from src.utils.console_output import rich_print_error, rich_print_warning
 from src.handlers.handle_config import config_value
 
 
@@ -67,8 +67,18 @@ def sftp_upload_file(sftp, path_item) -> None:
         sftp.chdir(path_upload_folder)
         sftp.put(path_item)
     except FileNotFoundError:
-        rich_print_error("Error: [SFTP]: The 'plugins' folder couldn't be found on the remote host!")
-        rich_print_error("Error: [SFTP]: Aborting uploading.")
+        rich_print_error(f"Error: [SFTP]: The '{path_upload_folder}' folder couldn't be found on the remote host!")
+        try:
+            sftp.makedirs(path_upload_folder)
+            rich_print_warning(f"Warning: [SFTP]: Created '{path_upload_folder}' for you.")
+            sftp.chdir(path_upload_folder)
+            sftp.put(path_item)
+        except:
+            rich_print_error(
+                f"Error: [SFTP]: The '{path_upload_folder}' folder couldn't be created or the upload failed!"
+            )
+            rich_print_error("Error: [SFTP]: Aborting uploading.")
+
     sftp.close()
     return None
 

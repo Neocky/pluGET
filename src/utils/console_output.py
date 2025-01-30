@@ -17,6 +17,15 @@ def rich_print_error(error_message) -> None:
     return None
 
 
+def rich_print_warning(warning_message) -> None:
+    """
+    Prints a formatted warning message from rich
+    """
+    console = Console()
+    console.print(warning_message, style="bright_yellow")
+    return None
+
+
 def rename_console_title() -> None:
     """
     Renames the console title on first startup
