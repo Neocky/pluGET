@@ -1,5 +1,4 @@
 
-
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./assets/branding/pluget-logo-white.png">
@@ -13,20 +12,21 @@
 </p>
 
 <p align="center">  
-<a href="https://github.com/Neocky/pluGET/blob/main/LICENSE"> <img src="https://img.shields.io/github/license/Neocky/pluGET" alt="Apache-2.0" border="0"></a>  
 <a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/v/release/Neocky/pluGET?include_prereleases" alt"latestrelease"></a>
 <a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/downloads/Neocky/pluGET/total" alt="downloads" border="0"></a>
 <a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FNeocky%2FpluGET&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false"/></a>
+<a href="https://discord.gg/475Uf4NBPF"><img src="https://discordapp.com/api/guilds/801903246284685312/widget.png?style=shield"/></a>
 </p>
 
-
-# pluGET  
+# 🚚💨 pluGET  
 A powerful package manager which updates [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
 
-<img src="https://user-images.githubusercontent.com/13088544/177011216-1360d444-278a-475e-9863-966c48c60ba7.gif" alt="pluGET.gif" border="0" />
+![pluget-27090b452c1e9](https://github.com/user-attachments/assets/9bfdafd8-2f89-4c00-96b3-05b78b0fdf71)
 
 <details>
   <summary>Old Screenshots</summary>  
+  <img src="https://user-images.githubusercontent.com/13088544/177011216-1360d444-278a-475e-9863-966c48c60ba7.gif" alt="pluGET.gif" border="0" />
+
   
   `check all` to check installed plugins for updates:  
   ![screenshot1](https://i.ibb.co/QM7xh7w/pluget-checkall-small.png)
@@ -39,7 +39,7 @@ A powerful package manager which updates [Plugins](https://www.spigotmc.org/reso
   
 </details>
 
-# About  
+## 💡 About  
 pluGET is a standalone package manager written in python for minecraft [Spigot](https://www.spigotmc.org/) servers and its forks (e.g. [PaperMC](https://papermc.io/)). The program works with a locally installed servers or with a remote host through SFTP/FTP, when configured in the config. It uses the [Spiget](https://spiget.org/) API to download and compare plugin versions and download the latest version of plugins from the [Spigot](https://www.spigotmc.org/) site. It can also compare and download the latest update of specific server software (e.g. [PaperMC](https://papermc.io/)).
 
 Plugin management is the hard part of managing a minecraft server. The time it takes to manually check the [Spigot resources](https://www.spigotmc.org/resources/) page for updates and manually downloading all plugins is too long and daunting. So I built pluGET to automate and ease the plugin handling of a minecraft server and to turn the most time consuming part of managing a minecraft server to an easy one.
@@ -48,7 +48,7 @@ This program is suited for minecraft server owners who want to save time and sta
 
 <img src="https://i.ibb.co/82dnyrK/image.png" alt="meme" border="0" height="350" width="350"></a>
 
-# Features
+## 📖 Features
 - Works locally or through SFTP/FTP
 - Runs directly from the console with command line arguments
 - Checks for updates and downloads the latest version of all/specific plugins
@@ -64,30 +64,30 @@ There are more features in the work. Check [Projects](https://github.com/Neocky/
 [Get the latest release here.](https://github.com/Neocky/pluGET/releases)  
 
 
-# Donations ☕
+## ☕ Support
 If you feel like showing your love and/or appreciation for this project then how about buying me a coffee? ☕🤎
 
-[<img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="ko-fi" width="300"/>](https://ko-fi.com/Y8Y1CKZ43)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y1CKZ43)
 
+## ❓ Need help?
+Check out the discord!
 
-
-# Need help?
 [<img src="https://i.ibb.co/PQv3KtJ/Discord-Logo-Wordmark-Color.png" alt="Discord" width="300"/>](https://discord.gg/475Uf4NBPF)
 
 
-# Installation
-## 1. Python 3.10.4
+## 💻 Installation
+### 1. Python 3.10.4
 Python needs to be installed on your machine. Get it [here](https://www.python.org/downloads/).  
 
-## 2. Dependencies
+### 2. Dependencies
 In order to install dependencies run the `install_requirements_WINDOWS/LINUX` file, of course depending on your system.
 
-## 3. Edit the config
+### 3. Edit the config
 When run pluGET for the first time, the `pluGET_config.yaml` file will be created in the main folder and the program will close.  
 Edit the config to your needs and relaunch pluGET.  
 **Now you are good to go!**  
 
-## 4. Running the program
+### 4. Running the program
 Execute the `pluget.py` file with python in the `\pluGET` folder.  
 This will launch pluGET correctly.  
 ```python
@@ -97,10 +97,9 @@ py pluget.py
 python3 pluget.py
 ```
 
-# Usage  
+## 🚀 Usage and Commands
+> [!Caution]
 > As always, if you update plugins, shut down your server!  
-
-## Commands:
 
 ### • Show the information about all commands.
 <!-- <details>
@@ -124,13 +123,13 @@ exit .
 help .
 ```
 
-##  Manage Plugins
-### • Download the latest update of a specific package: 
+###  Manage Plugins
+#### • Download the latest update of a specific package: 
 ```
 get [pluginID/pluginName]
 ```  
 
-### • Check all plugins/one specific plugin for updates with optional changelog output:  
+#### • Check all plugins/one specific plugin for updates with optional changelog output:  
 <!-- <details>
   <summary>Output</summary>  
   
@@ -142,54 +141,54 @@ get [pluginID/pluginName]
 check [all/pluginName] [changelog]
 ```
 
-### • Update all plugins/one specific plugin:  
+#### • Update all plugins/one specific plugin:  
 ```
 update [all/pluginName]
 ```  
 
-### • Remove a plugin with the ID/Name:  
+#### • Remove a plugin with the ID/Name:  
 ```
 remove [pluginID/pluginName]
 ```
 
-### • Search for a plugin:  
+#### • Search for a plugin:  
 ```
 search [pluginName]
 ```
 
-## Manage Server Software
+### Manage Server Software
 
-### • Check installed server software for updates:
+#### • Check installed server software for updates:
 ```
 check serverjar
 ```
 
-### • Update installed server software to latest/specific version:
+#### • Update installed server software to latest/specific version:
 ```
 update serverjar [Version]
 ```
 
-### • Download specific paper version:
+#### • Download specific paper version:
 ```
 get-paper [paperBuild] [minecraftVersion]
 ```
 
-### • Download specific waterfall version:
+#### • Download specific waterfall version:
 ```
 get-waterfall [waterfallBuild] [minecraftVersion]
 ```
 
-### • Download specific velocity version:
+#### • Download specific velocity version:
 ```
 get-velocity [velocityBuild] [minecraftVersion]
 ```
 
-### • Download specific purpur version:
+#### • Download specific purpur version:
 ```
 get-purpur [purpurBuild] [minecraftVersion]
 ```
 
-# Command line arguments
+## ✅ Command line arguments
 pluGET supports all commands directly through the command line. Get the list of all available command line arguments with the `-h` argument.
 
 Example direct command line call:
@@ -197,18 +196,18 @@ Example direct command line call:
 py pluget.py check all
 ```
 
-# Known problems
+## ⛔ Known problems
 
-## Can't get latest version/Update available
+### Can't get latest version/Update available
 
-### Inconsistent Names and Versions
+#### Inconsistent Names and Versions
 Example:
 ![EssentialsX](https://i.ibb.co/fDyCYQ8/essentialsx.png)  
 EssentialsX is a prominent example of inconsisten version naming. The installed version is `2.18.2.0` but on [Spigot](https://www.spigotmc.org/resources/essentialsx.9089/update?update=371379) the version is only described as `2.18.2`.  
 That's the reason pluGET can't detect it automatically.  
 > There are of course many more plugins which have some sort of inconsistency which makes it sadly impossible for pluGET to detect them all. EssentialsX is used only as an example.  
 
-### Solution
+#### Solution
 Download the plugins with the `get [pluginName]` command to make them detectable for pluGET.  
 After downloading EssentialsX with `get EssentialsX` and using `check all`:  
 ![EssentialsX](https://i.ibb.co/ws5wHTj/essentialsx-2.png)  

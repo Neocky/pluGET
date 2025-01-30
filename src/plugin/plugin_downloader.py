@@ -2,9 +2,11 @@
 File and functions which handle the download of the specific plugins
 """
 
+import os
 import re
 from pathlib import Path
 import requests
+from zipfile import ZipFile
 
 from rich.table import Table
 from rich.console import Console
@@ -127,7 +129,6 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
                 if file_size == 0:
                     continue
                 progress.update(download_task, advance=len(data))
-                #f.flush()
 
     # use rich console for nice colors
     console = Console()
@@ -144,12 +145,25 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
         console.print("    [not bold][bright_green]Downloaded[bright_magenta] " + (str(file_size_data)).rjust(9) + \
              f" KB [cyan]→ [white]{download_path}")
 
+    # check if plugin file is a proper .jar-file (try to open plugin.yml file)
+    # if it is not it could be a premium plugin
+    try:
+        with ZipFile(download_path, "r") as plugin_jar:
+            plugin_jar.open("plugin.yml", "r")
+    except:
+        rich_print_error("Error: Downloaded plugin file was not a proper jar-file! Premium plugins are not supported!")
+        rich_print_error("Removing file...")
+        os.remove(download_path)
+        return None
+
     if config_values.connection == "sftp":
         sftp_session = sftp_create_connection()
         sftp_upload_file(sftp_session, download_path)
+
     elif config_values.connection == "ftp":
         ftp_session = ftp_create_connection()
         ftp_upload_file(ftp_session, download_path)
+
     return None
 
 

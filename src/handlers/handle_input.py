@@ -110,7 +110,7 @@ def get_input() -> str:
     :returns: Optional parameter
     """
     input_command = None
-    print("\n'STRG + C' to exit")
+    print("\n'CTRL + C' to exit")
     while True:
         try:
             input_command, input_selected_object, *input_parameter = input("pluGET >> ").split()
