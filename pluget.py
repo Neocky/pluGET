@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Handles the main function and the argument passing for the whole pluGET program
 """
