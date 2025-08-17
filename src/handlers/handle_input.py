@@ -6,6 +6,8 @@ from src.utils.console_output import rich_print_error
 from src.utils.utilities import get_command_help
 from src.plugin.plugin_remover import delete_plugin
 from src.plugin.plugin_downloader import get_specific_plugin_spiget, search_specific_plugin_spiget
+from src.platforms.github_handler import download_github_plugin, search_github_plugin
+from src.platforms.modrinth_handler import download_modrinth_plugin, search_modrinth_plugin
 from src.plugin.plugin_updatechecker import check_installed_plugins, update_installed_plugins
 from src.serverjar.serverjar_updatechecker import \
     check_update_available_installed_server_jar, update_installed_server_jar
@@ -20,9 +22,13 @@ from src.serverjar.serverjar_purpur import serverjar_purpur_update
 # get-waterfall
 # get-velocity
 # get-purpur
+# get-github
+# get-modrinth
 # exit
 # remove
 # search
+# search-github
+# search-modrinth
 # help
 
 
@@ -70,6 +76,21 @@ def handle_input(
             case "get-purpur":
                 serverjar_purpur_update(input_selected_object, input_parameter, None)
 
+            case "get-github":
+                # Format: get-github owner/repo [plugin-name]
+                if input_selected_object is None:
+                    rich_print_error("Error: GitHub repository required! Format: owner/repo")
+                    continue
+                download_github_plugin(input_selected_object, input_parameter)
+                
+            case "get-modrinth":
+                # Format: get-modrinth project-id [featured-only]
+                if input_selected_object is None:
+                    rich_print_error("Error: Modrinth project ID required!")
+                    continue
+                featured_only = input_parameter == "featured" if input_parameter else False
+                download_modrinth_plugin(input_selected_object, featured_only)
+
             case "update":
                 match input_selected_object:
                     case "serverjar":
@@ -86,6 +107,21 @@ def handle_input(
 
             case "search":
                 search_specific_plugin_spiget(input_selected_object)
+            
+            case "search-github":
+                # Format: search-github search-term
+                if input_selected_object is None:
+                    rich_print_error("Error: Search term required!")
+                    continue
+                search_github_plugin(input_selected_object)
+                
+            case "search-modrinth":
+                # Format: search-modrinth search-term
+                if input_selected_object is None:
+                    rich_print_error("Error: Search term required!")
+                    continue
+                search_modrinth_plugin(input_selected_object)
+                
             case "remove":
                 delete_plugin(input_selected_object)
             case "help":
