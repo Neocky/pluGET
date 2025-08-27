@@ -40,7 +40,7 @@ A powerful package manager which updates [Plugins](https://www.spigotmc.org/reso
 </details>
 
 ## 💡 About  
-pluGET is a standalone package manager written in python for minecraft [Spigot](https://www.spigotmc.org/) servers and its forks (e.g. [PaperMC](https://papermc.io/)). The program works with a locally installed servers or with a remote host through SFTP/FTP, when configured in the config. It uses the [Spiget](https://spiget.org/) API to download and compare plugin versions and download the latest version of plugins from the [Spigot](https://www.spigotmc.org/) site. It can also compare and download the latest update of specific server software (e.g. [PaperMC](https://papermc.io/)).
+pluGET is a standalone package manager written in python for minecraft [Spigot](https://www.spigotmc.org/) servers and its forks (e.g. [PaperMC](https://papermc.io/)). The program works with a locally installed servers or with a remote host through SFTP/FTP, when configured in the config. It uses multiple APIs to download and compare plugin versions from [Spigot](https://www.spigotmc.org/), [Modrinth](https://modrinth.com/), and [GitHub](https://github.com/) repositories. It can also compare and download the latest update of specific server software (e.g. [PaperMC](https://papermc.io/)).
 
 Plugin management is the hard part of managing a minecraft server. The time it takes to manually check the [Spigot resources](https://www.spigotmc.org/resources/) page for updates and manually downloading all plugins is too long and daunting. So I built pluGET to automate and ease the plugin handling of a minecraft server and to turn the most time consuming part of managing a minecraft server to an easy one.
 
@@ -52,6 +52,10 @@ This program is suited for minecraft server owners who want to save time and sta
 - Works locally or through SFTP/FTP
 - Runs directly from the console with command line arguments
 - Checks for updates and downloads the latest version of all/specific plugins
+- **Multi-platform plugin support:**
+  - [Spigot](https://www.spigotmc.org/) (via Spiget API)
+  - [Modrinth](https://modrinth.com/) (with accurate file hash matching)
+  - [GitHub](https://github.com/) releases (with name matching)
 - Checks for updates and downloads the latest version of your server software
   - [PaperMc](https://papermc.io/)
   - [Purpur](https://purpurmc.org/)
@@ -154,6 +158,26 @@ remove [pluginID/pluginName]
 #### • Search for a plugin:  
 ```
 search [pluginName]
+```
+
+#### • Download plugin from GitHub releases:  
+```
+get-github [owner/repo]
+```
+
+#### • Download plugin from Modrinth:  
+```
+get-modrinth [project-id]
+```
+
+#### • Search for plugins on GitHub:  
+```
+search-github [searchTerm]
+```
+
+#### • Search for plugins on Modrinth:  
+```
+search-modrinth [searchTerm]
 ```
 
 ### Manage Server Software
