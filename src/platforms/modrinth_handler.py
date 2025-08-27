@@ -5,7 +5,7 @@ Handles Modrinth plugin checking, downloading and updating
 import re
 from pathlib import Path
 
-from src.utils.utilities import api_do_request
+from src.utils.utilities import api_do_request, create_temp_plugin_folder, remove_temp_plugin_folder
 from src.utils.console_output import rich_print_error
 from src.plugin.plugin_downloader import get_download_path
 from src.handlers.handle_config import config_value
@@ -143,9 +143,12 @@ def download_modrinth_plugin(project_id: str, featured_only: bool = False, versi
     version = get_modrinth_plugin_version(project_id, featured_only, version_type)
     if version is None:
         version = "latest"
-    
-    # Create download path similar to other implementations
-    download_path = get_download_path(config_values)
+
+    # Create download path with proper SFTP/FTP handling
+    if config_values.connection != "local":
+        download_path = create_temp_plugin_folder()
+    else:
+        download_path = get_download_path(config_values)
     # Use original filename if available, otherwise construct one
     if filename:
         plugin_download_name = filename
@@ -214,11 +217,24 @@ def _download_modrinth_file(url: str, download_path: Path) -> None:
         console.print("    [not bold][bright_green]Downloaded[bright_magenta] " + (str(file_size_data)).rjust(9) + \
              f" KB [cyan]→ [white]{download_path}")
 
-    # check if plugin file is a proper .jar-file (same validation as existing code)
+    # check if plugin file is a proper .jar-file (try to open plugin.yml or paper-plugin.yml file)
+    # updated validation to support both plugin.yml and paper-plugin.yml
+    plugin_valid = False
     try:
         with ZipFile(download_path, "r") as plugin_jar:
-            plugin_jar.open("plugin.yml", "r")
+            try:
+                plugin_jar.open("plugin.yml", "r")
+                plugin_valid = True
+            except KeyError:
+                try:
+                    plugin_jar.open("paper-plugin.yml", "r")
+                    plugin_valid = True
+                except KeyError:
+                    pass
     except:
+        pass
+    
+    if not plugin_valid:
         rich_print_error("Error: Downloaded plugin file was not a proper jar-file!")
         rich_print_error("Removing file...")
         os.remove(download_path)
