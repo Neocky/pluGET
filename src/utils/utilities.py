@@ -44,9 +44,13 @@ def get_command_help(command: str) -> None:
             rich_table.add_row(
                 "get-waterfall", "WaterfallVersion", "McVersion", "Downloads a specific waterfall version"
             )
+            rich_table.add_row("get-github", "owner/repo", "plugin-name", "Downloads latest plugin from GitHub releases")
+            rich_table.add_row("get-modrinth", "project-id", "featured", "Downloads latest plugin from Modrinth")
             rich_table.add_row("help", "./anything", None, "Get specific help to the commands of pluGET")
             rich_table.add_row("remove", "Name", None, "Delete an installed plugin from the plugin folder")
             rich_table.add_row("search", "Name/all", None, "Search for a plugin and download the latest version")
+            rich_table.add_row("search-github", "Name", None, "Search GitHub for plugins and download")
+            rich_table.add_row("search-modrinth", "Name", None, "Search Modrinth for plugins and download")
             rich_table.add_row("update", "Name/all", None, "Update installed plugins to the latest version")
             rich_table.add_row("update", "serverjar", None, "Update the installed serverjar to the latest version")
         case "check":
@@ -66,6 +70,14 @@ def get_command_help(command: str) -> None:
             rich_table.add_row(
                 "get-waterfall", "WaterfallVersion", "McVersion", "Downloads a specific Waterfall version"
             )
+        case "get-github":
+            rich_table.add_row("get-github", "owner/repo", "plugin-name", "Downloads latest plugin from GitHub releases")
+        case "get-modrinth":
+            rich_table.add_row("get-modrinth", "project-id", "featured", "Downloads latest plugin from Modrinth")
+        case "search-github":
+            rich_table.add_row("search-github", "Name", None, "Search GitHub for plugins and download")
+        case "search-modrinth":
+            rich_table.add_row("search-modrinth", "Name", None, "Search Modrinth for plugins and download")
         case "help" | "all":
             rich_table.add_row("help", "./anything", None, "Get specific help to the commands of pluGET")
         case "remove":

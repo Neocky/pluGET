@@ -19,6 +19,8 @@ from src.handlers.handle_ftp import ftp_create_connection, ftp_download_file, ft
 from src.plugin.plugin_downloader import get_specific_plugin_spiget, get_download_path
 from src.utils.console_output import rich_print_error
 from src.utils.utilities import api_do_request, create_temp_plugin_folder, remove_temp_plugin_folder
+from src.platforms.github_handler import get_github_plugin_version, download_github_plugin
+from src.platforms.modrinth_handler import get_modrinth_plugin_version, download_modrinth_plugin, get_modrinth_project_from_plugin_hash
 
 
 class Plugin():
@@ -344,7 +346,28 @@ def check_update_available_installed_plugins(input_selected_object: str, config_
         plugin_file_version = get_plugin_file_version(plugin_file)
         # check repository of plugin
         plugin_spigot_id = search_plugin_spiget(plugin_file, plugin_file_name, plugin_file_version) # plugin_spigot_id isn't needed
-        # TODO add more plugin repositories here
+        
+        # If not found on Spiget, try other platforms
+        if plugin_spigot_id is None:
+            # Check if plugin was added to list (if not, it wasn't found on any platform yet)
+            try:
+                if plugin_file not in INSTALLEDPLUGINLIST[-1].plugin_file_name:
+                    should_check_other_platforms = True
+                else:
+                    should_check_other_platforms = False
+            except IndexError:
+                should_check_other_platforms = True
+                
+            if should_check_other_platforms:
+                # Try Modrinth first (has file hash lookup)
+                search_plugin_modrinth(plugin_file, plugin_file_name, plugin_file_version)
+                
+                # If still not found, try GitHub (limited matching)
+                try:
+                    if plugin_file not in INSTALLEDPLUGINLIST[-1].plugin_file_name:
+                        search_plugin_github(plugin_file, plugin_file_name, plugin_file_version)
+                except IndexError:
+                    search_plugin_github(plugin_file, plugin_file_name, plugin_file_version)
 
         # plugin wasn't found and not added to global plugin list so add
         try:
@@ -477,10 +500,26 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                                 f"Error: TypeError > Couldn't download new version. Is the file available on spigotmc?"
                             )
                             plugins_updated -= 1
+                    
+                    case "github":
+                        try:
+                            download_github_plugin(plugin.plugin_repository_data[0], plugin.plugin_name)
+                        except Exception as err:
+                            rich_print_error(f"GitHub Error: {err}")
+                            plugins_updated -= 1
+                    
+                    case "modrinth":
+                        try:
+                            # plugin_repository_data[0] = project_id, [1] = featured_only
+                            featured_only = plugin.plugin_repository_data[1] if len(plugin.plugin_repository_data) > 1 else False
+                            download_modrinth_plugin(plugin.plugin_repository_data[0], featured_only)
+                        except Exception as err:
+                            rich_print_error(f"Modrinth Error: {err}")
+                            plugins_updated -= 1
 
                     case _:
-                        rich_print_error("Error: Plugin repository wasn't found")
-                        return None
+                        rich_print_error(f"Error: Plugin repository '{plugin.plugin_repository}' wasn't recognized")
+                        plugins_updated -= 1
                 # don't delete files if they are downloaded to a seperate download path
                 if config_values.local_seperate_download_path == False:
                     try:
@@ -509,10 +548,26 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                                 f"Error: TypeError > Couldn't download new version. Is the file available on spigotmc?"
                             )
                             plugins_updated -= 1
+                    
+                    case "github":
+                        try:
+                            download_github_plugin(plugin.plugin_repository_data[0], plugin.plugin_name)
+                        except Exception as err:
+                            rich_print_error(f"GitHub Error: {err}")
+                            plugins_updated -= 1
+                    
+                    case "modrinth":
+                        try:
+                            # plugin_repository_data[0] = project_id, [1] = featured_only
+                            featured_only = plugin.plugin_repository_data[1] if len(plugin.plugin_repository_data) > 1 else False
+                            download_modrinth_plugin(plugin.plugin_repository_data[0], featured_only)
+                        except Exception as err:
+                            rich_print_error(f"Modrinth Error: {err}")
+                            plugins_updated -= 1
 
                     case _:
-                        rich_print_error("Error: Plugin repository wasn't found")
-                        return None
+                        rich_print_error(f"Error: Plugin repository '{plugin.plugin_repository}' wasn't recognized")
+                        plugins_updated -= 1
                 # don't delete old plugin files if they are downloaded to a seperate download path
                 if config_values.remote_seperate_download_path == False:
                     match config_values.connection:
@@ -643,4 +698,148 @@ def search_plugin_spiget(plugin_file: str, plugin_file_name: str, plugin_file_ve
                     )
                     return plugin_id
 
+    return None
+
+
+def search_plugin_modrinth(plugin_file: str, plugin_file_name: str, plugin_file_version: str) -> str:
+    """
+    Search the Modrinth API for the installed plugin and add it to the installed plugin list
+    
+    :param plugin_file: Full file name of plugin
+    :param plugin_file_name: Name of plugin file
+    :param plugin_file_version: Version of plugin file
+    
+    :returns: Project ID of Modrinth Plugin or None
+    """
+    config_values = config_value()
+    
+    # First try: Use file hash lookup (most accurate method)
+    if config_values.connection == "local":
+        plugin_path = Path(f"{config_values.path_to_plugin_folder}/{plugin_file}")
+        project_id = get_modrinth_project_from_plugin_hash(str(plugin_path))
+        
+        if project_id:
+            try:
+                plugin_latest_version = get_modrinth_plugin_version(project_id, featured_only=True)
+                if plugin_latest_version:
+                    plugin_is_outdated = False
+                    try:
+                        plugin_is_outdated = compare_plugin_version(plugin_latest_version, plugin_file_version)
+                    except:
+                        # If version comparison fails, assume outdated if versions differ
+                        if plugin_latest_version != plugin_file_version:
+                            plugin_is_outdated = True
+                    
+                    Plugin.add_to_plugin_list(
+                        plugin_file,
+                        plugin_file_name,
+                        plugin_file_version,
+                        plugin_latest_version,
+                        plugin_is_outdated,
+                        "modrinth",
+                        [project_id, True]  # project_id, featured_only
+                    )
+                    return project_id
+            except Exception:
+                # If API request fails, continue to search method
+                pass
+    
+    # Second try: Search by plugin name
+    url = f"https://api.modrinth.com/v2/search?query={plugin_file_name}&facets=[[%22categories:bukkit%22],[%22categories:spigot%22],[%22categories:paper%22]]&limit=10"
+    search_results = api_do_request(url)
+    
+    if search_results is None or not search_results.get("hits"):
+        return None
+    
+    # Look for exact or close matches in search results
+    for plugin in search_results.get("hits", []):
+        plugin_title = plugin.get("title", "").lower()
+        plugin_slug = plugin.get("slug", "").lower()
+        
+        # Check if plugin name matches title or slug (case insensitive)
+        if (plugin_file_name.lower() in plugin_title or 
+            plugin_title in plugin_file_name.lower() or
+            plugin_file_name.lower() in plugin_slug):
+            
+            project_id = plugin["project_id"]
+            try:
+                plugin_latest_version = get_modrinth_plugin_version(project_id, featured_only=True)
+                if plugin_latest_version:
+                    plugin_is_outdated = False
+                    try:
+                        plugin_is_outdated = compare_plugin_version(plugin_latest_version, plugin_file_version)
+                    except:
+                        # If version comparison fails, assume outdated if versions differ
+                        if plugin_latest_version != plugin_file_version:
+                            plugin_is_outdated = True
+                    
+                    Plugin.add_to_plugin_list(
+                        plugin_file,
+                        plugin_file_name,
+                        plugin_file_version,
+                        plugin_latest_version,
+                        plugin_is_outdated,
+                        "modrinth",
+                        [project_id, True]  # project_id, featured_only
+                    )
+                    return project_id
+            except Exception:
+                continue
+    
+    return None
+
+
+def search_plugin_github(plugin_file: str, plugin_file_name: str, plugin_file_version: str) -> str:
+    """
+    Search GitHub for the installed plugin and add it to the installed plugin list
+    This is a basic implementation - GitHub doesn't have plugin-specific search
+    
+    :param plugin_file: Full file name of plugin
+    :param plugin_file_name: Name of plugin file
+    :param plugin_file_version: Version of plugin file
+    
+    :returns: Repository path of GitHub repo or None
+    """
+    # Search for repositories with the plugin name
+    url = f"https://api.github.com/search/repositories?q={plugin_file_name}+language:java+spigot&sort=stars&order=desc"
+    search_results = api_do_request(url)
+    
+    if search_results is None or search_results.get("total_count", 0) == 0:
+        return None
+    
+    repositories = search_results.get("items", [])[:5]  # Limit to top 5 results
+    
+    # Look for repositories that might match the plugin
+    for repo in repositories:
+        repo_name = repo["name"].lower()
+        repo_full_name = repo["full_name"]
+        
+        # Check if repository name matches plugin name (case insensitive)
+        if (plugin_file_name.lower() in repo_name or 
+            repo_name in plugin_file_name.lower()):
+            
+            try:
+                plugin_latest_version = get_github_plugin_version(repo_full_name)
+                if plugin_latest_version:
+                    plugin_is_outdated = False
+                    try:
+                        plugin_is_outdated = compare_plugin_version(plugin_latest_version, plugin_file_version)
+                    except:
+                        # If version comparison fails, assume outdated if versions differ
+                        if plugin_latest_version != plugin_file_version:
+                            plugin_is_outdated = True
+                    
+                    Plugin.add_to_plugin_list(
+                        plugin_file,
+                        plugin_file_name,
+                        plugin_file_version,
+                        plugin_latest_version,
+                        plugin_is_outdated,
+                        "github",
+                        [repo_full_name]  # repository path
+                    )
+                    return repo_full_name
+            except Exception:
+                continue
+    
     return None
