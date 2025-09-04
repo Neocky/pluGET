@@ -307,13 +307,13 @@ def check_update_available_installed_plugins(input_selected_object: str, config_
     match config_values.connection:
         case "sftp":
             connection = sftp_create_connection()
-            plugin_list = sftp_list_all(connection)
+            plugin_list = sorted(sftp_list_all(connection))
         case "ftp":
             connection = ftp_create_connection()
-            plugin_list = ftp_list_all(connection)
+            plugin_list = sorted(ftp_list_all(connection))
         case _:
             plugin_folder_path = config_values.path_to_plugin_folder
-            plugin_list = os.listdir(plugin_folder_path)
+            plugin_list = sorted(os.listdir(plugin_folder_path))
 
     plugin_count = plugins_with_udpates = 0
     # create simple progress bar from rich
