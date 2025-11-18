@@ -1,54 +1,100 @@
-""""
-	Handles the logic for the config validation, reading and creating
+"""Handles the logic for the config validation, reading, and creating.
+
+This module defines the configuration structure and utilities to manage
+the 'pluGET_config.yaml' file.
 """
 
 import os
 import sys
-import ruamel.yaml
 from pathlib import Path
+from typing import Any, Dict, List, Tuple, Union, Optional
+
+import ruamel.yaml
 from rich.console import Console
 
 
-class config_value():
-	"""
-	Class which holds all the available configuration values from the config file and which will be used later in
-	the process of updating plugins
-	If bool in config can't be read it will default to 'False'
-	"""
-	def __init__(self):
-		yaml = ruamel.yaml.YAML()
-		with open("pluGET_config.yaml", "r") as config_file:
-			data = yaml.load(config_file)
-		self.connection = str(data["Connection"]).lower()
-		self.path_to_plugin_folder = Path(data["Local"]["PathToPluginFolder"])
-		self.local_seperate_download_path = True if data["Local"]["SeperateDownloadPath"] == True else False
-		self.local_path_to_seperate_download_path = Path(data["Local"]["PathToSeperateDownloadPath"])
-		self.server = data["Remote"]["Server"]
-		self.username = data["Remote"]["Username"]
-		self.password = data["Remote"]["Password"]
-		self.sftp_port = int(data["Remote"]["SFTP_Port"])
-		self.ftp_port = int(data["Remote"]["FTP_Port"])
-		self.remote_seperate_download_path = True if data["Remote"]["SeperateDownloadPath"] == True else False
-		self.remote_path_to_seperate_download_path = data["Remote"]["PathToSeperateDownloadPath"]
-		self.remote_plugin_folder_on_server = data["Remote"]["PluginFolderOnServer"]
+class ConfigValue:
+    """Holds all the available configuration values from the config file.
+    
+    Attributes:
+        connection (str): Type of connection ('local', 'sftp', 'ftp').
+        path_to_plugin_folder (Path): Local path to plugins.
+        local_seperate_download_path (bool): Whether to use a separate download path locally.
+        local_path_to_seperate_download_path (Path): The separate local download path.
+        server (str): Remote server address.
+        username (str): Remote username.
+        password (str): Remote password.
+        sftp_port (int): Port for SFTP.
+        ftp_port (int): Port for FTP.
+        remote_seperate_download_path (bool): Whether to use a separate download path remotely.
+        remote_path_to_seperate_download_path (str): The separate remote download path.
+        remote_plugin_folder_on_server (str): Path to plugins on the remote server.
+    """
+
+    def __init__(self) -> None:
+        """Initializes ConfigValue by loading data from the YAML file."""
+        yaml = ruamel.yaml.YAML()
+        config_path = Path("pluGET_config.yaml")
+        
+        if not config_path.exists():
+            # Fallback or error handling if file doesn't exist when class is instantiated
+            # Ideally check_config() ensures existence before this class is called.
+            pass
+
+        try:
+            with config_path.open("r", encoding="utf-8") as config_file:
+                data: Dict[str, Any] = yaml.load(config_file)
+        except (OSError, ruamel.yaml.YAMLError) as e:
+            print(f"Critical Error: Could not read config file: {e}")
+            sys.exit(1)
+
+        self.connection: str = str(data["Connection"]).lower()
+        self.path_to_plugin_folder: Path = Path(data["Local"]["PathToPluginFolder"])
+        self.local_seperate_download_path: bool = bool(
+            data["Local"]["SeperateDownloadPath"]
+        )
+        self.local_path_to_seperate_download_path: Path = Path(
+            data["Local"]["PathToSeperateDownloadPath"]
+        )
+        self.server: str = str(data["Remote"]["Server"])
+        self.username: str = str(data["Remote"]["Username"])
+        self.password: str = str(data["Remote"]["Password"])
+        self.sftp_port: int = int(data["Remote"]["SFTP_Port"])
+        self.ftp_port: int = int(data["Remote"]["FTP_Port"])
+        self.remote_seperate_download_path: bool = bool(
+            data["Remote"]["SeperateDownloadPath"]
+        )
+        # Remote paths remain strings as Path() is OS-dependent (local Windows vs remote Linux)
+        self.remote_path_to_seperate_download_path: str = str(
+            data["Remote"]["PathToSeperateDownloadPath"]
+        )
+        self.remote_plugin_folder_on_server: str = str(
+            data["Remote"]["PluginFolderOnServer"]
+        )
+
+
+# Backward compatibility alias if other files import 'config_value'
+config_value = ConfigValue
 
 
 def check_config() -> None:
-	"""
-	Check if there is a pluGET_config.yml file in the same folder as pluget.py and if not create a new config
-	and exit the programm
-	"""
-	if not os.path.isfile("pluGET_config.yaml"):
-		create_config()
-	return None
+    """Checks if the config file exists.
+
+    If 'pluGET_config.yaml' does not exist in the current directory,
+    it creates a new default configuration and exits the program.
+    """
+    if not os.path.isfile("pluGET_config.yaml"):
+        create_config()
+    return None
 
 
 def create_config() -> None:
-	"""
-	Creates the yaml config in the current directory with the filename pluGET_config.yml
-	"""
-	# this is the whole yaml code because of weird formating indention is not possible 
-	configuration = """\
+    """Creates the YAML config file with default values and exits the program.
+    
+    This function writes the default 'pluGET_config.yaml' to the disk
+    and prompts the user to edit it before restarting.
+    """
+    configuration = """\
 #
 # Configuration File for pluGET
 # https://www.github.com/Neocky/pluGET 
@@ -76,34 +122,47 @@ def create_config() -> None:
   # Change the path below if the plugin folder path is different on the SFTP/FTP server (Change only if you know what you are doing)
         PluginFolderOnServer: /plugins
     """
-	# load ruamel.yaml to get the # commands right in the yaml code
-	yaml = ruamel.yaml.YAML()
-	code = yaml.load(configuration)
-	with open("pluGET_config.yaml", "w") as config_file:
-		yaml.dump(code, config_file)
+    yaml = ruamel.yaml.YAML()
+    code = yaml.load(configuration)
+    
+    try:
+        with open("pluGET_config.yaml", "w", encoding="utf-8") as config_file:
+            yaml.dump(code, config_file)
+    except OSError as e:
+        print(f"Error creating config file: {e}")
+        sys.exit(1)
 
-	config_file_path = os.path.abspath("pluGET_config.yaml")
-	print(f"Path of config file: {config_file_path}")
-	print("Config created. Edit config before executing again!")
-	input("Press any key + enter to exit...")
-	sys.exit()
+    config_file_path = os.path.abspath("pluGET_config.yaml")
+    print(f"Path of config file: {config_file_path}")
+    print("Config created. Edit config before executing again!")
+    input("Press any key + enter to exit...")
+    sys.exit()
 
 
 def validate_config() -> None:
-	"""
-	Validates the config variables after config class is loaded and exit if error is detected and print error
-	"""
-	accepted_values = [
-		("local", "sftp", "ftp")
-	]
-	# exit afterwards if there is an error in config
-	exit_afterwards = False
-	config = config_value()
-	# rich console for nice colors
-	console = Console()
-	if config.connection not in accepted_values[0]:
-		console.print(f"Error in Config! Accepted values for key 'Connection' are {accepted_values[0]}",
-		style="bright_red")
-		exit_afterwards = True
-	if exit_afterwards:
-		sys.exit()
+    """Validates critical configuration variables.
+
+    Checks if the 'Connection' setting in the config is valid.
+    Exits the program if invalid settings are found.
+    """
+    accepted_values: Tuple[str, ...] = ("local", "sftp", "ftp")
+    exit_afterwards = False
+    
+    # Load config logic
+    try:
+        config = ConfigValue()
+    except Exception:
+        # ConfigValue handles its own exit on failure usually
+        return
+
+    console = Console()
+    
+    if config.connection not in accepted_values:
+        console.print(
+            f"Error in Config! Accepted values for key 'Connection' are {accepted_values}",
+            style="bright_red",
+        )
+        exit_afterwards = True
+        
+    if exit_afterwards:
+        sys.exit()
