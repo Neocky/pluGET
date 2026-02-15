@@ -134,5 +134,8 @@ dmypy.json
 # PyCharm Settings
 .idea
 
+# Poetry
+poetry.lock
+
 # pluGET Files
 pluGET_config.yaml

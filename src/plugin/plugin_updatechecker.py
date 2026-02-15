@@ -610,6 +610,10 @@ def search_plugin_spiget(plugin_file: str, plugin_file_name: str, plugin_file_ve
     plugin_list = api_do_request(url)
 
     # Handle failed api request
+    # Check if api response is empty
+    if plugin_list is None:
+        return None
+
     """
     {'error': 'Unexpected Exception', 'msg': 'Unexpected Exception. Please report this to 
     https://github.com/SpiGetOrg/api.spiget.org/issues'}
@@ -619,7 +623,6 @@ def search_plugin_spiget(plugin_file: str, plugin_file_name: str, plugin_file_ve
             f"[not bold]Error: Spiget error occurred whilst searching for plugin '{plugin_file}': {plugin_list['msg']}"
         )
         return plugin_list['msg']
-
 
     plugin_file_version2 = plugin_file_version
     for i in range(5):
