@@ -137,5 +137,8 @@ dmypy.json
 # Poetry
 poetry.lock
 
+# uv
+uv.lock
+
 # pluGET Files
 pluGET_config.yaml
