@@ -2,7 +2,7 @@
 name: Feature request
 about: What would you like to see changed/added/removed
 title: ''
-labels: Enhancement
+labels: enhancement
 assignees: ''
 
 ---

@@ -8,46 +8,36 @@
 </p>
 
 <p align="center">  
-<a href="https://www.python.org/"> <img src="https://img.shields.io/badge/made%20with-python%20%F0%9F%90%8D-brightgreen" alt="madewithpython" border="0"></a>
-</p>
-
-<p align="center">  
 <a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/v/release/Neocky/pluGET?include_prereleases" alt"latestrelease"></a>
 <a href="https://github.com/Neocky/pluGET/releases"> <img src="https://img.shields.io/github/downloads/Neocky/pluGET/total" alt="downloads" border="0"></a>
 <a href="https://discord.gg/475Uf4NBPF"><img src="https://discordapp.com/api/guilds/801903246284685312/widget.png?style=shield"/></a>
 </p>
 
-# 🚚💨 pluGET  
-A powerful package manager which updates [Plugins](https://www.spigotmc.org/resources/) and Server Software for minecraft servers.   
+# 🚚💨 pluGET
+
+A powerful package manager that updates plugins and server software for Minecraft servers.   
 
 ![pluget-27090b452c1e9](https://github.com/user-attachments/assets/9bfdafd8-2f89-4c00-96b3-05b78b0fdf71)
 
-<details>
-  <summary>Old Screenshots</summary>  
-  <img src="https://user-images.githubusercontent.com/13088544/177011216-1360d444-278a-475e-9863-966c48c60ba7.gif" alt="pluGET.gif" border="0" />
 
-  
-  `check all` to check installed plugins for updates:  
-  ![screenshot1](https://i.ibb.co/QM7xh7w/pluget-checkall-small.png)
-  
-  `check all` with more plugins:  
-  ![screenshot2](https://i.ibb.co/VmSNh6K/pluget-checkall.png)
-  
-  `help command` list all available commands:  
-  ![screenshot3](https://i.ibb.co/9VZCjD6/pluget-help2.png)
-  
-</details>
+## 💡 About
 
-## 💡 About  
-pluGET is a standalone package manager written in python for minecraft [Spigot](https://www.spigotmc.org/) servers and its forks (e.g. [PaperMC](https://papermc.io/)). The program works with a locally installed servers or with a remote host through SFTP/FTP, when configured in the config. It uses multiple APIs to download and compare plugin versions from [Spigot](https://www.spigotmc.org/), [Modrinth](https://modrinth.com/), and [GitHub](https://github.com/) repositories. It can also compare and download the latest update of specific server software (e.g. [PaperMC](https://papermc.io/)).
+pluGET is a standalone package manager written in Python for Minecraft servers running [Spigot](https://www.spigotmc.org/) and its forks like [PaperMC](https://papermc.io/).  
+It works with locally installed servers or remote hosts via SFTP/FTP (configured in the config file).  
+pluGET uses the APIs of [Spigot](https://www.spigotmc.org/), [Modrinth](https://modrinth.com/), and [GitHub](https://github.com/) to:
+- Check plugin versions
+- Download updates automatically
+- Compare installed and latest versions
+- Update supported server software (e.g. PaperMC)
 
-Plugin management is the hard part of managing a minecraft server. The time it takes to manually check the [Spigot resources](https://www.spigotmc.org/resources/) page for updates and manually downloading all plugins is too long and daunting. So I built pluGET to automate and ease the plugin handling of a minecraft server and to turn the most time consuming part of managing a minecraft server to an easy one.
+Managing plugins is one of the most time-consuming parts of running a Minecraft server. Checking for updates manually and downloading each plugin takes a lot of time.
+pluGET automates this process and makes plugin management simple and fast.
 
-This program is suited for minecraft server owners who want to save time and stay on top of their plugin versions. The program input and the associated config file are pretty simple so every server owner and not only the most tech savy ones can use pluGET to ease their plugin handling.
+It is designed for server owners who want to save time and keep their plugins up to date. The configuration is simple, so even users without advanced technical knowledge can use it.
 
-<img src="https://i.ibb.co/82dnyrK/image.png" alt="meme" border="0" height="350" width="350"></a>
 
 ## 📖 Features
+
 - Works locally or through SFTP/FTP
 - Runs directly from the console with command line arguments
 - Checks for updates and downloads the latest version of all/specific plugins
@@ -68,43 +58,116 @@ There are more features in the work. Check [Projects](https://github.com/Neocky/
 
 
 ## ☕ Support
-If you feel like showing your love and/or appreciation for this project then how about buying me a coffee? ☕🤎
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y1CKZ43)
+If you enjoy using pluGET and would like to support its development, [you can buy me a hot chocolate](https://ko-fi.com/Y8Y1CKZ43). ☕🤎  
+Your support helps keep the project active and maintained.
 
-## ❓ Need help?
-Check out the discord!
 
-[<img src="https://i.ibb.co/PQv3KtJ/Discord-Logo-Wordmark-Color.png" alt="Discord" width="300"/>](https://discord.gg/475Uf4NBPF)
+## ❓ Need help or have a question?
+
+If you need help, have a question, or want to discuss something about pluGET, feel free to [join the Discord](https://discord.gg/475Uf4NBPF) or start a conversation in [GitHub Discussions](https://github.com/Neocky/pluGET/discussions).
 
 
 ## 💻 Installation
-### 1. Python 3.10.4
-Python needs to be installed on your machine. Get it [here](https://www.python.org/downloads/).  
 
-### 2. Dependencies
-In order to install dependencies run the `install_requirements_WINDOWS/LINUX` file, of course depending on your system.
+### 1. Requirements
 
-### 3. Edit the config
-When run pluGET for the first time, the `pluGET_config.yaml` file will be created in the main folder and the program will close.  
-Edit the config to your needs and relaunch pluGET.  
-**Now you are good to go!**  
+- Python (Version 3.10+)
+- (Recommended) [uv](https://docs.astral.sh/uv/)
 
-### 4. Running the program
-Execute the `pluget.py` file with python in the `\pluGET` folder.  
-This will launch pluGET correctly.  
-```python
+```shell
+python --version
+```
+
+If Python is not installed, download it from: https://www.python.org/downloads/
+
+### 2. Download pluGET
+
+[Download the latest release from GitHub.](https://github.com/Neocky/pluGET/releases)  
+Unzip the archive and open a terminal in the extracted folder.
+
+### 3. Setup
+
+#### a. Recommended Setup (with [uv](https://docs.astral.sh/uv/))
+
+Inside the pluGET folder un:
+
+```shell
+uv venv
+uv sync
+```
+
+Then start the program with:
+
+```shell
+uv run python pluget.py
+```
+
+The dependencies are installed automatically.
+
+#### b. Alternative Setup (without [uv](https://docs.astral.sh/uv/))
+
+If you don't want to use uv:
+
+##### Create a virtual environment:
+
+```shell
+python -m venv .venv
+```
+
+Activate it:
+
+**Windows**
+
+```powershell
+.venv\Scripts\activate
+```
+
+**Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+##### Install dependencies
+
+```shell
+pip install .
+```
+
+##### Start pluGET
+
+```shell
 # Windows:
 py pluget.py
 # Linux
 python3 pluget.py
 ```
 
+### 4. First Start (Config File)
+
+On first launch, pluGET will create:
+
+```shell
+pluGET_config.yaml
+```
+
+The program will then exit.
+
+1. Open the config file
+2. Enter your server connection details
+3. Start pluGET again
+
+**Now you are good to go!**  
+
+
 ## 🚀 Usage and Commands
+
 > [!Caution]
 > As always, if you update plugins, shut down your server!  
 
-### • Show the information about all commands.
+### • Show the information about all commands:
+
 <!-- <details>
   <summary>Output</summary>  
   
@@ -117,22 +180,27 @@ help command [all/command]
 ```
 
 ### • Exit program:
+
 ```
 exit .
 ```
 
 ### • Get link to this page:
+
 ```
 help .
 ```
 
 ###  Manage Plugins
-#### • Download the latest update of a specific package: 
+
+#### • Download the latest update of a specific package:
+
 ```
 get [pluginID/pluginName]
 ```  
 
-#### • Check all plugins/one specific plugin for updates with optional changelog output:  
+#### • Check all plugins/one specific plugin for updates with optional changelog output:
+
 <!-- <details>
   <summary>Output</summary>  
   
@@ -211,19 +279,61 @@ get-velocity [velocityBuild] [minecraftVersion]
 get-purpur [purpurBuild] [minecraftVersion]
 ```
 
-## ✅ Command line arguments
-pluGET supports all commands directly through the command line. Get the list of all available command line arguments with the `-h` argument.
+## 🔩 Command line arguments
+
+pluGET supports all commands directly through the command line.  
+Get the list of all available command line arguments with the `-h` argument:
+
+```shell
+py pluget.py -h
+```
 
 Example direct command line call:
+
 ```shell
 py pluget.py check all
 ```
+
+## ⚙️ Developement
+
+Contributions are very welcome!  
+If you’d like to contribute, please read the
+[Contributing Guidelines](CONTRIBUTING.md) first.  
+Pull requests, bug reports, and feature suggestions are always appreciated.
+
+### Development Setup
+
+#### 1. Clone the repository
+
+```shell
+git clone https://github.com/Neocky/pluGET.git
+cd pluGET
+```
+
+#### 2. Create a virtual environment and install dependencies
+
+Using [uv](https://docs.astral.sh/uv/) (recommended):
+
+```shell
+uv venv
+uv sync --extra dev
+```
+
+Without [uv](https://docs.astral.sh/uv/):
+
+```shell
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -e .[dev]
+```
+
 
 ## ⛔ Known problems
 
 ### Can't get latest version/Update available
 
 #### Inconsistent Names and Versions
+
 Example:
 ![EssentialsX](https://i.ibb.co/fDyCYQ8/essentialsx.png)  
 EssentialsX is a prominent example of inconsisten version naming. The installed version is `2.18.2.0` but on [Spigot](https://www.spigotmc.org/resources/essentialsx.9089/update?update=371379) the version is only described as `2.18.2`.  
@@ -231,12 +341,14 @@ That's the reason pluGET can't detect it automatically.
 > There are of course many more plugins which have some sort of inconsistency which makes it sadly impossible for pluGET to detect them all. EssentialsX is used only as an example.  
 
 #### Solution
+
 Download the plugins with the `get [pluginName]` command to make them detectable for pluGET.  
 After downloading EssentialsX with `get EssentialsX` and using `check all`:  
 ![EssentialsX](https://i.ibb.co/ws5wHTj/essentialsx-2.png)  
 EssentialsX is now detected from pluGET and can update automatically when a new version comes out.  
 
 ### Bukkit plugins
+
 Example:  
 ![worldguard](https://i.ibb.co/7NJ9HRG/pluget-checkallonlyone.png)  
 As you can see the installed version was found but not the latest version for this plugin.  
