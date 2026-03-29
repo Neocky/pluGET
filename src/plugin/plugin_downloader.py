@@ -154,7 +154,7 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
         rich_print_error("Error: Downloaded plugin file was not a proper jar-file! Premium plugins are not supported!")
         rich_print_error("Removing file...")
         os.remove(download_path)
-        return None
+        raise
 
     if config_values.connection == "sftp":
         sftp_session = sftp_create_connection()
@@ -167,7 +167,7 @@ def download_specific_plugin_version_spiget(plugin_id, download_path, version_id
     return None
 
 
-def get_specific_plugin_spiget(plugin_id, plugin_version="latest") -> None:
+def get_specific_plugin_spiget(plugin_id: str, plugin_version: str = "latest") -> None:
     """
     Gets the specific plugin and calls the download function
     """
@@ -180,28 +180,34 @@ def get_specific_plugin_spiget(plugin_id, plugin_version="latest") -> None:
 
     url = f"https://api.spiget.org/v2/resources/{plugin_id}"
     plugin_details = api_do_request(url)
-    if plugin_details == None:
+    if plugin_details is None:
+        return None
+    if not isinstance(plugin_details, dict):
         return None
     try:
-        plugin_name = plugin_details["name"]
+        plugin_name = plugin_details.get("name")
     except KeyError:
         # exit if plugin id couldn't be found
         rich_print_error("Error: Plugin ID couldn't be found")
         return None
     plugin_name = handle_regex_plugin_name(plugin_name)
-    plugin_version_id = get_version_id_spiget(plugin_id, plugin_version)
-    plugin_version_name = get_version_name_spiget(plugin_id, plugin_version_id)
+    plugin_version_id: str | None = get_version_id_spiget(plugin_id, plugin_version)
+    plugin_version_name: str | None = get_version_name_spiget(plugin_id, plugin_version_id)
     plugin_download_name = f"{plugin_name}-{plugin_version_name}.jar"
     download_plugin_path = Path(f"{download_path}/{plugin_download_name}")
     # if api requests weren't successfull stop function
-    if plugin_version_id == None or plugin_version_name == None:
+    if not plugin_version_id or not plugin_version_name:
         rich_print_error("Error: Webrequest timed out")
         return None
     # set the plugin_version_id to None if a specific version wasn't given as parameter
-    if plugin_version == "latest" or plugin_version is None:
+    if plugin_version == "latest":
         plugin_version_id = None
-    download_specific_plugin_version_spiget(plugin_id, download_plugin_path, plugin_version_id)
-
+    try:
+        download_specific_plugin_version_spiget(plugin_id, download_plugin_path, plugin_version_id)
+    except:
+        if config_values.connection != "local":
+            remove_temp_plugin_folder()
+        raise
     if config_values.connection != "local":
         remove_temp_plugin_folder()
     return None
@@ -256,4 +262,7 @@ def search_specific_plugin_spiget(plugin_name) -> None:
         return None
     selected_plugin_name = handle_regex_plugin_name(plugin_search_results[plugin_selected]["name"])
     rich_console.print(f"\n [not bold][bright_white]● [bright_magenta]{selected_plugin_name} [bright_green]latest")
-    get_specific_plugin_spiget(plugin_selected_id)
+    try:
+        get_specific_plugin_spiget(plugin_selected_id)
+    except:
+        pass

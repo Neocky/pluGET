@@ -63,7 +63,10 @@ def handle_input(
             case "get":
                 match input_selected_object.isdigit():
                     case True:
-                        get_specific_plugin_spiget(input_selected_object, input_parameter)
+                        try:
+                            get_specific_plugin_spiget(input_selected_object, input_parameter)
+                        except:
+                            pass
                     case _:
                         search_specific_plugin_spiget(input_selected_object)
 

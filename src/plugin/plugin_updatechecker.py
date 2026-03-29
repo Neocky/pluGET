@@ -495,19 +495,25 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                         except HTTPError as err:
                             rich_print_error(f"HTTPError: {err.code} - {err.reason}")
                             plugins_updated -= 1
+                            continue
                         except TypeError:
                             rich_print_error(
                                 f"Error: TypeError > Couldn't download new version. Is the file available on spigotmc?"
                             )
                             plugins_updated -= 1
-                    
+                            continue
+                        except:
+                            plugins_updated -= 1
+                            continue
+
                     case "github":
                         try:
                             download_github_plugin(plugin.plugin_repository_data[0], plugin.plugin_name)
                         except Exception as err:
                             rich_print_error(f"GitHub Error: {err}")
                             plugins_updated -= 1
-                    
+                            continue
+
                     case "modrinth":
                         try:
                             # plugin_repository_data[0] = project_id, [1] = featured_only
@@ -516,10 +522,13 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                         except Exception as err:
                             rich_print_error(f"Modrinth Error: {err}")
                             plugins_updated -= 1
+                            continue
 
                     case _:
                         rich_print_error(f"Error: Plugin repository '{plugin.plugin_repository}' wasn't recognized")
                         plugins_updated -= 1
+                        continue
+
                 # don't delete files if they are downloaded to a seperate download path
                 if config_values.local_seperate_download_path == False:
                     try:
@@ -543,19 +552,25 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                         except HTTPError as err:
                             rich_print_error(f"HTTPError: {err.code} - {err.reason}")
                             plugins_updated -= 1
+                            continue
                         except TypeError:
                             rich_print_error(
                                 f"Error: TypeError > Couldn't download new version. Is the file available on spigotmc?"
                             )
                             plugins_updated -= 1
-                    
+                            continue
+                        except:
+                            plugins_updated -= 1
+                            continue
+
                     case "github":
                         try:
                             download_github_plugin(plugin.plugin_repository_data[0], plugin.plugin_name)
                         except Exception as err:
                             rich_print_error(f"GitHub Error: {err}")
                             plugins_updated -= 1
-                    
+                            continue
+
                     case "modrinth":
                         try:
                             # plugin_repository_data[0] = project_id, [1] = featured_only
@@ -564,10 +579,12 @@ def update_installed_plugins(input_selected_object : str="all", no_confirmation 
                         except Exception as err:
                             rich_print_error(f"Modrinth Error: {err}")
                             plugins_updated -= 1
+                            continue
 
                     case _:
                         rich_print_error(f"Error: Plugin repository '{plugin.plugin_repository}' wasn't recognized")
                         plugins_updated -= 1
+                        continue
                 # don't delete old plugin files if they are downloaded to a seperate download path
                 if config_values.remote_seperate_download_path == False:
                     match config_values.connection:
